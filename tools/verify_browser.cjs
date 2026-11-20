@@ -23,13 +23,14 @@ async function main(){
     const experiment=["ab","checkpoint-ab","gps-ab","policy-ab"].includes(profile);
     if(["fleet","fleet-share","blackout","battery","recall"].includes(profile))await page.locator("#chapter").selectOption("5");
     if(profile==="resident")await page.locator("#station").selectOption("31");
-    if(["challenge","fleet-share","occupied","gps","blackout","battery","night","rain","moving","recall","learned"].includes(profile)){
+    if(["challenge","fleet-share","occupied","gps","blackout","battery","night","rain","moving","recall","learned","sensor-noise"].includes(profile)){
       await page.getByRole("button",{name:"现场挑战",exact:true}).click();
       if(["challenge","fleet-share","blackout"].includes(profile))await page.locator("#barrier").check();
       if(["fleet-share","blackout"].includes(profile))await page.locator("#second-route").selectOption("shared");
       if(profile==="blackout")await page.locator("#link").selectOption("off");
       if(profile==="battery")await page.locator("#low-battery").check();
       if(profile==="moving")await page.locator("#moving").check();
+      if(profile==="sensor-noise"){await page.locator("#depth-noise").selectOption("0.05");await page.locator("#range-limit").selectOption("30");await page.locator("#drop-rate").selectOption("0.15");}
       if(profile==="night"||profile==="rain")await page.locator("#weather").selectOption(profile);
       if(profile==="learned"){await page.locator("#policy").selectOption("learned");await page.locator("#barrier").check();}
       if(profile==="occupied")await page.locator("#occupied").check();
@@ -85,7 +86,13 @@ async function main(){
     if(profile==="occupied")exercised&&=data.keyframes.some(f=>f.readings.some(r=>r.state==="occupied")) && data.events.some(e=>e.reason==="平台占用已解除");
     if(profile==="blackout")exercised&&=data.communications.some(m=>m.event==="dropped") && !data.communications.some(m=>m.event==="fused");
     if(profile==="recall")exercised&&=data.orders.some(o=>o.returned_by===0&&o.unit===1) && data.units[1].receipts.length===2;
-    if(errors.length||!exercised)process.exitCode=1;
+    if(profile==="sensor-noise")exercised&&=data.units[0].simulated_dropped_frames>0;
+    if(!experiment)exercised&&=data.units.filter(u=>u.receipts.length).every(u=>
+      u.home_contact_error_m!=null&&u.home_contact_error_m<.45&&u.measured_control_frames>0&&u.timing_samples.length>0&&
+      u.timing_samples.every(t=>t.command_ms>=t.vision_ms&&t.control_tick>0));
+    const withinRealtimeBudget=profile!=="realtime"||(data.mean_fps>=30&&data.frame_time_p95_ms<=55&&
+      data.units[0].camera_to_decision_p95_ms<=160&&data.units[0].sensor_sim_hz>=7);
+    if(errors.length||data.failed_frame_requests||!exercised||!withinRealtimeBudget)process.exitCode=1;
   }finally{await browser.close();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

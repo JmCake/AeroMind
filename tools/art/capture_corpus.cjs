@@ -27,7 +27,8 @@ async function main(){
           #endif
           gl_Position=projectionMatrix*modelViewMatrix*p;}`,
         fragmentShader:`void main(){gl_FragColor=vec4(${id.toFixed(1)}/255.,0.,0.,1.);}`}));
-      const masks=[],temporary=new Set(city.challenge.children),signs=new Set(Object.values(city.panelMeshes));
+      const masks=[],temporary=new Set(),signs=new Set(Object.values(city.panelMeshes));
+      city.challenge.traverse(o=>{if(o.isMesh)temporary.add(o);});
       city.scene.traverse(o=>{if(o.isMesh)masks.push([o,materials[temporary.has(o)?2:signs.has(o)?1:0]]);});
       globalThis.renderSample=(conf,k)=>{
         let seed=conf.seed+k*7919;

@@ -14,6 +14,8 @@ const tip=text=>{$("stage-tip").textContent=text;};
 function options(){return {station:Number($("station").value),chapter:Number($("chapter").value),
   fleet:$("fleet").checked||$("chapter").value==="5",weather:$("weather").value,gps:$("gps").checked,avoid:[...avoid],
   secondRoute:$("second-route").value,link:$("link").value,worksite:$("worksite").value,zoneSeconds:Number($("zone-time").value),
+  rangeLimit:Number($("range-limit").value),depthNoise:Number($("depth-noise").value),dropRate:Number($("drop-rate").value),
+  linkRange:Number($("link-range").value),departure:Number($("departure").value),
   lowBattery:$("low-battery").checked,learned:$("policy").value==="learned",priority};}
 function note(e){
   const text=fmt(e.time)+"　AM–0"+(e.unit+1)+"　"+e.reason;$("events").textContent=text;sound.cue(e);
@@ -52,13 +54,17 @@ function mapView(b){
   const [x,y]=point(b.est);g.fillStyle="#fff6d7";g.beginPath();g.arc(x,y,3.5,0,2*Math.PI);g.fill();
 }
 function metrics(b){
-  const ordered=[...b.latencies].sort((a,b)=>a-b);
+  const controls=b.frameTimings.map(t=>t.command_ms).sort((a,b)=>a-b);
+  const vision=b.frameTimings.map(t=>t.vision_ms).sort((a,b)=>a-b);
+  const quantile=(values,fraction)=>values.length?values[Math.floor(values.length*fraction)]:null;
   return {unit:b.index+1,outcome:b.phase,delivered:b.delivered,elapsed_sim_s:sim.time,wait_s:b.wait,
-    length_m:b.distance,contacts:b.contacts,min_aircraft_spacing_m:b.minGap,delivery_error_m:b.deliveredError,
+    length_m:b.distance,contacts:b.contacts,min_aircraft_spacing_m:b.minGap,delivery_error_m:b.deliveredError,home_contact_error_m:b.homeError??null,
     localization_rmse_m:b.metrics.length?Math.sqrt(b.metrics.reduce((s,n)=>s+n*n,0)/b.metrics.length):null,
-    camera_to_decision_p50_ms:ordered.length?ordered[Math.floor(ordered.length*.5)]:null,
-    camera_to_decision_p95_ms:ordered.length?ordered[Math.min(ordered.length-1,Math.floor(ordered.length*.95))]:null,
-    accepted_sensor_frames:b.accepted,sensor_sim_hz:b.last?.sim_time>b.firstSense?(b.accepted-1)/(b.last.sim_time-b.firstSense):null,
+    camera_to_vision_result_p50_ms:quantile(vision,.5),camera_to_vision_result_p95_ms:quantile(vision,.95),
+    camera_to_decision_p50_ms:quantile(controls,.5),camera_to_decision_p95_ms:quantile(controls,.95),
+    measured_control_frames:controls.length,timing_samples:b.frameTimings.filter((_,i)=>i%30===0),
+    accepted_sensor_frames:b.accepted,simulated_dropped_frames:b.unavailable,
+    sensor_sim_hz:b.last?.sim_time>b.firstSense?(b.accepted-1)/(b.last.sim_time-b.firstSense):null,
     minimum_observed_forward_range_m:b.minRange??null,semantic_frames:b.semanticFrames||0,
     simulated_energy_used_pct:b.spent,receipts:b.receipts,trajectory:b.trajectory,
     visual_loop_closures:b.odometry.loops,evaluation_samples:b.samples};
@@ -91,7 +97,7 @@ function update(){
     overlay.font="11px Consolas, monospace";overlay.fillText(r.station+" · "+(100*r.confidence).toFixed(0)+"%",r.polygon_px[0][0],Math.max(12,r.polygon_px[0][1]-3));
   }
   $("range").textContent=b.rangeTrack?b.rangeTrack.range.toFixed(1)+" m":"未知";
-  $("fix").textContent=b.fix;$("latency").textContent=b.latencies.length?b.latencies.at(-1).toFixed(0)+" ms":"—";
+  $("fix").textContent=b.fix;$("latency").textContent=b.lastVisionRttMs!=null?b.lastVisionRttMs.toFixed(0)+" ms":"—";
   $("rationale").textContent="已记录 "+b.map.voxels.size+" 个体素，跟踪 "+(frame?.tracked_features??0)+" 个特征。"+
     (b.clearance?.distance_m!=null?"前方局部距离场净空 "+b.clearance.distance_m.toFixed(1)+" m。":"")+
     (b.forecast?"F"+b.forecast.frame+" 滚动预测选速 "+b.forecast.options[0].speed.toFixed(1)+" m/s。":"")+
@@ -112,7 +118,7 @@ function update(){
     comparisons.push({factor:trial.factor,label:factorLabels[trial.factor][comparisons.length],active_observation:sim.active,
       checkpoint:sim.options.checkpoint||"selected",gps:sim.options.gps,metrics:metrics(sim.units[0]),events:[...sim.events],keyframes:[...trace],
       initial_position_error_m:trial.restoreError,snapshot_tick:trial.snapshot.tick,
-      shared_frame:trial.snapshot.units[0].last.id,seed_at_fork:trial.snapshot.units[0].seed});
+      shared_frame:trial.snapshot.units[0].last.id,seed_at_fork:trial.snapshot.units[0].seed,event_at:trial.eventAt});
     if(comparisons.length===1)restoreBranch(true);
     else{
       sim.running=sim.paused=false;trial=null;lockTrial(false);$("compare").disabled=false;$("launch").disabled=false;
@@ -150,7 +156,8 @@ async function restoreBranch(active){
 function exportEvidence(){
   const gl=city.renderer.getContext(), ext=gl.getExtension("WEBGL_debug_renderer_info");
   const ft=[...sim.frameTimes].sort((a,b)=>a-b);
-  const record={format:2,source:"Three.js WebGL2 live RGB-D",inference_backend:backendName,browser:navigator.userAgent,
+  const record={format:3,source:"Three.js WebGL2 live RGB-D",inference_backend:backendName,browser:navigator.userAgent,
+    timing_boundary:"Wall time from start of live camera capture to parsed vision response and to the first subsequent completed control decision for that frame.",
     model_sha256:modelHash,segmentation_sha256:segmentHashes,policy_sha256:policyHash,
     gpu:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),
     viewport:[innerWidth,innerHeight],resolution:[gl.drawingBufferWidth,gl.drawingBufferHeight],sensor:[320,180],physics_hz:30,
@@ -161,20 +168,22 @@ function exportEvidence(){
     failed_frame_requests:sim.missingFrames,seed:1407,sensor_target_hz:8,control_sim_hz:30,
     energy_model:"percent/s = 0.035 + 0.006 * speed_m_s + (0.012 when carrying, 0 otherwise)",
     mode,options:sim.options,orders:sim.orders,communications:sim.linkLog,units:sim.units.map(metrics),events:sim.events,keyframes:trace,lecture:lecture?.report,
-    experiment:comparisons.length?{method:"状态分叉",factor:comparisons[0].factor,fixed_event:{at:9,type:"barrier",value:true},branches:comparisons}:null};
+    experiment:comparisons.length?{method:"状态分叉",factor:comparisons[0].factor,fixed_event:{at:comparisons[0].event_at,type:"barrier",value:true},branches:comparisons}:null};
   const url=URL.createObjectURL(new Blob([JSON.stringify(record)],{type:"application/json"}));
   const a=document.createElement("a");a.href=url;a.download="AeroMind-"+Date.now()+".json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
 function lockTrial(locked){
-  for(const id of ["station","chapter","weather","worksite","zone-time","second-route","link","barrier","moving","occupied","zone","gps","fleet","manual","low-battery","parse","factor","policy","recall"])
+  for(const id of ["station","chapter","weather","worksite","zone-time","range-limit","depth-noise","drop-rate","link-range","departure",
+    "second-route","link","barrier","moving","occupied","zone","gps","fleet","manual","low-battery","parse","factor","fork-time","policy","recall"])
     $(id).disabled=locked;
 }
 function setView(name){document.querySelector(`[data-view="${name}"]`).click();}
 function startComparison(factor=$("factor").value){
-  comparisons=[];trial={stage:"warm",factor,limit:95,options:{...options(),station:17,chapter:4,fleet:false,gps:true,avoid:[],lowBattery:false,secondRoute:"mixed",worksite:"south"}};
-  reset(trial.options);sim.speed=3;sim.pauseAt=180;sim.timedEvents=[{at:9,type:"barrier",value:true}];
+  const fork=Number($("fork-time").value);
+  comparisons=[];trial={stage:"warm",factor,limit:95,eventAt:fork+3,options:{...options(),station:17,chapter:4,fleet:false,gps:true,avoid:[],lowBattery:false,secondRoute:"mixed",worksite:"south"}};
+  reset(trial.options);sim.speed=3;sim.pauseAt=fork*30;sim.timedEvents=[{at:trial.eventAt,type:"barrier",value:true}];
   sim.start();lockTrial(true);$("compare").disabled=true;$("launch").disabled=true;$("speed").textContent="3×";
-  $("compare-state").textContent="正在采集共同输入历史，t=6 s 保存物理、控制、地图、视觉跟踪与传感器状态";
+  $("compare-state").textContent="正在采集共同输入历史，t="+fork+" s 保存物理、控制、地图、视觉跟踪与传感器状态";
 }
 function startLecture(){
   if(trial){tip("请在当前实验结束或重置后开始讲演");return;}
@@ -187,6 +196,7 @@ function startLecture(){
         $("chapter").value=({0:"1",2:"3",3:"4",5:"5"})[stage];$("station").value="17";
         $("gps").checked=true;$("fleet").checked=stage===5;$("low-battery").checked=false;
         $("zone").checked=false;$("weather").value="day";$("link").value="local";$("worksite").value="south";$("policy").value="rules";
+        $("range-limit").value="90";$("depth-noise").value="0";$("drop-rate").value="0";$("departure").value="0";$("link-range").value="250";$("fork-time").value="6";
         $("second-route").value=stage===5?"shared":"mixed";reset();sim.start();sim.speed=stage===5?3:lecture.rate;
         $("speed").textContent=sim.speed+"×";$("launch").disabled=true;$("pause").disabled=false;
         sim.timedEvents=[stage===2?{at:6,type:"gps",value:false}:{at:9,type:"barrier",value:true}];
@@ -202,7 +212,7 @@ function startLecture(){
     },
     ready:stage=>stage===4?!trial:stage===5||stage===6?sim.final||sim.time>=150:true,
     evidence(stage){
-      return {sim_time:sim.time,orders:structuredClone(sim.orders),
+      return {sim_time:sim.time,orders:structuredClone(sim.orders),failed_sensor_requests:sim.missingFrames,
         results:sim.units.map(b=>({unit:b.index,phase:b.phase,receipts:[...b.receipts],contacts:b.contacts})),
         events:sim.events.map(e=>({...e})),observed_frames:sim.units.map(b=>b.accepted),
         branches:stage===4?comparisons.map(c=>({active:c.active_observation,phase:c.metrics.outcome,
@@ -232,6 +242,9 @@ function bind(){
   $("weather").onchange=()=>{sim.options.weather=$("weather").value;city.climate(sim.options.weather);sim.log("天气切换为"+$("weather").selectedOptions[0].text);};
   $("link").onchange=()=>sim.act("link",$("link").value);
   $("quality").onchange=()=>city.quality($("quality").value==="economy");
+  for(const [id,key] of Object.entries({"range-limit":"rangeLimit","depth-noise":"depthNoise","drop-rate":"dropRate","link-range":"linkRange","departure":"departure"})){
+    $(id).onchange=()=>{sim.options[key]=Number($(id).value);sim.log($(id).parentElement.firstChild.textContent+"切换为"+$(id).selectedOptions[0].text);};
+  }
   $("sound").onchange=()=>sound.enable($("sound").checked).catch(e=>{tip(e.message);$("sound").checked=false;});
   $("worksite").onchange=()=>{
     const original=sim.options.worksite;sim.options.worksite=$("worksite").value;
@@ -293,6 +306,8 @@ function bind(){
   for(const button of document.querySelectorAll("[data-view]"))button.onclick=()=>{
     document.querySelector("[data-view].selected")?.classList.remove("selected");button.classList.add("selected");city.switchView(button.dataset.view);
     $("map-legend").hidden=button.dataset.view!=="map";
+    document.querySelector(".map-title h1").textContent=button.dataset.view==="map"?"机载认知地图":"云港学区";
+    document.querySelector(".map-title .eyebrow").textContent=button.dataset.view==="map"?"LOCAL MAP":"CAMPUS DISTRICT";
     if(button.dataset.view==="map")$("knowledge").open=true;
   };
   for(const button of document.querySelectorAll("[data-mode]"))button.onclick=()=>{
