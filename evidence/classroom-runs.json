@@ -1,0 +1,4497 @@
+{
+  "device": "Core Ultra 5 125H / Intel Arc integrated / Windows / 31.6 GiB RAM",
+  "runs": [
+    {
+      "name": "portable-shared",
+      "export_sha256": "ff05412eb1d830efe93aa942c804b3247253d0fb248ac8a1a7501119f4850b9d",
+      "source": "Three.js WebGL2 live RGB-D",
+      "inference_backend": "opencv",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 66.62796449273048,
+      "frame_time_p95_ms": 33.299999999995634,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 34218517,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "52908aa4c0c3df107309326ed46df7cdbe32d8a9d76279d6ac32277544eb94da",
+      "segmentation_sha256": {
+        "selected": "608bd42496ec02fb178ecb2759b3b1e605de32a4e2cd96020fbd1a4280426ffd",
+        "early": "5ec0fc4a87c0881f25106a780adbddf0c59fb791d86e318d6e8aef97bc9ae4be"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 5,
+        "fleet": true,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "shared",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 42.233333333333334
+        },
+        {
+          "id": 2,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.45,
+          "state": "delivered",
+          "unit": 1,
+          "receipt": 68.06666666666666
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 100.6,
+          "wait_s": 1.700000000000002,
+          "length_m": 330.79741996686096,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.2513968068271386,
+          "delivery_error_m": 0.2423939738178797,
+          "localization_rmse_m": 0.04045531392061513,
+          "camera_to_decision_p50_ms": 45,
+          "camera_to_decision_p95_ms": 70.79999999701977,
+          "accepted_sensor_frames": 555,
+          "sensor_sim_hz": 7.500000000000001,
+          "minimum_observed_forward_range_m": 3.18,
+          "semantic_frames": 331,
+          "simulated_energy_used_pct": 5.077684519801126,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 317,
+              "time": 42.233333333333334,
+              "error_m": 0.2423939738178797
+            }
+          ]
+        },
+        {
+          "unit": 2,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 100.6,
+          "wait_s": 14.233333333333293,
+          "length_m": 333.9451603949592,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.2513968068271386,
+          "delivery_error_m": 0.21719245796028636,
+          "localization_rmse_m": 0.04014715284600479,
+          "camera_to_decision_p50_ms": 44.20000000298023,
+          "camera_to_decision_p95_ms": 69.20000000298023,
+          "accepted_sensor_frames": 754,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 4.4,
+          "semantic_frames": 400,
+          "simulated_energy_used_pct": 5.730470962369733,
+          "receipts": [
+            {
+              "order": 2,
+              "frame": 510,
+              "time": 68.06666666666666,
+              "error_m": 0.21719245796028636
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "通道施工已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "订单 2 分配至 AM–02，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 13,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 97
+        },
+        {
+          "time": 17.633333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 133
+        },
+        {
+          "time": 18.1,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 136
+        },
+        {
+          "time": 18.866666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F142 的 55 条测距射线确认通道占用，退回后改道",
+          "frame": 142
+        },
+        {
+          "time": 18.866666666666667,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "发送通道占用观测，模拟传输 0.6 秒",
+          "frame": 142
+        },
+        {
+          "time": 19.5,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "收到 1 号机的通道观测 F142",
+          "frame": 146
+        },
+        {
+          "time": 19.5,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "共享观测改变了后续航路",
+          "frame": 146
+        },
+        {
+          "time": 36.1,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 271
+        },
+        {
+          "time": 38.93333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 292
+        },
+        {
+          "time": 39.36666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 296
+        },
+        {
+          "time": 42.233333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 317
+        },
+        {
+          "time": 60.733333333333334,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 455
+        },
+        {
+          "time": 64.63333333333333,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 485
+        },
+        {
+          "time": 65.16666666666667,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 489
+        },
+        {
+          "time": 67.76666666666667,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 509
+        },
+        {
+          "time": 68.06666666666666,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 510
+        },
+        {
+          "time": 73.93333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 555
+        },
+        {
+          "time": 93.13333333333333,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 698
+        },
+        {
+          "time": 100.6,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 754
+        }
+      ],
+      "keyframe_count": 101,
+      "communications": [
+        {
+          "from": 0,
+          "to": 1,
+          "key": "junction|west",
+          "frame": 142,
+          "observed": 18.866666666666667,
+          "receive": 19.46666666666667,
+          "until": 63.86666666666667,
+          "frameName": "classroom-world-m",
+          "observer_est_m": [
+            -16.021028706141085,
+            24.97861904082303,
+            33.014715052725
+          ],
+          "position_sd_m": 0.35,
+          "motion": [
+            {
+              "track": 29,
+              "range_m": 3.2,
+              "range_rate_m_s": -0.107
+            }
+          ],
+          "confidence": 0.9821428571428571,
+          "event": "sent",
+          "voxel_count": 3
+        },
+        {
+          "from": 0,
+          "to": 1,
+          "key": "junction|west",
+          "frame": 142,
+          "observed": 18.866666666666667,
+          "receive": 19.46666666666667,
+          "until": 63.86666666666667,
+          "frameName": "classroom-world-m",
+          "observer_est_m": [
+            -16.021028706141085,
+            24.97861904082303,
+            33.014715052725
+          ],
+          "position_sd_m": 0.35,
+          "motion": [
+            {
+              "track": 29,
+              "range_m": 3.2,
+              "range_rate_m_s": -0.107
+            }
+          ],
+          "confidence": 0.9821428571428571,
+          "fused": 1,
+          "conflicts": 2,
+          "event": "fused",
+          "at": 19.5,
+          "voxel_count": 3
+        }
+      ]
+    },
+    {
+      "name": "realtime",
+      "export_sha256": "5fc334df99eb60fad65949949d33656f7f5cc0f4a202d2749f855446cf1c02b7",
+      "source": "Three.js WebGL2 live RGB-D",
+      "inference_backend": "torch",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        856,
+        513
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 88.62276227931685,
+      "frame_time_p95_ms": 25,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 24279376,
+      "render_pixel_ratio": 0.8800000000000002,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 30.866666666666667
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 61.4,
+          "wait_s": 0.03333333333333333,
+          "length_m": 278.295702622405,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.20579748763138925,
+          "localization_rmse_m": 0.040146098190495354,
+          "camera_to_decision_p50_ms": 52.30000000447035,
+          "camera_to_decision_p95_ms": 105.20000000298023,
+          "accepted_sensor_frames": 461,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 4.42,
+          "semantic_frames": 335,
+          "simulated_energy_used_pct": 4.187607549067738,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 232,
+              "time": 30.866666666666667,
+              "error_m": 0.20579748763138925
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 25.2,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 189
+        },
+        {
+          "time": 27.933333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 210
+        },
+        {
+          "time": 27.966666666666665,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 210
+        },
+        {
+          "time": 30.866666666666667,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 232
+        },
+        {
+          "time": 55.1,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 414
+        },
+        {
+          "time": 61.4,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 461
+        }
+      ],
+      "keyframe_count": 31
+    },
+    {
+      "name": "gps-denied",
+      "export_sha256": "7716c892f529b7d0efa7252d57a2ddbe56a28dad01c8c62410d1aa5940d1c9d5",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        739,
+        443
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 59.75820508896543,
+      "frame_time_p95_ms": 41.39999999999782,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 31482604,
+      "render_pixel_ratio": 0.76,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": false,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 31.2
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 61.699999999999996,
+          "wait_s": 0.03333333333333333,
+          "length_m": 278.1098002932611,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.2203171920677599,
+          "localization_rmse_m": 0.7737110401306169,
+          "camera_to_decision_p50_ms": 48.70000000298023,
+          "camera_to_decision_p95_ms": 76.30000000447035,
+          "accepted_sensor_frames": 463,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 3.03,
+          "semantic_frames": 331,
+          "simulated_energy_used_pct": 4.200992135092873,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 234,
+              "time": 31.2,
+              "error_m": 0.2203171920677599
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 25.233333333333334,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 190
+        },
+        {
+          "time": 28.03333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 211
+        },
+        {
+          "time": 28.066666666666666,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 211
+        },
+        {
+          "time": 31.2,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 234
+        },
+        {
+          "time": 55.4,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 416
+        },
+        {
+          "time": 61.699999999999996,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 463
+        }
+      ],
+      "keyframe_count": 30,
+      "localization_samples": [
+        [
+          {
+            "frame": 1,
+            "time": 0,
+            "estimate": [
+              -50,
+              9.18,
+              62
+            ],
+            "truth": [
+              -50,
+              9.18,
+              62
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 0
+          },
+          {
+            "frame": 33,
+            "time": 4.266666666666667,
+            "estimate": [
+              -48.462542652420915,
+              24.917131351189656,
+              62.18661344399117
+            ],
+            "truth": [
+              -48.504445106281466,
+              25.021995632783792,
+              62.21861912414017
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 39
+          },
+          {
+            "frame": 65,
+            "time": 8.533333333333333,
+            "estimate": [
+              -32.98438286879113,
+              24.990491907495404,
+              59.57956949828006
+            ],
+            "truth": [
+              -32.98946884864094,
+              25.18251047363548,
+              59.72942319843967
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 83
+          },
+          {
+            "frame": 97,
+            "time": 12.8,
+            "estimate": [
+              -33.00950558304972,
+              24.982210418431357,
+              33.76496733639481
+            ],
+            "truth": [
+              -32.93469728121455,
+              25.221527351709828,
+              33.95243926057838
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 70
+          },
+          {
+            "frame": 129,
+            "time": 17.066666666666666,
+            "estimate": [
+              -8.693014447893722,
+              24.988848884008593,
+              33.0282710747878
+            ],
+            "truth": [
+              -8.59433170658004,
+              25.26293009531754,
+              33.120925623168716
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 73
+          },
+          {
+            "frame": 161,
+            "time": 21.333333333333332,
+            "estimate": [
+              6.965835667847598,
+              24.98251043932698,
+              27.814877707952117
+            ],
+            "truth": [
+              7.147598347113087,
+              25.282741209531636,
+              27.913979465087753
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 55
+          },
+          {
+            "frame": 193,
+            "time": 25.6,
+            "estimate": [
+              6.979470725920388,
+              24.593625024744583,
+              5.614380105032237
+            ],
+            "truth": [
+              7.303348816198437,
+              24.974154056826695,
+              5.744041691921927
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 85
+          },
+          {
+            "frame": 225,
+            "time": 29.866666666666667,
+            "estimate": [
+              6.730466595872207,
+              16.736689683099698,
+              3.122465564495723
+            ],
+            "truth": [
+              7.118995595400273,
+              17.16633197623845,
+              3.2335652680586158
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 75
+          },
+          {
+            "frame": 257,
+            "time": 34.13333333333333,
+            "estimate": [
+              6.991758020364928,
+              24.646045859010517,
+              5.422518823990222
+            ],
+            "truth": [
+              7.3419696666346095,
+              25.09207229996592,
+              5.408213312450541
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 89
+          },
+          {
+            "frame": 289,
+            "time": 38.4,
+            "estimate": [
+              6.9987318111558,
+              24.985929650330863,
+              31.401308749128322
+            ],
+            "truth": [
+              7.349785807052413,
+              25.470622096590667,
+              31.091786457109276
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 111
+          },
+          {
+            "frame": 321,
+            "time": 42.666666666666664,
+            "estimate": [
+              -14.408643268766523,
+              24.97592581611756,
+              33.10478910265901
+            ],
+            "truth": [
+              -13.92154556648292,
+              25.508590818323267,
+              32.610310033408304
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 86
+          },
+          {
+            "frame": 353,
+            "time": 46.93333333333333,
+            "estimate": [
+              -33.04075999779641,
+              24.984259685799923,
+              35.83462019849107
+            ],
+            "truth": [
+              -32.42935743706584,
+              25.609305861994837,
+              35.27463286855838
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 89
+          },
+          {
+            "frame": 385,
+            "time": 51.2,
+            "estimate": [
+              -33.019184351262915,
+              25.001354680489396,
+              62.83206547654185
+            ],
+            "truth": [
+              -32.302071364785796,
+              25.69097100210759,
+              61.96614590991436
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 23
+          },
+          {
+            "frame": 417,
+            "time": 55.46666666666667,
+            "estimate": [
+              -49.48211775822505,
+              24.986292335541265,
+              62.086432914965535
+            ],
+            "truth": [
+              -48.60629891898708,
+              25.59893619881438,
+              61.153668675262125
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 83
+          },
+          {
+            "frame": 449,
+            "time": 59.733333333333334,
+            "estimate": [
+              -49.85568404020973,
+              12.866335631955542,
+              61.92091193547215
+            ],
+            "truth": [
+              -49.09935124985754,
+              13.420772197524512,
+              61.15410388155041
+            ],
+            "source": "RGB-D / 惯性融合",
+            "features": 68
+          }
+        ]
+      ],
+      "loop_closures": [
+        [
+          {
+            "frame": 235,
+            "matched": 1,
+            "inliers": 17,
+            "error_m": 0.0205,
+            "innovation_m": 82.81183338842338,
+            "applied": false
+          }
+        ]
+      ]
+    },
+    {
+      "name": "shared-corridor",
+      "export_sha256": "e250ed5f5bee27daa9db78adf401395efee3ff66826420c643f17a0f7c9fde44",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 41.28598002978275,
+      "frame_time_p95_ms": 58.399999999999636,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 38300793,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 5,
+        "fleet": true,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "shared",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 42.233333333333334
+        },
+        {
+          "id": 2,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.45,
+          "state": "delivered",
+          "unit": 1,
+          "receipt": 68.03333333333333
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 100.63333333333333,
+          "wait_s": 1.700000000000002,
+          "length_m": 330.79741996686096,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.250671536158686,
+          "delivery_error_m": 0.2423939738178797,
+          "localization_rmse_m": 0.04045531392061513,
+          "camera_to_decision_p50_ms": 82.60000000149012,
+          "camera_to_decision_p95_ms": 115.5,
+          "accepted_sensor_frames": 555,
+          "sensor_sim_hz": 7.500000000000001,
+          "minimum_observed_forward_range_m": 3.18,
+          "semantic_frames": 331,
+          "simulated_energy_used_pct": 5.077684519801126,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 317,
+              "time": 42.233333333333334,
+              "error_m": 0.2423939738178797
+            }
+          ]
+        },
+        {
+          "unit": 2,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 100.63333333333333,
+          "wait_s": 14.166666666666627,
+          "length_m": 334.09069229652914,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.250671536158686,
+          "delivery_error_m": 0.32007130936679357,
+          "localization_rmse_m": 0.04015279777552423,
+          "camera_to_decision_p50_ms": 51.100000001490116,
+          "camera_to_decision_p95_ms": 69.20000000298023,
+          "accepted_sensor_frames": 755,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 4.4,
+          "semantic_frames": 499,
+          "simulated_energy_used_pct": 5.732110820445817,
+          "receipts": [
+            {
+              "order": 2,
+              "frame": 511,
+              "time": 68.03333333333333,
+              "error_m": 0.32007130936679357
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "通道施工已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "订单 2 分配至 AM–02，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 13,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 98
+        },
+        {
+          "time": 17.633333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 133
+        },
+        {
+          "time": 18.1,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 136
+        },
+        {
+          "time": 18.866666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F142 的 55 条测距射线确认通道占用，退回后改道",
+          "frame": 142
+        },
+        {
+          "time": 18.866666666666667,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "发送通道占用观测，模拟传输 0.6 秒",
+          "frame": 142
+        },
+        {
+          "time": 19.5,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "收到 1 号机的通道观测 F142",
+          "frame": 147
+        },
+        {
+          "time": 19.5,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "共享观测改变了后续航路",
+          "frame": 147
+        },
+        {
+          "time": 36.1,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 271
+        },
+        {
+          "time": 38.93333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 292
+        },
+        {
+          "time": 39.36666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 296
+        },
+        {
+          "time": 42.233333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 317
+        },
+        {
+          "time": 60.833333333333336,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 457
+        },
+        {
+          "time": 64.73333333333333,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 486
+        },
+        {
+          "time": 65.23333333333333,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 490
+        },
+        {
+          "time": 67.76666666666667,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 509
+        },
+        {
+          "time": 68.03333333333333,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 511
+        },
+        {
+          "time": 73.93333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 555
+        },
+        {
+          "time": 93.13333333333333,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 699
+        },
+        {
+          "time": 100.63333333333333,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 755
+        }
+      ],
+      "keyframe_count": 110,
+      "communications": [
+        {
+          "from": 0,
+          "to": 1,
+          "key": "junction|west",
+          "frame": 142,
+          "observed": 18.866666666666667,
+          "receive": 19.46666666666667,
+          "until": 63.86666666666667,
+          "frameName": "classroom-world-m",
+          "observer_est_m": [
+            -16.021028706141085,
+            24.97861904082303,
+            33.014715052725
+          ],
+          "position_sd_m": 0.35,
+          "motion": [
+            {
+              "track": 29,
+              "range_m": 3.2,
+              "range_rate_m_s": -0.107
+            }
+          ],
+          "confidence": 0.9821428571428571,
+          "event": "sent",
+          "voxel_count": 3
+        },
+        {
+          "from": 0,
+          "to": 1,
+          "key": "junction|west",
+          "frame": 142,
+          "observed": 18.866666666666667,
+          "receive": 19.46666666666667,
+          "until": 63.86666666666667,
+          "frameName": "classroom-world-m",
+          "observer_est_m": [
+            -16.021028706141085,
+            24.97861904082303,
+            33.014715052725
+          ],
+          "position_sd_m": 0.35,
+          "motion": [
+            {
+              "track": 29,
+              "range_m": 3.2,
+              "range_rate_m_s": -0.107
+            }
+          ],
+          "confidence": 0.9821428571428571,
+          "fused": 3,
+          "conflicts": 0,
+          "event": "fused",
+          "at": 19.5,
+          "voxel_count": 3
+        }
+      ]
+    },
+    {
+      "name": "construction",
+      "export_sha256": "a970cc1b31eaf6bfb497cd08771d29829ac75d341d049c5bbcfd85716fd0cd0d",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 51.824367136766,
+      "frame_time_p95_ms": 50,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 27750375,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 42.233333333333334
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 73.93333333333334,
+          "wait_s": 1.700000000000002,
+          "length_m": 330.79741996686096,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.2423939738178797,
+          "localization_rmse_m": 0.04045531392061513,
+          "camera_to_decision_p50_ms": 55.5,
+          "camera_to_decision_p95_ms": 99.39999999850988,
+          "accepted_sensor_frames": 555,
+          "sensor_sim_hz": 7.500000000000001,
+          "minimum_observed_forward_range_m": 3.18,
+          "semantic_frames": 331,
+          "simulated_energy_used_pct": 5.077684519801126,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 317,
+              "time": 42.233333333333334,
+              "error_m": 0.2423939738178797
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "通道施工已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 17.633333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 133
+        },
+        {
+          "time": 18.1,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 136
+        },
+        {
+          "time": 18.866666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F142 的 55 条测距射线确认通道占用，退回后改道",
+          "frame": 142
+        },
+        {
+          "time": 36.1,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 271
+        },
+        {
+          "time": 38.93333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 292
+        },
+        {
+          "time": 39.36666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 296
+        },
+        {
+          "time": 42.233333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 317
+        },
+        {
+          "time": 67.76666666666667,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 509
+        },
+        {
+          "time": 73.93333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 555
+        }
+      ],
+      "keyframe_count": 36
+    },
+    {
+      "name": "recall-and-reassign",
+      "export_sha256": "4b2296c742d5a37c4ad22b3c9f8e22ed54f5a5ef19c5b2b917d19c742b4277db",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 56.459139156247176,
+      "frame_time_p95_ms": 41.600000000000364,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 47130103,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 5,
+        "fleet": true,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "returned_by": 0,
+          "depot_time": 17.5,
+          "unit": 1,
+          "receipt": 124.33333333333333
+        },
+        {
+          "id": 2,
+          "station": 31,
+          "priority": 1,
+          "mass": 0.45,
+          "state": "delivered",
+          "unit": 1,
+          "receipt": 50.53333333333333
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": false,
+          "elapsed_sim_s": 156.76666666666665,
+          "wait_s": 0,
+          "length_m": 64.35568620555931,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.2516822782743544,
+          "delivery_error_m": null,
+          "localization_rmse_m": 0.04055069525478101,
+          "camera_to_decision_p50_ms": 91.30000000447035,
+          "camera_to_decision_p95_ms": 128.90000000596046,
+          "accepted_sensor_frames": 132,
+          "sensor_sim_hz": 7.500000000000001,
+          "minimum_observed_forward_range_m": 4.42,
+          "semantic_frames": 65,
+          "simulated_energy_used_pct": 1.2070674505666876,
+          "receipts": []
+        },
+        {
+          "unit": 2,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 156.76666666666665,
+          "wait_s": 3.766666666666663,
+          "length_m": 697.9030581051738,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.2516822782743544,
+          "delivery_error_m": 0.21770138326014057,
+          "localization_rmse_m": 0.040124833250670996,
+          "camera_to_decision_p50_ms": 48.30000000447035,
+          "camera_to_decision_p95_ms": 77.79999999701977,
+          "accepted_sensor_frames": 1176,
+          "sensor_sim_hz": 7.500000000000001,
+          "minimum_observed_forward_range_m": 4.4,
+          "semantic_frames": 641,
+          "simulated_energy_used_pct": 10.482285015297531,
+          "receipts": [
+            {
+              "order": 2,
+              "frame": 379,
+              "time": 50.53333333333333,
+              "error_m": 0.2388667690147679
+            },
+            {
+              "order": 1,
+              "frame": 933,
+              "time": 124.33333333333333,
+              "error_m": 0.21770138326014057
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "订单 2 分配至 AM–02，预计含返仓预留需 9.8% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 4,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 30
+        },
+        {
+          "time": 7.466666666666667,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "取消进站，包裹随本机返仓，抵达后办理交接",
+          "frame": 56
+        },
+        {
+          "time": 11.266666666666666,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 85
+        },
+        {
+          "time": 17.5,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "仓位确认包裹已退回，订单重新进入调度",
+          "frame": 132
+        },
+        {
+          "time": 17.5,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 132
+        },
+        {
+          "time": 40.3,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 303
+        },
+        {
+          "time": 47.13333333333333,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 354
+        },
+        {
+          "time": 47.63333333333333,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 358
+        },
+        {
+          "time": 50.53333333333333,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 379
+        },
+        {
+          "time": 84.16666666666667,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 632
+        },
+        {
+          "time": 91.73333333333333,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 688
+        },
+        {
+          "time": 91.73333333333333,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–02，预计含返仓预留需 8.2% 电量",
+          "frame": 688
+        },
+        {
+          "time": 91.76666666666667,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 689
+        },
+        {
+          "time": 117.53333333333333,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 882
+        },
+        {
+          "time": 121.43333333333334,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 911
+        },
+        {
+          "time": 121.46666666666667,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 911
+        },
+        {
+          "time": 124.33333333333333,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 933
+        },
+        {
+          "time": 149.16666666666666,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 1119
+        },
+        {
+          "time": 156.76666666666665,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 1176
+        }
+      ],
+      "keyframe_count": 220
+    },
+    {
+      "name": "learned-policy",
+      "export_sha256": "e6ce17578adc6b399efdf3912440ac1c66febeb0bbe0f2d241bdb6071a2639d1",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 56.093800174151674,
+      "frame_time_p95_ms": 41.70000000000073,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 36414603,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": true,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 43.166666666666664
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 74.96666666666667,
+          "wait_s": 2.1333333333333355,
+          "length_m": 330.21026390456547,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.2653559339932898,
+          "localization_rmse_m": 0.04048336494453526,
+          "camera_to_decision_p50_ms": 53.600000001490116,
+          "camera_to_decision_p95_ms": 85.60000000149012,
+          "accepted_sensor_frames": 563,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 3.4,
+          "semantic_frames": 348,
+          "simulated_energy_used_pct": 5.121528250094005,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 324,
+              "time": 43.166666666666664,
+              "error_m": 0.2653559339932898
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "通道施工已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "学习策略 · 订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 18.03333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 136
+        },
+        {
+          "time": 18.7,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 141
+        },
+        {
+          "time": 19.166666666666668,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 144
+        },
+        {
+          "time": 19.933333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F150 的 49 条测距射线确认通道占用，退回后改道",
+          "frame": 150
+        },
+        {
+          "time": 37.06666666666666,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 278
+        },
+        {
+          "time": 39.833333333333336,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 299
+        },
+        {
+          "time": 40.3,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 303
+        },
+        {
+          "time": 43.166666666666664,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 324
+        },
+        {
+          "time": 68.73333333333333,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 516
+        },
+        {
+          "time": 74.96666666666667,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 563
+        }
+      ],
+      "keyframe_count": 36
+    },
+    {
+      "name": "moving-crane",
+      "export_sha256": "371138d9c7544a17e379a365755271952e62eb3e44bcc657b0804860e5106cd9",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 60.97961219854505,
+      "frame_time_p95_ms": 41.29999999999927,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 21518903,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 41.9
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 73.56666666666666,
+          "wait_s": 1.8000000000000023,
+          "length_m": 330.1533367896487,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.24046769667852222,
+          "localization_rmse_m": 0.04046613864094378,
+          "camera_to_decision_p50_ms": 47.399999998509884,
+          "camera_to_decision_p95_ms": 77,
+          "accepted_sensor_frames": 552,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 3.46,
+          "semantic_frames": 329,
+          "simulated_energy_used_pct": 5.056986687404513,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 315,
+              "time": 41.9,
+              "error_m": 0.24046769667852222
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "通道施工已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "动态吊臂已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 17.233333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 130
+        },
+        {
+          "time": 17.7,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 133
+        },
+        {
+          "time": 18.466666666666665,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F139 的 21 条测距射线确认通道占用，退回后改道",
+          "frame": 139
+        },
+        {
+          "time": 35.63333333333333,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 268
+        },
+        {
+          "time": 38.43333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 289
+        },
+        {
+          "time": 38.96666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 293
+        },
+        {
+          "time": 41.9,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 315
+        },
+        {
+          "time": 67.26666666666667,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 505
+        },
+        {
+          "time": 73.56666666666666,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 552
+        }
+      ],
+      "keyframe_count": 35
+    },
+    {
+      "name": "night",
+      "export_sha256": "59b7c19dcbbcb4481db17201f5a1cc4ce6f338a4806b542245a8ae6fb529ee73",
+      "source": "Three.js WebGL2 live RGB-D",
+      "inference_backend": "torch",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 58.64828026317163,
+      "frame_time_p95_ms": 49.69999999999982,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 27119509,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "night",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 30.866666666666667
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 61.4,
+          "wait_s": 0.03333333333333333,
+          "length_m": 278.29460885137206,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.2063052282945273,
+          "localization_rmse_m": 0.040146098190495354,
+          "camera_to_decision_p50_ms": 53.29999999701977,
+          "camera_to_decision_p95_ms": 89.5,
+          "accepted_sensor_frames": 461,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 4.42,
+          "semantic_frames": 134,
+          "simulated_energy_used_pct": 4.187600986441539,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 232,
+              "time": 30.866666666666667,
+              "error_m": 0.2063052282945273
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 25.2,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 189
+        },
+        {
+          "time": 27.933333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 210
+        },
+        {
+          "time": 27.966666666666665,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 210
+        },
+        {
+          "time": 30.866666666666667,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 232
+        },
+        {
+          "time": 55.1,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 414
+        },
+        {
+          "time": 61.4,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 461
+        }
+      ],
+      "keyframe_count": 30
+    },
+    {
+      "name": "rain",
+      "export_sha256": "bf1c27b9f759f6eb5324466e4d0f1364f40fcca7eba09d96e080a5fb42584061",
+      "source": "Three.js WebGL2 live RGB-D",
+      "inference_backend": "torch",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 59.61942302068535,
+      "frame_time_p95_ms": 41.5,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 21564815,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "rain",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 31.133333333333333
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 61.766666666666666,
+          "wait_s": 0.03333333333333333,
+          "length_m": 278.30673041545316,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.18233718883965605,
+          "localization_rmse_m": 0.04015263417421518,
+          "camera_to_decision_p50_ms": 48.100000001490116,
+          "camera_to_decision_p95_ms": 75.89999999850988,
+          "accepted_sensor_frames": 464,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 4.42,
+          "semantic_frames": 95,
+          "simulated_energy_used_pct": 4.205283333698951,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 234,
+              "time": 31.133333333333333,
+              "error_m": 0.18233718883965605
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 25.3,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 190
+        },
+        {
+          "time": 28.066666666666666,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 211
+        },
+        {
+          "time": 28.099999999999998,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 211
+        },
+        {
+          "time": 31.133333333333333,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 234
+        },
+        {
+          "time": 55.46666666666667,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 416
+        },
+        {
+          "time": 61.766666666666666,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 464
+        }
+      ],
+      "keyframe_count": 30
+    },
+    {
+      "name": "checkpoint-fork",
+      "export_sha256": "e8428018fb2f8cd7afadfd691457a7bb4ec0ea9c8bf7d31e73de90fb5ae2c039",
+      "source": "Three.js WebGL2 live RGB-D",
+      "inference_backend": "torch",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 51.998603022607675,
+      "frame_time_p95_ms": 49.69999999999709,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 34408209,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1,
+        "checkpoint": "selected"
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 42.233333333333334
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 73.93333333333334,
+          "wait_s": 1.700000000000002,
+          "length_m": 330.79741996686096,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.2423939738178797,
+          "localization_rmse_m": 0.04045531392061513,
+          "camera_to_decision_p50_ms": 58.900000005960464,
+          "camera_to_decision_p95_ms": 86.5,
+          "accepted_sensor_frames": 555,
+          "sensor_sim_hz": 7.500000000000001,
+          "minimum_observed_forward_range_m": 3.18,
+          "semantic_frames": 336,
+          "simulated_energy_used_pct": 5.077684519801126,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 317,
+              "time": 42.233333333333334,
+              "error_m": 0.2423939738178797
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 9,
+          "unit": 0,
+          "kind": "script",
+          "reason": "通道施工已开启",
+          "frame": 68
+        },
+        {
+          "time": 17.633333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 133
+        },
+        {
+          "time": 18.1,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 136
+        },
+        {
+          "time": 18.866666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F142 的 55 条测距射线确认通道占用，退回后改道",
+          "frame": 142
+        },
+        {
+          "time": 36.1,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 271
+        },
+        {
+          "time": 38.93333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 292
+        },
+        {
+          "time": 39.36666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 296
+        },
+        {
+          "time": 42.233333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 317
+        },
+        {
+          "time": 67.76666666666667,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 509
+        },
+        {
+          "time": 73.93333333333334,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 555
+        }
+      ],
+      "keyframe_count": 36,
+      "experiment": {
+        "method": "状态分叉",
+        "factor": "checkpoint",
+        "fixed_event": {
+          "at": 9,
+          "type": "barrier",
+          "value": true
+        },
+        "branches": [
+          {
+            "factor": "checkpoint",
+            "label": "第 1 轮",
+            "active_observation": true,
+            "checkpoint": "early",
+            "gps": true,
+            "initial_position_error_m": 0,
+            "snapshot_tick": 180,
+            "shared_frame": 45,
+            "seed_at_fork": 596117704,
+            "metrics": {
+              "unit": 1,
+              "outcome": "done",
+              "delivered": true,
+              "elapsed_sim_s": 73.93333333333334,
+              "wait_s": 1.700000000000002,
+              "length_m": 330.79741996686096,
+              "contacts": 0,
+              "min_aircraft_spacing_m": null,
+              "delivery_error_m": 0.2423939738178797,
+              "localization_rmse_m": 0.04045531392061513,
+              "camera_to_decision_p50_ms": 62.5,
+              "camera_to_decision_p95_ms": 93.70000000298023,
+              "accepted_sensor_frames": 555,
+              "sensor_sim_hz": 7.500000000000001,
+              "minimum_observed_forward_range_m": 3.18,
+              "semantic_frames": 70,
+              "simulated_energy_used_pct": 5.077684519801126,
+              "receipts": [
+                {
+                  "order": 1,
+                  "frame": 317,
+                  "time": 42.233333333333334,
+                  "error_m": 0.2423939738178797
+                }
+              ]
+            },
+            "events": [
+              {
+                "time": 0,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+                "frame": null
+              },
+              {
+                "time": 0.03333333333333333,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "包裹已装载，起飞许可已取得",
+                "frame": 1
+              },
+              {
+                "time": 9,
+                "unit": 0,
+                "kind": "script",
+                "reason": "通道施工已开启",
+                "frame": 68
+              },
+              {
+                "time": 17.633333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 133
+              },
+              {
+                "time": 18.1,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "依据未知体素分布选择观察朝向",
+                "frame": 136
+              },
+              {
+                "time": 18.866666666666667,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "F142 的 55 条测距射线确认通道占用，退回后改道",
+                "frame": 142
+              },
+              {
+                "time": 36.1,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达名义站区，读取站点面板",
+                "frame": 271
+              },
+              {
+                "time": 38.93333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "等待指定站点的两次独立视觉确认",
+                "frame": 292
+              },
+              {
+                "time": 39.36666666666667,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "机载图像及深度确认站台位置，开始进站",
+                "frame": 296
+              },
+              {
+                "time": 42.233333333333334,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "站台接触回执已确认，包裹已交付",
+                "frame": 317
+              },
+              {
+                "time": 67.76666666666667,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达物流中心",
+                "frame": 509
+              },
+              {
+                "time": 73.93333333333334,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "返仓完成",
+                "frame": 555
+              }
+            ],
+            "keyframes": 36
+          },
+          {
+            "factor": "checkpoint",
+            "label": "验证最佳",
+            "active_observation": true,
+            "checkpoint": "selected",
+            "gps": true,
+            "initial_position_error_m": 0,
+            "snapshot_tick": 180,
+            "shared_frame": 45,
+            "seed_at_fork": 596117704,
+            "metrics": {
+              "unit": 1,
+              "outcome": "done",
+              "delivered": true,
+              "elapsed_sim_s": 73.93333333333334,
+              "wait_s": 1.700000000000002,
+              "length_m": 330.79741996686096,
+              "contacts": 0,
+              "min_aircraft_spacing_m": null,
+              "delivery_error_m": 0.2423939738178797,
+              "localization_rmse_m": 0.04045531392061513,
+              "camera_to_decision_p50_ms": 58.900000005960464,
+              "camera_to_decision_p95_ms": 86.5,
+              "accepted_sensor_frames": 555,
+              "sensor_sim_hz": 7.500000000000001,
+              "minimum_observed_forward_range_m": 3.18,
+              "semantic_frames": 336,
+              "simulated_energy_used_pct": 5.077684519801126,
+              "receipts": [
+                {
+                  "order": 1,
+                  "frame": 317,
+                  "time": 42.233333333333334,
+                  "error_m": 0.2423939738178797
+                }
+              ]
+            },
+            "events": [
+              {
+                "time": 0,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+                "frame": null
+              },
+              {
+                "time": 0.03333333333333333,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "包裹已装载，起飞许可已取得",
+                "frame": 1
+              },
+              {
+                "time": 9,
+                "unit": 0,
+                "kind": "script",
+                "reason": "通道施工已开启",
+                "frame": 68
+              },
+              {
+                "time": 17.633333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 133
+              },
+              {
+                "time": 18.1,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "依据未知体素分布选择观察朝向",
+                "frame": 136
+              },
+              {
+                "time": 18.866666666666667,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "F142 的 55 条测距射线确认通道占用，退回后改道",
+                "frame": 142
+              },
+              {
+                "time": 36.1,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达名义站区，读取站点面板",
+                "frame": 271
+              },
+              {
+                "time": 38.93333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "等待指定站点的两次独立视觉确认",
+                "frame": 292
+              },
+              {
+                "time": 39.36666666666667,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "机载图像及深度确认站台位置，开始进站",
+                "frame": 296
+              },
+              {
+                "time": 42.233333333333334,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "站台接触回执已确认，包裹已交付",
+                "frame": 317
+              },
+              {
+                "time": 67.76666666666667,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达物流中心",
+                "frame": 509
+              },
+              {
+                "time": 73.93333333333334,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "返仓完成",
+                "frame": 555
+              }
+            ],
+            "keyframes": 36
+          }
+        ]
+      }
+    },
+    {
+      "name": "policy-fork",
+      "export_sha256": "ab67fccbd02c611980a077bb70d36522967ba09e93045500a6d80a3af05dc911",
+      "source": "Three.js WebGL2 live RGB-D",
+      "inference_backend": "torch",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        739,
+        443
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 64.24410581211232,
+      "frame_time_p95_ms": 33.400000000001455,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 33199196,
+      "render_pixel_ratio": 0.76,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": true,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 43.166666666666664
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 74.96666666666667,
+          "wait_s": 2.1333333333333355,
+          "length_m": 330.21026390456547,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.2653559339932898,
+          "localization_rmse_m": 0.04048336494453526,
+          "camera_to_decision_p50_ms": 46.899999998509884,
+          "camera_to_decision_p95_ms": 78,
+          "accepted_sensor_frames": 563,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 3.4,
+          "semantic_frames": 353,
+          "simulated_energy_used_pct": 5.121528250094005,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 324,
+              "time": 43.166666666666664,
+              "error_m": 0.2653559339932898
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 9,
+          "unit": 0,
+          "kind": "script",
+          "reason": "通道施工已开启",
+          "frame": 68
+        },
+        {
+          "time": 18.03333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 136
+        },
+        {
+          "time": 18.7,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 141
+        },
+        {
+          "time": 19.166666666666668,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 144
+        },
+        {
+          "time": 19.933333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F150 的 49 条测距射线确认通道占用，退回后改道",
+          "frame": 150
+        },
+        {
+          "time": 37.06666666666666,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 278
+        },
+        {
+          "time": 39.833333333333336,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 299
+        },
+        {
+          "time": 40.3,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 303
+        },
+        {
+          "time": 43.166666666666664,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 324
+        },
+        {
+          "time": 68.73333333333333,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 516
+        },
+        {
+          "time": 74.96666666666667,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 563
+        }
+      ],
+      "keyframe_count": 35,
+      "experiment": {
+        "method": "状态分叉",
+        "factor": "policy",
+        "fixed_event": {
+          "at": 9,
+          "type": "barrier",
+          "value": true
+        },
+        "branches": [
+          {
+            "factor": "policy",
+            "label": "规则策略",
+            "active_observation": true,
+            "checkpoint": "selected",
+            "gps": true,
+            "initial_position_error_m": 0,
+            "snapshot_tick": 180,
+            "shared_frame": 45,
+            "seed_at_fork": 596117704,
+            "metrics": {
+              "unit": 1,
+              "outcome": "done",
+              "delivered": true,
+              "elapsed_sim_s": 73.93333333333334,
+              "wait_s": 1.700000000000002,
+              "length_m": 330.79741996686096,
+              "contacts": 0,
+              "min_aircraft_spacing_m": null,
+              "delivery_error_m": 0.2423939738178797,
+              "localization_rmse_m": 0.04045531392061513,
+              "camera_to_decision_p50_ms": 52,
+              "camera_to_decision_p95_ms": 81,
+              "accepted_sensor_frames": 555,
+              "sensor_sim_hz": 7.500000000000001,
+              "minimum_observed_forward_range_m": 3.18,
+              "semantic_frames": 336,
+              "simulated_energy_used_pct": 5.077684519801126,
+              "receipts": [
+                {
+                  "order": 1,
+                  "frame": 317,
+                  "time": 42.233333333333334,
+                  "error_m": 0.2423939738178797
+                }
+              ]
+            },
+            "events": [
+              {
+                "time": 0,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+                "frame": null
+              },
+              {
+                "time": 0.03333333333333333,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "包裹已装载，起飞许可已取得",
+                "frame": 1
+              },
+              {
+                "time": 9,
+                "unit": 0,
+                "kind": "script",
+                "reason": "通道施工已开启",
+                "frame": 68
+              },
+              {
+                "time": 17.633333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 133
+              },
+              {
+                "time": 18.1,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "依据未知体素分布选择观察朝向",
+                "frame": 136
+              },
+              {
+                "time": 18.866666666666667,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "F142 的 55 条测距射线确认通道占用，退回后改道",
+                "frame": 142
+              },
+              {
+                "time": 36.1,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达名义站区，读取站点面板",
+                "frame": 271
+              },
+              {
+                "time": 38.93333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "等待指定站点的两次独立视觉确认",
+                "frame": 292
+              },
+              {
+                "time": 39.36666666666667,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "机载图像及深度确认站台位置，开始进站",
+                "frame": 296
+              },
+              {
+                "time": 42.233333333333334,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "站台接触回执已确认，包裹已交付",
+                "frame": 317
+              },
+              {
+                "time": 67.76666666666667,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达物流中心",
+                "frame": 509
+              },
+              {
+                "time": 73.93333333333334,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "返仓完成",
+                "frame": 555
+              }
+            ],
+            "keyframes": 36
+          },
+          {
+            "factor": "policy",
+            "label": "学习策略",
+            "active_observation": true,
+            "checkpoint": "selected",
+            "gps": true,
+            "initial_position_error_m": 0,
+            "snapshot_tick": 180,
+            "shared_frame": 45,
+            "seed_at_fork": 596117704,
+            "metrics": {
+              "unit": 1,
+              "outcome": "done",
+              "delivered": true,
+              "elapsed_sim_s": 74.96666666666667,
+              "wait_s": 2.1333333333333355,
+              "length_m": 330.21026390456547,
+              "contacts": 0,
+              "min_aircraft_spacing_m": null,
+              "delivery_error_m": 0.2653559339932898,
+              "localization_rmse_m": 0.04048336494453526,
+              "camera_to_decision_p50_ms": 46.899999998509884,
+              "camera_to_decision_p95_ms": 78,
+              "accepted_sensor_frames": 563,
+              "sensor_sim_hz": 7.5,
+              "minimum_observed_forward_range_m": 3.4,
+              "semantic_frames": 353,
+              "simulated_energy_used_pct": 5.121528250094005,
+              "receipts": [
+                {
+                  "order": 1,
+                  "frame": 324,
+                  "time": 43.166666666666664,
+                  "error_m": 0.2653559339932898
+                }
+              ]
+            },
+            "events": [
+              {
+                "time": 0,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+                "frame": null
+              },
+              {
+                "time": 0.03333333333333333,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "包裹已装载，起飞许可已取得",
+                "frame": 1
+              },
+              {
+                "time": 9,
+                "unit": 0,
+                "kind": "script",
+                "reason": "通道施工已开启",
+                "frame": 68
+              },
+              {
+                "time": 18.03333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 136
+              },
+              {
+                "time": 18.7,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 141
+              },
+              {
+                "time": 19.166666666666668,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "依据未知体素分布选择观察朝向",
+                "frame": 144
+              },
+              {
+                "time": 19.933333333333334,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "F150 的 49 条测距射线确认通道占用，退回后改道",
+                "frame": 150
+              },
+              {
+                "time": 37.06666666666666,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达名义站区，读取站点面板",
+                "frame": 278
+              },
+              {
+                "time": 39.833333333333336,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "等待指定站点的两次独立视觉确认",
+                "frame": 299
+              },
+              {
+                "time": 40.3,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "机载图像及深度确认站台位置，开始进站",
+                "frame": 303
+              },
+              {
+                "time": 43.166666666666664,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "站台接触回执已确认，包裹已交付",
+                "frame": 324
+              },
+              {
+                "time": 68.73333333333333,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达物流中心",
+                "frame": 516
+              },
+              {
+                "time": 74.96666666666667,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "返仓完成",
+                "frame": 563
+              }
+            ],
+            "keyframes": 35
+          }
+        ]
+      }
+    },
+    {
+      "name": "active-fork",
+      "export_sha256": "f5e69e44395a61d461be3962e81722e6596a47464b2006a64f38126584d527ff",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 35.216045456472884,
+      "frame_time_p95_ms": 91.39999999999418,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 26417429,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 40.36666666666667
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 72.03333333333333,
+          "wait_s": 2.200000000000002,
+          "length_m": 330.7175719597906,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.1830178784184104,
+          "localization_rmse_m": 0.0404169250560133,
+          "camera_to_decision_p50_ms": 85.59999999403954,
+          "camera_to_decision_p95_ms": 152.5,
+          "accepted_sensor_frames": 541,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 3.3,
+          "semantic_frames": 334,
+          "simulated_energy_used_pct": 4.9883054317586994,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 303,
+              "time": 40.36666666666667,
+              "error_m": 0.1830178784184104
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 9,
+          "unit": 0,
+          "kind": "script",
+          "reason": "通道施工已开启",
+          "frame": 68
+        },
+        {
+          "time": 15.233333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 115
+        },
+        {
+          "time": 15.633333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 118
+        },
+        {
+          "time": 15.766666666666666,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 119
+        },
+        {
+          "time": 16.233333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 122
+        },
+        {
+          "time": 17,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F128 的 55 条测距射线确认通道占用，退回后改道",
+          "frame": 128
+        },
+        {
+          "time": 34.13333333333333,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 256
+        },
+        {
+          "time": 36.9,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 277
+        },
+        {
+          "time": 37.36666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 281
+        },
+        {
+          "time": 40.36666666666667,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 303
+        },
+        {
+          "time": 65.7,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 493
+        },
+        {
+          "time": 72.03333333333333,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 541
+        }
+      ],
+      "keyframe_count": 35,
+      "experiment": {
+        "method": "状态分叉",
+        "factor": "active_observation",
+        "fixed_event": {
+          "at": 9,
+          "type": "barrier",
+          "value": true
+        },
+        "branches": [
+          {
+            "factor": "active_observation",
+            "label": "关闭观察",
+            "active_observation": false,
+            "checkpoint": "selected",
+            "gps": true,
+            "initial_position_error_m": 0,
+            "snapshot_tick": 180,
+            "shared_frame": 45,
+            "seed_at_fork": 596117704,
+            "metrics": {
+              "unit": 1,
+              "outcome": "cruise",
+              "delivered": false,
+              "elapsed_sim_s": 95,
+              "wait_s": 79.73333333333137,
+              "length_m": 79.43984254777232,
+              "contacts": 0,
+              "min_aircraft_spacing_m": null,
+              "delivery_error_m": null,
+              "localization_rmse_m": 0.040757428442998046,
+              "camera_to_decision_p50_ms": 84.89999999850988,
+              "camera_to_decision_p95_ms": 144,
+              "accepted_sensor_frames": 713,
+              "sensor_sim_hz": 7.5,
+              "minimum_observed_forward_range_m": 3.3,
+              "semantic_frames": 696,
+              "simulated_energy_used_pct": 4.9416390552864815,
+              "receipts": []
+            },
+            "events": [
+              {
+                "time": 0,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+                "frame": null
+              },
+              {
+                "time": 0.03333333333333333,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "包裹已装载，起飞许可已取得",
+                "frame": 1
+              },
+              {
+                "time": 9,
+                "unit": 0,
+                "kind": "script",
+                "reason": "通道施工已开启",
+                "frame": 68
+              },
+              {
+                "time": 15.233333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 115
+              },
+              {
+                "time": 15.633333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 118
+              },
+              {
+                "time": 15.766666666666666,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 119
+              }
+            ],
+            "keyframes": 47
+          },
+          {
+            "factor": "active_observation",
+            "label": "开启观察",
+            "active_observation": true,
+            "checkpoint": "selected",
+            "gps": true,
+            "initial_position_error_m": 0,
+            "snapshot_tick": 180,
+            "shared_frame": 45,
+            "seed_at_fork": 596117704,
+            "metrics": {
+              "unit": 1,
+              "outcome": "done",
+              "delivered": true,
+              "elapsed_sim_s": 72.03333333333333,
+              "wait_s": 2.200000000000002,
+              "length_m": 330.7175719597906,
+              "contacts": 0,
+              "min_aircraft_spacing_m": null,
+              "delivery_error_m": 0.1830178784184104,
+              "localization_rmse_m": 0.0404169250560133,
+              "camera_to_decision_p50_ms": 85.59999999403954,
+              "camera_to_decision_p95_ms": 152.5,
+              "accepted_sensor_frames": 541,
+              "sensor_sim_hz": 7.5,
+              "minimum_observed_forward_range_m": 3.3,
+              "semantic_frames": 334,
+              "simulated_energy_used_pct": 4.9883054317586994,
+              "receipts": [
+                {
+                  "order": 1,
+                  "frame": 303,
+                  "time": 40.36666666666667,
+                  "error_m": 0.1830178784184104
+                }
+              ]
+            },
+            "events": [
+              {
+                "time": 0,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+                "frame": null
+              },
+              {
+                "time": 0.03333333333333333,
+                "unit": 0,
+                "kind": "fleet",
+                "reason": "包裹已装载，起飞许可已取得",
+                "frame": 1
+              },
+              {
+                "time": 9,
+                "unit": 0,
+                "kind": "script",
+                "reason": "通道施工已开启",
+                "frame": 68
+              },
+              {
+                "time": 15.233333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 115
+              },
+              {
+                "time": 15.633333333333333,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 118
+              },
+              {
+                "time": 15.766666666666666,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "前向深度观测触发制动",
+                "frame": 119
+              },
+              {
+                "time": 16.233333333333334,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "依据未知体素分布选择观察朝向",
+                "frame": 122
+              },
+              {
+                "time": 17,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "F128 的 55 条测距射线确认通道占用，退回后改道",
+                "frame": 128
+              },
+              {
+                "time": 34.13333333333333,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达名义站区，读取站点面板",
+                "frame": 256
+              },
+              {
+                "time": 36.9,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "等待指定站点的两次独立视觉确认",
+                "frame": 277
+              },
+              {
+                "time": 37.36666666666667,
+                "unit": 0,
+                "kind": "vision",
+                "reason": "机载图像及深度确认站台位置，开始进站",
+                "frame": 281
+              },
+              {
+                "time": 40.36666666666667,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "站台接触回执已确认，包裹已交付",
+                "frame": 303
+              },
+              {
+                "time": 65.7,
+                "unit": 0,
+                "kind": "state",
+                "reason": "到达物流中心",
+                "frame": 493
+              },
+              {
+                "time": 72.03333333333333,
+                "unit": 0,
+                "kind": "receipt",
+                "reason": "返仓完成",
+                "frame": 541
+              }
+            ],
+            "keyframes": 35
+          }
+        ]
+      }
+    },
+    {
+      "name": "occupied-pad",
+      "export_sha256": "f4cc6254e3913eda5d63d89bce1368fbce946cef2cce9943d9bc8f37708432d1",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 46.694414086062395,
+      "frame_time_p95_ms": 58.600000000000364,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 34261184,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 42.43333333333333
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 72.53333333333333,
+          "wait_s": 11.766666666666636,
+          "length_m": 278.86238870087317,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.20621847665501786,
+          "localization_rmse_m": 0.040431282717445075,
+          "camera_to_decision_p50_ms": 62.20000000298023,
+          "camera_to_decision_p95_ms": 110.89999999850988,
+          "accepted_sensor_frames": 544,
+          "sensor_sim_hz": 7.499999999999999,
+          "minimum_observed_forward_range_m": 4.42,
+          "semantic_frames": 419,
+          "simulated_energy_used_pct": 4.719474332205212,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 319,
+              "time": 42.43333333333333,
+              "error_m": 0.20621847665501786
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "平台占用已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 24.933333333333334,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 187
+        },
+        {
+          "time": 27.733333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 208
+        },
+        {
+          "time": 39.2,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "平台占用已解除",
+          "frame": 294
+        },
+        {
+          "time": 39.5,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 297
+        },
+        {
+          "time": 42.43333333333333,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 319
+        },
+        {
+          "time": 66.3,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 498
+        },
+        {
+          "time": 72.53333333333333,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 544
+        }
+      ],
+      "keyframe_count": 35
+    },
+    {
+      "name": "disconnected",
+      "export_sha256": "c3343a2868b1b8de137daf667a0bd44d022fb32cff6102ec4e68d452a26c07a1",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        661,
+        397
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 38.00983895581957,
+      "frame_time_p95_ms": 58.400000000001455,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 22064915,
+      "render_pixel_ratio": 0.68,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 17,
+        "chapter": 5,
+        "fleet": true,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "shared",
+        "link": "off",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 40.36666666666667
+        },
+        {
+          "id": 2,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.45,
+          "state": "delivered",
+          "unit": 1,
+          "receipt": 62.833333333333336
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 95.06666666666666,
+          "wait_s": 2.200000000000002,
+          "length_m": 330.7175719597906,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.235260648691998,
+          "delivery_error_m": 0.1830178784184104,
+          "localization_rmse_m": 0.0404169250560133,
+          "camera_to_decision_p50_ms": 82.69999999552965,
+          "camera_to_decision_p95_ms": 115.5,
+          "accepted_sensor_frames": 541,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 3.3,
+          "semantic_frames": 329,
+          "simulated_energy_used_pct": 4.9883054317586994,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 303,
+              "time": 40.36666666666667,
+              "error_m": 0.1830178784184104
+            }
+          ]
+        },
+        {
+          "unit": 2,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 95.06666666666666,
+          "wait_s": 17.63333333333337,
+          "length_m": 293.4884953560331,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.235260648691998,
+          "delivery_error_m": 0.24925302778975092,
+          "localization_rmse_m": 0.04014305070966253,
+          "camera_to_decision_p50_ms": 53.399999998509884,
+          "camera_to_decision_p95_ms": 93.5,
+          "accepted_sensor_frames": 713,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 4.4,
+          "semantic_frames": 497,
+          "simulated_energy_used_pct": 5.231264305469529,
+          "receipts": [
+            {
+              "order": 2,
+              "frame": 472,
+              "time": 62.833333333333336,
+              "error_m": 0.24925302778975092
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "environment",
+          "reason": "通道施工已开启",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "订单 2 分配至 AM–02，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 13,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 98
+        },
+        {
+          "time": 15.233333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 115
+        },
+        {
+          "time": 15.633333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 118
+        },
+        {
+          "time": 15.766666666666666,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "前向深度观测触发制动",
+          "frame": 119
+        },
+        {
+          "time": 16.233333333333334,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "依据未知体素分布选择观察朝向",
+          "frame": 122
+        },
+        {
+          "time": 17,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "F128 的 55 条测距射线确认通道占用，退回后改道",
+          "frame": 128
+        },
+        {
+          "time": 17,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "机间通信不可用，本次通道观测留在本机",
+          "frame": 128
+        },
+        {
+          "time": 34.13333333333333,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 256
+        },
+        {
+          "time": 36.9,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 277
+        },
+        {
+          "time": 37.36666666666667,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 281
+        },
+        {
+          "time": 40.36666666666667,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 303
+        },
+        {
+          "time": 56.03333333333333,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 421
+        },
+        {
+          "time": 59.9,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 450
+        },
+        {
+          "time": 59.93333333333333,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 450
+        },
+        {
+          "time": 62.833333333333336,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 472
+        },
+        {
+          "time": 65.7,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 493
+        },
+        {
+          "time": 72.03333333333333,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 541
+        },
+        {
+          "time": 87.6,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 657
+        },
+        {
+          "time": 95.06666666666666,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 713
+        }
+      ],
+      "keyframe_count": 120,
+      "communications": [
+        {
+          "from": 0,
+          "to": 1,
+          "key": "junction|west",
+          "frame": 128,
+          "observed": 17,
+          "receive": 17.6,
+          "until": 62,
+          "frameName": "classroom-world-m",
+          "observer_est_m": [
+            -16.164074426859496,
+            25.004894277756847,
+            32.949205569669445
+          ],
+          "position_sd_m": 0.35,
+          "motion": [
+            {
+              "track": 33,
+              "range_m": 3.33,
+              "range_rate_m_s": -0.298
+            }
+          ],
+          "confidence": 0.9821428571428571,
+          "event": "dropped",
+          "voxel_count": 3
+        }
+      ]
+    },
+    {
+      "name": "low-battery",
+      "export_sha256": "007d92df7bec0e0b590ff7c04f0bda83dd08a2ed23ae0b1e57d09757a684f49e",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        972,
+        584
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 59.74693178574802,
+      "frame_time_p95_ms": 33.39999999999782,
+      "failed_frame_requests": 0,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "options": {
+        "station": 17,
+        "chapter": 5,
+        "fleet": true,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "lowBattery": true,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 17,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 1,
+          "receipt": 34.56666666666666
+        },
+        {
+          "id": 2,
+          "station": 31,
+          "priority": 1,
+          "mass": 0.45,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 57.43333333333333
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 96.46666666666667,
+          "wait_s": 0.39999999999999997,
+          "length_m": 388.952892695733,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.275457043477853,
+          "delivery_error_m": 0.19099468972292985,
+          "localization_rmse_m": 0.040733384794260134,
+          "camera_to_decision_p50_ms": 51.20000000298023,
+          "camera_to_decision_p95_ms": 70.90000000596046,
+          "accepted_sensor_frames": 724,
+          "sensor_sim_hz": 7.5,
+          "simulated_energy_used_pct": 5.645684022841001,
+          "receipts": [
+            {
+              "order": 2,
+              "frame": 431,
+              "time": 57.43333333333333,
+              "error_m": 0.19099468972292985
+            }
+          ]
+        },
+        {
+          "unit": 2,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 96.46666666666667,
+          "wait_s": 0.03333333333333333,
+          "length_m": 278.50958599938764,
+          "contacts": 0,
+          "min_aircraft_spacing_m": 2.275457043477853,
+          "delivery_error_m": 0.25960869797801467,
+          "localization_rmse_m": 0.03984898927447618,
+          "camera_to_decision_p50_ms": 39.69999999552965,
+          "camera_to_decision_p95_ms": 62.29999999701977,
+          "accepted_sensor_frames": 487,
+          "sensor_sim_hz": 7.5,
+          "simulated_energy_used_pct": 4.168190849329624,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 260,
+              "time": 34.56666666666666,
+              "error_m": 0.25960869797801467
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–02，预计含返仓预留需 8.2% 电量",
+          "frame": null
+        },
+        {
+          "time": 4,
+          "unit": 1,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 30
+        },
+        {
+          "time": 16,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 2 分配至 AM–01，预计含返仓预留需 9.8% 电量",
+          "frame": 120
+        },
+        {
+          "time": 16.03333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 121
+        },
+        {
+          "time": 28.833333333333332,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 217
+        },
+        {
+          "time": 31.666666666666668,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 238
+        },
+        {
+          "time": 31.7,
+          "unit": 1,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 238
+        },
+        {
+          "time": 34.56666666666666,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 260
+        },
+        {
+          "time": 48.233333333333334,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 362
+        },
+        {
+          "time": 54.03333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 406
+        },
+        {
+          "time": 54.43333333333333,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 409
+        },
+        {
+          "time": 57.43333333333333,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 431
+        },
+        {
+          "time": 58.6,
+          "unit": 1,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 440
+        },
+        {
+          "time": 64.86666666666666,
+          "unit": 1,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 487
+        },
+        {
+          "time": 90.3,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 678
+        },
+        {
+          "time": 96.46666666666667,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 724
+        }
+      ],
+      "keyframe_count": 47
+    },
+    {
+      "name": "residence",
+      "export_sha256": "50e053c0c8587cf565ff2b211f8cb41da63275d70a9df93ef048159ab092e692",
+      "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+      "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "viewport": [
+        1280,
+        720
+      ],
+      "resolution": [
+        856,
+        513
+      ],
+      "sensor": [
+        320,
+        180
+      ],
+      "physics_hz": 30,
+      "sensor_target_hz": 8,
+      "mean_fps": 59.120287820176905,
+      "frame_time_p95_ms": 41.400000000001455,
+      "failed_frame_requests": 0,
+      "js_heap_bytes": 36364219,
+      "render_pixel_ratio": 0.88,
+      "model_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+      "segmentation_sha256": {
+        "selected": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+        "early": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0"
+      },
+      "policy_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+      "options": {
+        "station": 31,
+        "chapter": 4,
+        "fleet": false,
+        "weather": "day",
+        "gps": true,
+        "avoid": [],
+        "secondRoute": "mixed",
+        "link": "local",
+        "worksite": "south",
+        "zoneSeconds": 0,
+        "lowBattery": false,
+        "learned": false,
+        "priority": 1
+      },
+      "orders": [
+        {
+          "id": 1,
+          "station": 31,
+          "priority": 1,
+          "mass": 0.8,
+          "state": "delivered",
+          "unit": 0,
+          "receipt": 41.5
+        }
+      ],
+      "units": [
+        {
+          "unit": 1,
+          "outcome": "done",
+          "delivered": true,
+          "elapsed_sim_s": 80.56666666666666,
+          "wait_s": 0.4666666666666666,
+          "length_m": 388.9787178374227,
+          "contacts": 0,
+          "min_aircraft_spacing_m": null,
+          "delivery_error_m": 0.26818039439422453,
+          "localization_rmse_m": 0.04054506506348375,
+          "camera_to_decision_p50_ms": 49.69999999552965,
+          "camera_to_decision_p95_ms": 78.19999999552965,
+          "accepted_sensor_frames": 605,
+          "sensor_sim_hz": 7.5,
+          "minimum_observed_forward_range_m": 4.42,
+          "semantic_frames": 357,
+          "simulated_energy_used_pct": 5.6501389736911385,
+          "receipts": [
+            {
+              "order": 1,
+              "frame": 312,
+              "time": 41.5,
+              "error_m": 0.26818039439422453
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "time": 0,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "订单 1 分配至 AM–01，预计含返仓预留需 9.8% 电量",
+          "frame": null
+        },
+        {
+          "time": 0.03333333333333333,
+          "unit": 0,
+          "kind": "fleet",
+          "reason": "包裹已装载，起飞许可已取得",
+          "frame": 1
+        },
+        {
+          "time": 32.3,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达名义站区，读取站点面板",
+          "frame": 243
+        },
+        {
+          "time": 38.1,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "等待指定站点的两次独立视觉确认",
+          "frame": 286
+        },
+        {
+          "time": 38.56666666666666,
+          "unit": 0,
+          "kind": "vision",
+          "reason": "机载图像及深度确认站台位置，开始进站",
+          "frame": 290
+        },
+        {
+          "time": 41.5,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "站台接触回执已确认，包裹已交付",
+          "frame": 312
+        },
+        {
+          "time": 74.4,
+          "unit": 0,
+          "kind": "state",
+          "reason": "到达物流中心",
+          "frame": 558
+        },
+        {
+          "time": 80.56666666666666,
+          "unit": 0,
+          "kind": "receipt",
+          "reason": "返仓完成",
+          "frame": 605
+        }
+      ],
+      "keyframe_count": 39
+    }
+  ]
+}

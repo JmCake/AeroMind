@@ -1,0 +1,16 @@
+{
+  "name": "aeromind-classroom",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node tools/start.mjs",
+    "test": "node --test tests/navigation.test.mjs"
+  },
+  "dependencies": {
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "playwright-core": "1.62.1"
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "scope": "procedural sign photographs",
+  "labels": [
+    "available",
+    "occupied",
+    "unreadable"
+  ],
+  "splits": {
+    "train": {
+      "groups": [
+        "depot-brick-noon",
+        "campus-enamel-shadow",
+        "tower-slate-sunset",
+        "park-copper-overcast"
+      ],
+      "images": 336,
+      "frames_sha256": "5ebc6317eb77c2a04f1724704fc610bef56e71bf27bfe36212d480a5524ebc7a"
+    },
+    "val": {
+      "groups": [
+        "library-concrete-cloud",
+        "station-zinc-evening"
+      ],
+      "images": 84,
+      "frames_sha256": "e9c9cd177658e9da5d0a1d221aa998928b12e53f06a65d7ea9388502f200835d"
+    },
+    "test": {
+      "groups": [
+        "residence-ceramic-mist",
+        "annex-basalt-night"
+      ],
+      "images": 84,
+      "frames_sha256": "83d977783fcba1b8a0da897c22aa3c661d71bf7a56db74b3c2526b9d3519a411"
+    }
+  },
+  "epochs": 12,
+  "best_epoch": 5,
+  "seed": 1407,
+  "best_weights_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+  "validation": {
+    "images": 84,
+    "rectified": 84,
+    "missing_by_class": [
+      0,
+      0,
+      0
+    ],
+    "confusion_true_by_pred": [
+      [
+        28,
+        0,
+        0
+      ],
+      [
+        0,
+        28,
+        0
+      ],
+      [
+        0,
+        0,
+        28
+      ]
+    ],
+    "correct": 84,
+    "end_to_end_accuracy": 1.0
+  },
+  "test": {
+    "images": 84,
+    "rectified": 84,
+    "missing_by_class": [
+      0,
+      0,
+      0
+    ],
+    "confusion_true_by_pred": [
+      [
+        26,
+        0,
+        2
+      ],
+      [
+        0,
+        26,
+        2
+      ],
+      [
+        0,
+        0,
+        28
+      ]
+    ],
+    "correct": 80,
+    "end_to_end_accuracy": 0.9523809523809523
+  },
+  "first_loss": 1.0336100714547294,
+  "last_loss": 0.0010539046128369158,
+  "wall_seconds": 16.91242630000488,
+  "optimizer": "AdamW",
+  "learning_rate": 0.003,
+  "parameters": 14307,
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 1.0336100714547294,
+      "steps": 11,
+      "val_correct": 78
+    },
+    {
+      "epoch": 2,
+      "loss": 0.6812095046043396,
+      "steps": 11,
+      "val_correct": 70
+    },
+    {
+      "epoch": 3,
+      "loss": 0.30041209005174185,
+      "steps": 11,
+      "val_correct": 64
+    },
+    {
+      "epoch": 4,
+      "loss": 0.10986137585270972,
+      "steps": 11,
+      "val_correct": 77
+    },
+    {
+      "epoch": 5,
+      "loss": 0.03585793867352463,
+      "steps": 11,
+      "val_correct": 84
+    },
+    {
+      "epoch": 6,
+      "loss": 0.010701963456258887,
+      "steps": 11,
+      "val_correct": 81
+    },
+    {
+      "epoch": 7,
+      "loss": 0.005073523725427333,
+      "steps": 11,
+      "val_correct": 84
+    },
+    {
+      "epoch": 8,
+      "loss": 0.0028471216182446198,
+      "steps": 11,
+      "val_correct": 84
+    },
+    {
+      "epoch": 9,
+      "loss": 0.0018400928792765452,
+      "steps": 11,
+      "val_correct": 84
+    },
+    {
+      "epoch": 10,
+      "loss": 0.001438836495037235,
+      "steps": 11,
+      "val_correct": 84
+    },
+    {
+      "epoch": 11,
+      "loss": 0.0012609103162373816,
+      "steps": 11,
+      "val_correct": 84
+    },
+    {
+      "epoch": 12,
+      "loss": 0.0010539046128369158,
+      "steps": 11,
+      "val_correct": 84
+    }
+  ]
+}
