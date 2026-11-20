@@ -185,22 +185,24 @@ export class City {
     if(!this.challenge) {
       const g=new T.Group(), orange=new T.MeshStandardMaterial({color:0xe98245,roughness:.62});
       const dark=new T.MeshStandardMaterial({color:0x485b62,roughness:.52});
+      this.boom=new T.Group();this.boom.position.z=5.2;g.add(this.boom);
       const part=(x,y,z,w,h,d,mat)=>{
-        const p=new T.Mesh(new T.BoxGeometry(w,h,d),mat); p.position.set(x,y,z); p.castShadow=true; p.receiveShadow=true; g.add(p);
+        const p=new T.Mesh(new T.BoxGeometry(w,h,d),mat),parent=y< -5?g:this.boom;
+        p.position.set(x,y,z-(parent===this.boom?5.2:0));p.castShadow=true;p.receiveShadow=true;parent.add(p);
       };
       part(0,-12,5.2,.7,26,.7,dark); part(0,0,0,.82,4,11,orange);
       for(let z=-4;z<5;z+=2)part(0,.3,z,.87,1.05,.75,dark);
       this.scene.add(g); this.challenge=g;
     }
     this.challenge.visible=enabled; this.moving=moving;this.site=site;
+    this.boom.rotation.y=0;
     this.challenge.position.set(...(site==="north"?[-33,25,-14]:[-12,25,33]));
     this.challenge.rotation.y=site==="north"?Math.PI/2:0;
     this.renderer.shadowMap.needsUpdate=true;
   }
   eventTick(time) {
     if(this.challenge?.visible && this.moving){
-      if(this.site==="north")this.challenge.position.x=-33+6*Math.sin(time*.42);
-      else this.challenge.position.z=33+6*Math.sin(time*.42);
+      this.boom.rotation.y=1.18*Math.sin(time*.48);
     }
     this.challenge?.updateMatrixWorld(true);
   }
@@ -233,7 +235,7 @@ export class City {
     this.sensor.rotation.order="YXZ"; this.sensor.rotation.set(b.pitch,b.yaw+b.look,0,"YXZ");
     this.sensor.translateZ(-.41); this.sensor.updateMatrixWorld(true);
   }
-  capture(b,id,time,stream,station,level,checkpoint) {
+  capture(b,id,time,stream,station,level,checkpoint,rangeLimit=90,depthNoise=0,random=Math.random) {
     this.aim(b);
     const renderer=this.renderer, scene=this.scene;
     const own=this.craft[b.index], visible=own.visible; own.visible=false;
@@ -258,7 +260,13 @@ export class City {
     const depth=out.subarray(4+header.length+W*H*4);
     for(let y=0;y<H;y++){
       const from=(H-y-1)*W*4; color.set(this.raw.subarray(from,from+W*4),y*W*4);
-      for(let x=0;x<W;x++){ const p=from+x*4,k=(y*W+x)*2;depth[k]=this.zraw[p];depth[k+1]=this.zraw[p+1]; }
+      for(let x=0;x<W;x++){
+        const p=from+x*4,k=(y*W+x)*2;
+        let cm=this.zraw[p]+256*this.zraw[p+1];
+        if(cm>rangeLimit*100)cm=0;
+        else if(cm>0 && depthNoise)cm=Math.max(1,Math.round(cm+(2*random()-1)*depthNoise*100));
+        depth[k]=cm&255;depth[k+1]=cm>>>8;
+      }
     }
     return {packet:out,pixels:color.slice()};
   }

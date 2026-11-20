@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {allocateOrders,pathBetween,edgeId,Knowledge,orderFromText,observationYaw,integrate,restrictedEdges,intersectsZone} from "../web/navigation.js";
+import {allocateOrders,pathBetween,edgeId,Knowledge,orderFromText,observationYaw,integrate,restrictedEdges,intersectsZone,measurementRandom} from "../web/navigation.js";
+import {Simulation} from "../web/simulation.js";
 import {learnedAction} from "../web/policy.js";
 
 test("reported or published closure changes the three-dimensional route",()=>{
@@ -53,4 +54,14 @@ test("a learned preference cannot choose an ineligible or untrained action",()=>
   const model={key:{q:[90,3,5],n:[40,5,1]}};
   assert.equal(learnedAction(model,"key",1,[1,2]),1);
   assert.equal(learnedAction(model,"missing",2,[0,1,2]),2);
+});
+test("camera perturbations reproduce from a saved frame and independent sensor seed",()=>{
+  const a=measurementRandom(6101,50),b=measurementRandom(6101,50),c=measurementRandom(6298,50);
+  assert.deepEqual([a(),a(),a()],[b(),b(),b()]);
+  assert.notEqual(a(),c());
+});
+test("protective braking uses estimate and ranges without access to physics pose or velocity",()=>{
+  const b={index:0,est:[-24,25,33],next:"junction",yaw:-Math.PI/2,odometry:{velocity:[6,0,0]},rangeTrack:{range:4,time:1,rate:0}};
+  for(const key of ["pos","vel"])Object.defineProperty(b,key,{get(){throw new Error("read independent truth");}});
+  assert.equal(Simulation.prototype.obstacle.call({time:1,options:{chapter:4}},b),true);
 });

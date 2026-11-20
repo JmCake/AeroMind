@@ -1,4 +1,4 @@
-import {airWaypoint,allocateOrders,distance, edgeId, forecastPace, inspectPassage, integrate, Knowledge, observationYaw, pathBetween, restrictedEdges, stations} from "./navigation.js";
+import {airWaypoint,allocateOrders,distance, edgeId, forecastPace, inspectPassage, integrate, Knowledge, measurementRandom,observationYaw, pathBetween, restrictedEdges, stations} from "./navigation.js";
 import {dispatchState,gazeState,learnedAction,pace,paceState,viewAngles} from "./policy.js";
 
 const step=1/30, sensorPeriod=1/8;
@@ -27,7 +27,7 @@ function vehicle(index,station,seed) {
     fix:"初始已知停机位",map:new Knowledge(),frame:0,last:null,firstSense:null,
     lastSense:index===0?-1:2*step-sensorPeriod,lastMapPose:copy(p),
     distance:0,wait:0,energy:100,startingEnergy:100,deliveredError:null,trajectory:[],metrics:[],latencies:[],
-    odometry:{velocity:[0,0,0],reference:null,lastVision:0,anchors:new Map(),loops:[]},samples:[],accepted:0,order:null,
+    odometry:{velocity:[0,0,0],reference:null,lastVision:0,anchors:new Map(),loops:[]},samples:[],accepted:0,unavailable:0,order:null,
     capacity:index===0?1.5:1.2,receipts:[],releaseAt:0,spent:0,
     observation:null, rangeTrack:null,blockedSince:null,visionNote:"等待机载帧",minGap:null,contacts:0};
 }
@@ -48,6 +48,20 @@ function propagate(b,reading) {
   const v=b.odometry.velocity;
   b.est=b.est.map((p,i)=>p+(v[i]+a[i]*step)*step);
   b.odometry.velocity=v.map((n,i)=>n+a[i]*step);
+}
+function measuredBerth(b,station,time,bay=0){
+  if(b.last?.handoff.state!=="ready"||time-b.last.sim_time>=.65)return null;
+  const panel=b.last.readings.find(r=>r.station===station)?.panel_relative_m;
+  if(!panel)return null;
+  const fixture=[-1.27-bay*2.3,-2.55,4.83];
+  return b.est.map((n,i)=>n+panel[i]+fixture[i]+b.lastSensorOffset[i]);
+}
+// World-side receipt. Navigation gets an acknowledgement or must reobserve.
+// Its position error is retained solely for the independent evaluation.
+function dockContact(body,station,bay,occupied){
+  const point=copy(stations[station].pad);point[0]-=bay*2.3;
+  const error=distance(body.pos,point);
+  return {accepted:!occupied && error<.45,error};
 }
 
 export class Simulation {
@@ -118,8 +132,8 @@ export class Simulation {
       return learnedAction(this.weights.dispatch,key,ids[0],ids);
     };
     for(const {order,vehicle:b,required} of allocateOrders(this.orders,this.units,new Set(this.options.avoid),choose)){
-      order.state="assigned";order.unit=b.index;b.order=order.id;b.station=order.station;b.returnTrip=false;
-      b.releaseAt=Math.max(this.time,b.index*(this.options.secondRoute==="shared"?13:4));b.phase="idle";
+      order.state="assigned";order.unit=b.index;b.order=order.id;b.station=order.station;b.returnTrip=false;b.homeBerth=null;
+      b.releaseAt=Math.max(this.time,b.index*(this.options.departure||(this.options.secondRoute==="shared"?13:4)));b.phase="idle";
       this.log((this.options.learned?"学习策略 · ":"")+"订单 "+order.id+" 分配至 AM–0"+(b.index+1)+"，预计含返仓预留需 "+required.toFixed(1)+"% 电量",b,"fleet");
     }
   }
@@ -248,10 +262,17 @@ export class Simulation {
     try{
       await Promise.all(batch.map(async b=>{
         b.lastSense=this.time;const id=++b.frame,start=performance.now();
+        const random=measurementRandom(6101+b.index*197,id);
+        if(random()<(this.options.dropRate||0)){
+          b.unavailable++;
+          if(b.unavailable===1)this.log("机载相机首次模拟丢帧 F"+id,b,"sensor");
+          return;
+        }
         const ct=Math.cos(b.pitch),offset=[-.41*Math.sin(b.yaw+b.look)*ct,.23+.41*Math.sin(b.pitch),-.41*Math.cos(b.yaw+b.look)*ct];
         const sample={gps:this.options.gps?b.pos.map(x=>x+noise(b)*.08):null,
                       offset,evaluationPose:copy(b.pos)};
-        const capture=this.city.capture(b,id,this.time,b.stream,b.station,this.options.chapter,this.options.checkpoint||"selected");
+        const capture=this.city.capture(b,id,this.time,b.stream,b.returnTrip?46:b.station,this.options.chapter,this.options.checkpoint||"selected",
+          this.options.rangeLimit||90,this.options.depthNoise||0,random);
         sample.pixels=capture.pixels;
         const resp=await fetch("/api/frame",{method:"POST",body:capture.packet,signal:AbortSignal.timeout(5000)});
         if(!resp.ok)throw new Error("感知服务返回 "+resp.status);
@@ -267,7 +288,7 @@ export class Simulation {
   obstacle(b) {
     const track=b.rangeTrack;
     if(!track || this.time-track.time>.6 || !b.next)return false;
-    const speed=Math.hypot(...b.vel), future=this.options.chapter>=4?Math.min(0,track.rate)*.3:0;
+    const speed=Math.hypot(...b.odometry.velocity), future=this.options.chapter>=4?Math.min(0,track.rate)*.3:0;
     const waypoint=airWaypoint(b.next,b.index),yaw=Math.atan2(b.est[0]-waypoint[0],b.est[2]-waypoint[2]);
     if(Math.cos(b.yaw-yaw)<.9)return false;
     let clearance=track.range+future;
@@ -284,7 +305,8 @@ export class Simulation {
     for(const peer of this.units)if(peer!==b){
       const link=this.options.link||"local",delay=link==="slow"?4:.6;
       this.linkSeed=(Math.imul(this.linkSeed,1664525)+1013904223)>>>0;
-      const dropped=link==="off" || (link==="loss" && this.linkSeed/4294967296<.5);
+      const beyond=distance(b.est,peer.est)>(this.options.linkRange||250);
+      const dropped=beyond||link==="off" || (link==="loss" && this.linkSeed/4294967296<.5);
       const message={from:b.index,to:peer.index,key,frame:b.last.id,observed:this.time,
         receive:this.time+delay,until:this.time+45,frameName:"classroom-world-m",
         observer_est_m:copy(b.est),position_sd_m:.35+(b.last.flow_residual_m||0),
@@ -292,7 +314,7 @@ export class Simulation {
           .slice(0,24).map(c=>({point:copy(c.point),odds:c.odds})),
         motion:(b.last.regions||[]).filter(r=>r.label==="construction").map(r=>({track:r.track,range_m:r.range_m,range_rate_m_s:r.range_rate_m_s})),
         confidence:b.observation.evidence.occupied/(b.observation.evidence.occupied+1)};
-      this.linkLog.push({...message,event:dropped?"dropped":"sent"});
+      this.linkLog.push({...message,event:dropped?"dropped":"sent",reason:beyond?"range":link});
       if(!dropped)this.inbox.push(message);
       this.log(dropped?"机间通信不可用，本次通道观测留在本机":"发送通道占用观测，模拟传输 "+delay+" 秒",b,"fleet");
     }
@@ -316,10 +338,11 @@ export class Simulation {
       const dy=bound(Number(this.keys.has("e"))-Number(this.keys.has("q"))+(pad?.buttons[5]?.value||0)-(pad?.buttons[4]?.value||0),1);
       return {goal:[x+dx*4,y+dy*4,z+dz*4],max:4};
     }
-    if(!this.options.gps && ["cruise","climb","retreat","returning","home"].includes(b.phase))
+    if(!this.options.gps && ["cruise","climb","retreat","returning"].includes(b.phase))
       b.pitch=smoothAngle(b.pitch,b.fix==="视觉跟踪不足"?-.53:-.17,.09);
     else b.pitch*=.88;
-    if((!this.options.gps && b.fix==="视觉跟踪不足")||this.serviceError){b.wait+=step;return {goal,max:0};}
+    const stale=this.time-(b.last?.sim_time??0)>1;
+    if(stale||(!this.options.gps && b.fix==="视觉跟踪不足")||this.serviceError){b.wait+=step;return {goal,max:0};}
     switch(b.phase){
     case "climb": case "returning":
       goal=airWaypoint(b.phase==="climb"?"depot":target.node,b.index);
@@ -400,37 +423,42 @@ export class Simulation {
       break;
     case "verify":
       orient=false;goal=target.hold;b.wait+=step;b.yaw=smoothAngle(b.yaw,0,.14);b.pitch*=.85;
-      if(b.last?.handoff.state==="ready" && this.time-b.last.sim_time<.65){
-        const panel=b.last.readings.find(r=>r.station===b.station)?.panel_relative_m;
-        if(panel){
-          // Only the fictional station fixture defines this offset from its
-          // status tile to the mechanical cradle. The evaluator owns pad truth.
-          const offset=[-1.27,-2.55,4.83].map((x,i)=>x+b.lastSensorOffset[i]);
-          b.berth=here.map((n,i)=>n+panel[i]+offset[i]);
-          this.log("机载图像及深度确认站台位置，开始进站",b,"vision");b.phase="dock";
-        }
-      }
+      b.berth=measuredBerth(b,b.station,this.time);
+      if(b.berth){this.log("机载图像及深度确认站台位置，开始进站",b,"vision");b.phase="dock";}
       break;
     case "dock":
       goal=b.berth;max=1.8;orient=false;
       if(b.last?.readings.some(r=>r.station===b.station && r.state==="occupied"&&r.confidence>=.8)){
         b.phase="holding";this.log("进站期间读到占用，撤回等待位",b,"vision");break;
       }
-      if(distance(here,goal)<.24 && Math.hypot(...b.vel)<.55){
-        // Independent world-side dock contact/parcel receipt. Visible status
-        // is separate from the collision volume and its physical occupancy.
-        const err=distance(b.pos,target.pad);
-        if(err<.45 && b.cargo && !(this.environment.occupied && b.station===this.options.station)){
-          b.delivered=true;b.cargo=false;b.deliveredError=err;b.returnTrip=true;b.phase="returning";
+      if(distance(here,goal)<.24 && Math.hypot(...b.odometry.velocity)<.55){
+        const receipt=dockContact(b,b.station,0,this.environment.occupied && b.station===this.options.station);
+        if(receipt.accepted && b.cargo){
+          b.delivered=true;b.cargo=false;b.deliveredError=receipt.error;b.returnTrip=true;b.phase="returning";
           const order=this.orders.find(o=>o.id===b.order);order.state="delivered";order.receipt=this.time;
-          b.receipts.push({order:b.order,frame:b.last.id,time:this.time,error_m:err});
+          b.receipts.push({order:b.order,frame:b.last.id,time:this.time,error_m:receipt.error});
           this.log("站台接触回执已确认，包裹已交付",b,"receipt");
         }else{b.phase="holding";this.log("站台未发出交接回执，重新观察",b);}
       }
       break;
     case "home":
-      goal=copy(stations[46].pad);goal[0]-=b.index*2.3;max=3;
-      if(distance(here,goal)<.25&&Math.hypot(...b.vel)<.6){
+      orient=false;b.yaw=smoothAngle(b.yaw,0,.13);max=3;
+      if(!b.homeBerth){
+        goal=copy(stations[46].hold);goal[0]-=b.index*2.3;
+        if(distance(here,goal)<.55){
+          b.homeBerth=measuredBerth(b,46,this.time,b.index);
+          if(!b.homeBerth && this.options.chapter===1 && this.options.gps){
+            b.homeBerth=copy(stations[46].pad);b.homeBerth[0]-=b.index*2.3;
+          }
+          if(b.homeBerth)this.log("确认物流中心回收仓位",b,"vision");
+        }
+        break;
+      }
+      goal=b.homeBerth;max=2;
+      if(distance(here,goal)<.24&&Math.hypot(...b.odometry.velocity)<.6){
+        const receipt=dockContact(b,46,b.index,false);
+        if(!receipt.accepted){b.homeBerth=null;this.log("回收仓位无接触回执，重新观察",b,"receipt");break;}
+        b.homeError=receipt.error;
         b.phase="done";b.airborne=false;b.vel=[0,0,0];b.odometry.velocity=[0,0,0];
         if(b.cargo && b.withdrawn){
           const order=this.orders.find(o=>o.id===b.order);

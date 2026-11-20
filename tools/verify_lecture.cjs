@@ -21,6 +21,16 @@ async function main(){
       if(run>1)await page.locator("#reset").click();
       await page.locator("#classroom").evaluate(el=>el.open=true);
       await page.locator("#lecture-rate").selectOption(rate);
+      await page.evaluate(()=>{
+        let last=null,active=true;const intervals=[];
+        function measure(t){if(!active)return;if(last!==null)intervals.push(t-last);last=t;requestAnimationFrame(measure);}
+        requestAnimationFrame(measure);
+        globalThis.endLectureMeasurement=()=>{
+          active=false;intervals.sort((a,b)=>a-b);
+          return {render_callbacks:intervals.length,mean_fps:1000*intervals.length/intervals.reduce((s,x)=>s+x,0),
+            frame_p95_ms:intervals[Math.floor(intervals.length*.95)]};
+        };
+      });
       await page.locator("#lecture").click();
       for(let stage=1;stage<=7;stage++){
         await page.waitForFunction(expected=>document.querySelector("#lecture-status").dataset.stage===String(expected),stage,{timeout:230000});
@@ -32,6 +42,7 @@ async function main(){
       }
       await page.waitForFunction(()=>document.querySelector("#lecture-status").dataset.stage==="complete",
         null,{timeout:Math.ceil(450000/Number(rate))+240000});
+      const whole=await page.evaluate(()=>globalThis.endLectureMeasurement());
       if(!await page.locator("#experiment").evaluate(el=>el.open))await page.locator("#experiment summary").click();
       const download=page.waitForEvent("download");await page.locator("#export").click();
       const file=path.join(folder,`lecture-${run}.json`);await (await download).saveAs(file);
@@ -39,7 +50,7 @@ async function main(){
       const shared=stages[5].events.some(e=>e.reason.includes("共享观测改变"));
       const branches=stages[4].branches,brake=stages[1].events.some(e=>e.reason.includes("制动"));
       const visual=stages[3].events.some(e=>e.reason.includes("确认通道占用"));
-      const row={run,wall_s:(Date.now()-started)/1000,rate:Number(rate),browser_errors:errors.slice(before),
+      const row={run,wall_s:(Date.now()-started)/1000,rate:Number(rate),browser_errors:errors.slice(before),whole_lecture_raf:whole,
         stages:stages.length,brake,visual,shared,branch_outcomes:branches.map(b=>b.phase),
         gps_cut:stages[2].events.some(e=>e.reason==="GPS 更新已解除"),
         fleet:data.units.map(u=>({outcome:u.outcome,delivered:u.delivered,contacts:u.contacts,min_spacing_m:u.min_aircraft_spacing_m,

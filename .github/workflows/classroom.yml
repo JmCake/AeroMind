@@ -1,0 +1,62 @@
+name: Classroom checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - name: Install CPU inference and training dependencies
+        run: |
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - name: Build the portable OpenCV runtime
+        if: github.event_name != 'pull_request'
+        run: |
+          python -m venv .local/package-python
+          .local/package-python/Scripts/python.exe -m pip install PyInstaller==6.16.0 opencv-python==4.12.0.88 numpy==2.2.6
+          python tools/packaging/build_windows.py --python .local/package-python/Scripts/python.exe
+      - name: Open the packaged local service
+        if: github.event_name != 'pull_request'
+        run: |
+          Expand-Archive -LiteralPath dist/AeroMind-3D-Windows-x64.zip -DestinationPath dist
+          $directory = (Resolve-Path -LiteralPath dist/AeroMind-3D).Path
+          $app = Start-Process -FilePath (Join-Path $directory 'AeroMind-3D.exe') -ArgumentList '--port','8863' -WorkingDirectory $directory -WindowStyle Hidden -PassThru
+          try {
+            $ready = $false
+            for ($i=0; $i -lt 30; $i++) {
+              try {
+                $health = Invoke-RestMethod http://127.0.0.1:8863/api/health -TimeoutSec 2 -ErrorAction Stop
+                $ready = $health.application -eq 'JmCake/AeroMind/3D' -and $health.backend -eq 'opencv'
+                if ($ready) { break }
+              } catch {}
+              Start-Sleep -Seconds 1
+            }
+            if (!$ready) { throw 'Portable vision service did not become ready' }
+          } finally { if (!$app.HasExited) { Stop-Process -Id $app.Id } }
+      - name: Windows classroom download
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: AeroMind-3D-Windows-x64
+          path: dist/AeroMind-3D-Windows-x64.zip
+          compression-level: 0
+          retention-days: 14

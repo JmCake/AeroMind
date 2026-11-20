@@ -45,6 +45,11 @@ export function restrictedEdges(index=0){
   return edges.filter(([a,b])=>intersectsZone(airWaypoint(a,index),airWaypoint(b,index))).map(([a,b])=>edgeId(a,b));
 }
 
+export function measurementRandom(seed,frame){
+  let state=(seed^Math.imul(frame+1,2654435761))>>>0;
+  return ()=>{state^=state<<13;state^=state>>>17;state^=state<<5;return (state>>>0)/4294967296;};
+}
+
 export function pathBetween(start, goal, closed=new Set()) {
   const cost = new Map([[start,0]]), previous = new Map(), open = new Set([start]);
   while (open.size) {

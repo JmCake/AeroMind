@@ -52,8 +52,13 @@
     <label class="field">环境<select id="weather"><option value="day">日照</option><option value="fog">薄雾</option><option value="night">夜间</option><option value="rain">阴雨与阵风</option></select></label>
     <label class="field">施工位置<select id="worksite"><option value="south">南侧通道</option><option value="north">北侧住宅支线</option></select></label>
     <label class="field">限飞时长<select id="zone-time"><option value="0">直到解除</option><option value="20">20 仿真秒</option><option value="45">45 仿真秒</option></select></label>
+    <label class="field">深度量程<select id="range-limit"><option value="90">90 m</option><option value="30">30 m</option><option value="15">15 m</option></select></label>
+    <label class="field">深度噪声<select id="depth-noise"><option value="0">无附加噪声</option><option value="0.05">±5 cm</option><option value="0.2">±20 cm</option></select></label>
+    <label class="field">相机丢帧<select id="drop-rate"><option value="0">关闭</option><option value="0.15">15%</option><option value="0.35">35%</option></select></label>
     <label class="field">双机订单<select id="second-route"><option value="mixed">分别配送两站</option><option value="shared">共用图书馆走廊</option></select></label>
     <label class="field">机间通信<select id="link"><option value="local">0.6 秒延迟</option><option value="slow">4 秒延迟</option><option value="loss">50% 丢包</option><option value="off">断连</option></select></label>
+    <label class="field">通讯范围<select id="link-range"><option value="250">全学区</option><option value="25">25 m</option><option value="10">10 m</option></select></label>
+    <label class="field">二号机起飞<select id="departure"><option value="0">按订单安排</option><option value="8">第 8 仿真秒</option><option value="18">第 18 仿真秒</option></select></label>
     <label class="field">显示画质<select id="quality"><option value="standard">标准集显</option><option value="economy">节能</option></select></label>
     <label class="field">决策策略<select id="policy"><option value="rules">规划规则</option><option value="learned">校园 Q 学习</option></select></label>
     <div class="switches"><label><input type="checkbox" id="barrier">通道施工</label><label><input type="checkbox" id="moving">吊臂摆动</label>
@@ -73,6 +78,7 @@
   </details>
   <details class="card" id="experiment"><summary>实验与协作</summary>
     <label class="field">对照变量<select id="factor"><option value="active_observation">主动观察</option><option value="checkpoint">分割检查点</option><option value="gps">GPS 更新</option><option value="policy">巡航与观察策略</option></select></label>
+    <label class="field">共同快照<select id="fork-time"><option value="3">第 3 仿真秒</option><option value="6" selected>第 6 仿真秒</option><option value="8">第 8 仿真秒</option></select></label>
     <button id="compare" class="secondary">运行双分支实验</button><p id="compare-state" class="hint">保存同一时刻的飞机、地图和视觉跟踪状态，两次运行只改变选定因素。</p>
     <button id="switch-unit" class="secondary" disabled>切换观测无人机</button><p id="fleet-state" class="hint">单机运行</p>
     <label class="field">关键帧回放<input aria-label="回放时间" id="replay-time" type="range" min="0" max="0" value="0" step="0.2"></label>

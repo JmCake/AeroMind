@@ -14,6 +14,8 @@ const tip=text=>{$("stage-tip").textContent=text;};
 function options(){return {station:Number($("station").value),chapter:Number($("chapter").value),
   fleet:$("fleet").checked||$("chapter").value==="5",weather:$("weather").value,gps:$("gps").checked,avoid:[...avoid],
   secondRoute:$("second-route").value,link:$("link").value,worksite:$("worksite").value,zoneSeconds:Number($("zone-time").value),
+  rangeLimit:Number($("range-limit").value),depthNoise:Number($("depth-noise").value),dropRate:Number($("drop-rate").value),
+  linkRange:Number($("link-range").value),departure:Number($("departure").value),
   lowBattery:$("low-battery").checked,learned:$("policy").value==="learned",priority};}
 function note(e){
   const text=fmt(e.time)+"　AM–0"+(e.unit+1)+"　"+e.reason;$("events").textContent=text;sound.cue(e);
@@ -54,11 +56,12 @@ function mapView(b){
 function metrics(b){
   const ordered=[...b.latencies].sort((a,b)=>a-b);
   return {unit:b.index+1,outcome:b.phase,delivered:b.delivered,elapsed_sim_s:sim.time,wait_s:b.wait,
-    length_m:b.distance,contacts:b.contacts,min_aircraft_spacing_m:b.minGap,delivery_error_m:b.deliveredError,
+    length_m:b.distance,contacts:b.contacts,min_aircraft_spacing_m:b.minGap,delivery_error_m:b.deliveredError,home_contact_error_m:b.homeError??null,
     localization_rmse_m:b.metrics.length?Math.sqrt(b.metrics.reduce((s,n)=>s+n*n,0)/b.metrics.length):null,
     camera_to_decision_p50_ms:ordered.length?ordered[Math.floor(ordered.length*.5)]:null,
     camera_to_decision_p95_ms:ordered.length?ordered[Math.min(ordered.length-1,Math.floor(ordered.length*.95))]:null,
-    accepted_sensor_frames:b.accepted,sensor_sim_hz:b.last?.sim_time>b.firstSense?(b.accepted-1)/(b.last.sim_time-b.firstSense):null,
+    accepted_sensor_frames:b.accepted,simulated_dropped_frames:b.unavailable,
+    sensor_sim_hz:b.last?.sim_time>b.firstSense?(b.accepted-1)/(b.last.sim_time-b.firstSense):null,
     minimum_observed_forward_range_m:b.minRange??null,semantic_frames:b.semanticFrames||0,
     simulated_energy_used_pct:b.spent,receipts:b.receipts,trajectory:b.trajectory,
     visual_loop_closures:b.odometry.loops,evaluation_samples:b.samples};
@@ -112,7 +115,7 @@ function update(){
     comparisons.push({factor:trial.factor,label:factorLabels[trial.factor][comparisons.length],active_observation:sim.active,
       checkpoint:sim.options.checkpoint||"selected",gps:sim.options.gps,metrics:metrics(sim.units[0]),events:[...sim.events],keyframes:[...trace],
       initial_position_error_m:trial.restoreError,snapshot_tick:trial.snapshot.tick,
-      shared_frame:trial.snapshot.units[0].last.id,seed_at_fork:trial.snapshot.units[0].seed});
+      shared_frame:trial.snapshot.units[0].last.id,seed_at_fork:trial.snapshot.units[0].seed,event_at:trial.eventAt});
     if(comparisons.length===1)restoreBranch(true);
     else{
       sim.running=sim.paused=false;trial=null;lockTrial(false);$("compare").disabled=false;$("launch").disabled=false;
@@ -161,20 +164,22 @@ function exportEvidence(){
     failed_frame_requests:sim.missingFrames,seed:1407,sensor_target_hz:8,control_sim_hz:30,
     energy_model:"percent/s = 0.035 + 0.006 * speed_m_s + (0.012 when carrying, 0 otherwise)",
     mode,options:sim.options,orders:sim.orders,communications:sim.linkLog,units:sim.units.map(metrics),events:sim.events,keyframes:trace,lecture:lecture?.report,
-    experiment:comparisons.length?{method:"状态分叉",factor:comparisons[0].factor,fixed_event:{at:9,type:"barrier",value:true},branches:comparisons}:null};
+    experiment:comparisons.length?{method:"状态分叉",factor:comparisons[0].factor,fixed_event:{at:comparisons[0].event_at,type:"barrier",value:true},branches:comparisons}:null};
   const url=URL.createObjectURL(new Blob([JSON.stringify(record)],{type:"application/json"}));
   const a=document.createElement("a");a.href=url;a.download="AeroMind-"+Date.now()+".json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
 function lockTrial(locked){
-  for(const id of ["station","chapter","weather","worksite","zone-time","second-route","link","barrier","moving","occupied","zone","gps","fleet","manual","low-battery","parse","factor","policy","recall"])
+  for(const id of ["station","chapter","weather","worksite","zone-time","range-limit","depth-noise","drop-rate","link-range","departure",
+    "second-route","link","barrier","moving","occupied","zone","gps","fleet","manual","low-battery","parse","factor","fork-time","policy","recall"])
     $(id).disabled=locked;
 }
 function setView(name){document.querySelector(`[data-view="${name}"]`).click();}
 function startComparison(factor=$("factor").value){
-  comparisons=[];trial={stage:"warm",factor,limit:95,options:{...options(),station:17,chapter:4,fleet:false,gps:true,avoid:[],lowBattery:false,secondRoute:"mixed",worksite:"south"}};
-  reset(trial.options);sim.speed=3;sim.pauseAt=180;sim.timedEvents=[{at:9,type:"barrier",value:true}];
+  const fork=Number($("fork-time").value);
+  comparisons=[];trial={stage:"warm",factor,limit:95,eventAt:fork+3,options:{...options(),station:17,chapter:4,fleet:false,gps:true,avoid:[],lowBattery:false,secondRoute:"mixed",worksite:"south"}};
+  reset(trial.options);sim.speed=3;sim.pauseAt=fork*30;sim.timedEvents=[{at:trial.eventAt,type:"barrier",value:true}];
   sim.start();lockTrial(true);$("compare").disabled=true;$("launch").disabled=true;$("speed").textContent="3×";
-  $("compare-state").textContent="正在采集共同输入历史，t=6 s 保存物理、控制、地图、视觉跟踪与传感器状态";
+  $("compare-state").textContent="正在采集共同输入历史，t="+fork+" s 保存物理、控制、地图、视觉跟踪与传感器状态";
 }
 function startLecture(){
   if(trial){tip("请在当前实验结束或重置后开始讲演");return;}
@@ -187,6 +192,7 @@ function startLecture(){
         $("chapter").value=({0:"1",2:"3",3:"4",5:"5"})[stage];$("station").value="17";
         $("gps").checked=true;$("fleet").checked=stage===5;$("low-battery").checked=false;
         $("zone").checked=false;$("weather").value="day";$("link").value="local";$("worksite").value="south";$("policy").value="rules";
+        $("range-limit").value="90";$("depth-noise").value="0";$("drop-rate").value="0";$("departure").value="0";$("link-range").value="250";$("fork-time").value="6";
         $("second-route").value=stage===5?"shared":"mixed";reset();sim.start();sim.speed=stage===5?3:lecture.rate;
         $("speed").textContent=sim.speed+"×";$("launch").disabled=true;$("pause").disabled=false;
         sim.timedEvents=[stage===2?{at:6,type:"gps",value:false}:{at:9,type:"barrier",value:true}];
@@ -232,6 +238,9 @@ function bind(){
   $("weather").onchange=()=>{sim.options.weather=$("weather").value;city.climate(sim.options.weather);sim.log("天气切换为"+$("weather").selectedOptions[0].text);};
   $("link").onchange=()=>sim.act("link",$("link").value);
   $("quality").onchange=()=>city.quality($("quality").value==="economy");
+  for(const [id,key] of Object.entries({"range-limit":"rangeLimit","depth-noise":"depthNoise","drop-rate":"dropRate","link-range":"linkRange","departure":"departure"})){
+    $(id).onchange=()=>{sim.options[key]=Number($(id).value);sim.log($(id).parentElement.firstChild.textContent+"切换为"+$(id).selectedOptions[0].text);};
+  }
   $("sound").onchange=()=>sound.enable($("sound").checked).catch(e=>{tip(e.message);$("sound").checked=false;});
   $("worksite").onchange=()=>{
     const original=sim.options.worksite;sim.options.worksite=$("worksite").value;
