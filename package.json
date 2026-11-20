@@ -1,0 +1,13 @@
+{
+  "name": "aeromind-classroom",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python -m aeromind.app --open",
+    "test": "node --test tests/navigation.test.mjs"
+  },
+  "dependencies": {
+    "three": "0.187.0"
+  }
+}
