@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from .vision import Reading
+from .panels import Reading
 
 
 @dataclass(frozen=True)

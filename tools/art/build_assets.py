@@ -315,6 +315,19 @@ def city(path):
     m.box(0,-66,.6,5,53,.08,"porcelain")
     m.box(0,-65,.6,53,3,.09,"concrete")
     m.box(11,-78,.61,15,9,.1,"water")
+    # A public sports court marks the campus airspace constraint in the lesson.
+    m.box(-11,-49,.63,18,10.6,.13,"copper")
+    m.box(-11,-49,.76,15.5,8.7,.06,"leaf")
+    for dy in (-4.05,4.05):
+        m.box(-11,-49+dy,.82,14.8,.09,.025,"stripe")
+    for dx in (-7.4,0,7.4):
+        m.box(-11+dx,-49,.82,.10,8.13,.025,"stripe")
+    for side in (-1,1):
+        for dy in (-1.8,1.8):
+            m.box(-11+side*6.35,-49+dy,.82,2.15,.1,.025,"stripe")
+        m.box(-11+side*5.3,-49,.82,.10,3.7,.025,"stripe")
+    for level in range(3):
+        m.box(-11,-55-level*.67,.64+level*.3,12,.7,.3,"porcelain" if level%2==0 else "timber")
     for x in (-21,-12,14,23):
         trees(m,x,-86,6,0,8,100+x)
     for x in (-5.2,5.2):
@@ -354,11 +367,13 @@ def quadrotor(path):
         m.box(x,.064,.222,.014,.082,.008,"copper",angle=.1 if x>0 else -.1)
     for i in range(5):
         m.box(-.039+i*.019,.067,.238,.008,.058,.008,"graphite")
+    m.zone="Parcel"
     m.box(0,0,-.097,.22,.20,.12,"paper")
     m.box(0,0,-.1,.035,.203,.125,"amber")
     m.box(.057,-.102,-.06,.059,.004,.042,"porcelain")
     for x in (.037,.044,.049,.058,.067,.072):
         m.box(x,-.105,-.053,.003,.003,.026,"graphite")
+    m.zone="Airframe"
     for x in (-.17,.17):
         m.beam((x*.65,0,.08),(x,0,-.12),.012,"graphite")
         m.beam((x,-.15,-.12),(x,.15,-.12),.014,"trim")

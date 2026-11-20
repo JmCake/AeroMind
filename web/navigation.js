@@ -21,6 +21,30 @@ export const edges = [
 export const distance = (a,b) => Math.hypot(...a.map((v,i)=>v-b[i]));
 export const edgeId = (a,b) => [a,b].sort().join("|");
 
+// Published altitude layers separate approaching traffic from a waiting
+// vehicle at a junction. The final station approach still has one berth.
+export function airWaypoint(node,index) {
+  const [x,y,z]=nodes[node];return [x,y+index*3.8,z];
+}
+export const sportsAirspace={min:[-28,18,30.5],max:[2,32,55]};
+export function intersectsZone(a,b,zone=sportsAirspace){
+  let enter=0,leave=1;
+  for(let i=0;i<3;i++){
+    const delta=b[i]-a[i];
+    if(Math.abs(delta)<1e-8){
+      if(a[i]<zone.min[i]||a[i]>zone.max[i])return false;
+      continue;
+    }
+    const u=(zone.min[i]-a[i])/delta,v=(zone.max[i]-a[i])/delta;
+    enter=Math.max(enter,Math.min(u,v));leave=Math.min(leave,Math.max(u,v));
+    if(enter>leave)return false;
+  }
+  return true;
+}
+export function restrictedEdges(index=0){
+  return edges.filter(([a,b])=>intersectsZone(airWaypoint(a,index),airWaypoint(b,index))).map(([a,b])=>edgeId(a,b));
+}
+
 export function pathBetween(start, goal, closed=new Set()) {
   const cost = new Map([[start,0]]), previous = new Map(), open = new Set([start]);
   while (open.size) {
@@ -62,15 +86,61 @@ export class Knowledge {
     for (const [key,entry] of this.blocked) if (entry.until < time) this.blocked.delete(key);
     return new Set(this.blocked.keys());
   }
+  clearance(point,time){
+    const origin=point.map(v=>Math.floor(v/4));let best=Infinity,known=0;
+    for(let x=-2;x<=2;x++)for(let y=-2;y<=2;y++)for(let z=-2;z<=2;z++){
+      const cell=this.voxels.get([origin[0]+x,origin[1]+y,origin[2]+z].join(","));
+      if(!cell||time-cell.time>12)continue;
+      known++;
+      if(cell.odds>1)best=Math.min(best,distance(point,cell.point));
+    }
+    return {distance_m:Number.isFinite(best)?best:null,observed_fraction:known/125};
+  }
+  mergeShared(cells,stamp,source,confidence){
+    let fused=0,conflicts=0;
+    for(const {point,odds} of cells){
+      const key=this.key(point),old=this.voxels.get(key);
+      if(old && old.time>=stamp)continue;
+      if(old && stamp-old.time<2 && old.odds*odds<0){conflicts++;continue;}
+      const prior=old && stamp-old.time<15?old.odds:0;
+      this.voxels.set(key,{point:[...point],odds:Math.max(-4,Math.min(4,prior+odds*confidence*.65)),time:stamp,source});
+      fused++;
+    }
+    return {fused,conflicts};
+  }
   observeEdge(key, time, source, frame) {
+    const previous=this.blocked.get(key);
+    if(previous && previous.time>=time)return false;
     this.blocked.set(key,{until:time+45,time,source,frame});
+    return true;
   }
 }
 
 export function orderFromText(text) {
-  const match = text.trim().match(/^(?:请)?(?:将|把)?(?:包裹|图书|教材)?(?:配送到|送至|送到|前往)(图书馆|居民服务站)(?:屋顶|指定平台|平台)?(?:[，, ]*(?:避开|绕开)(体育场上空|南侧通道))?[。！!]?$/);
+  const request=text.trim(),urgent=/^(?:请)?(?:优先|加急)/.test(request);
+  const match = request.replace(/^(?:请)?(?:优先|加急)/,"").match(/^(?:请)?(?:将|把)?(?:包裹|图书|教材)?(?:配送到|送至|送到|前往)(图书馆|居民服务站)(?:屋顶|指定平台|平台)?(?:[，, ]*(?:避开|绕开)(体育场上空|南侧通道))?[。！!]?$/);
   if (!match) throw new Error("请指定一个配送站和可识别的空域，例如“将包裹送到图书馆指定平台，避开体育场上空”。");
-  return {station:match[1]==="图书馆" ? 17 : 31, avoid:match[2] ? [edgeId("west","junction")] : []};
+  return {station:match[1]==="图书馆" ? 17 : 31, priority:urgent?2:1,avoid:match[2] ? [edgeId("west","junction")] : []};
+}
+
+export function allocateOrders(orders,vehicles,closed,choose=null) {
+  const waiting=orders.filter(o=>o.state==="queued").sort((a,b)=>b.priority-a.priority || a.id-b.id);
+  const idle=vehicles.filter(b=>!b.airborne && !b.order && !b.withdrawn && ["idle","done"].includes(b.phase));
+  const result=[];
+  for(const order of waiting){
+    const route=pathBetween("depot",stations[order.station].node,closed);
+    if(route.length<2)continue;
+    const length=route.slice(1).reduce((s,n,i)=>s+distance(nodes[route[i]],nodes[n]),0);
+    // Conservative return-trip energy estimate and a 3% landing reserve.
+    const required=3+(2*length+52)*(.035+.006*5+.012)/(5*.84);
+    const available=idle.filter(b=>b.energy>=required && b.capacity>=order.mass)
+      .sort((a,b)=>b.energy-a.energy || a.index-b.index);
+    if(!available.length)continue;
+    const preferred=choose?.(available,order);
+    const chosen=available.find(b=>b.index===preferred)||available[0];idle.splice(idle.indexOf(chosen),1);
+    result.push({order,vehicle:chosen,required});
+  }
+  return result;
 }
 
 export function observationYaw(map, pose, yaw, time) {
@@ -110,4 +180,22 @@ export function integrate(body, goal, estimate, dt, maxSpeed, wind=0) {
   const factor=Math.min(1,5.5*dt/(Math.hypot(...acceleration)||1));
   body.vel=body.vel.map((v,i)=>v+acceleration[i]*factor);
   body.pos=body.pos.map((v,i)=>v+(body.vel[i]+(i===0 ? wind : 0))*dt);
+}
+
+// Receding-horizon pace selection for the fictional lane simulator. Each
+// candidate rolls the same bounded one-dimensional speed dynamics forward.
+export function forecastPace(speed,nominal,remaining,range,closing){
+  const clearance=range==null?Infinity:range;
+  const candidates=[.45,.72,1].map(factor=>{
+    const target=nominal*factor;let v=speed,travel=0,cost=0;
+    for(let k=1;k<=5;k++){
+      const dv=Math.max(-1.1,Math.min(1.1,target-v));v+=dv;travel+=v*.2;
+      const gap=clearance+Math.min(0,closing)*.2*k-travel;
+      cost+=.012*dv*dv+Math.max(0,1.2+v*.30-gap)**2*.9;
+      cost+=.03*Math.max(0,travel-remaining)**2;
+    }
+    cost-=Math.min(travel,remaining)*.32;
+    return {speed:target,cost};
+  });
+  return candidates.sort((a,b)=>a.cost-b.cost || b.speed-a.speed);
 }

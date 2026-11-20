@@ -1,0 +1,141 @@
+{
+  "method": "tabular episodic Q-learning",
+  "scope": "partially observed campus grid, speed and order-allocation teaching tasks",
+  "episodes_per_task": 6000,
+  "validation_episodes_per_task": 100,
+  "test_episodes_per_task": 600,
+  "discount": 0.88,
+  "exploration": 0.22,
+  "train_seed": 15299,
+  "val_seed": 87113,
+  "test_seed": 192793,
+  "gaze_reward": "new observed map cells minus turning cost",
+  "pace_reward": "progress minus time and emergency stops",
+  "dispatch_reward": "accepted orders, weighted missed priority",
+  "chosen_episode": 6000,
+  "weights_sha256": "df95ed16ae026c9c0686a5b286192ba2bf693c3216d0962cbc46071c471ed7a7",
+  "history": [
+    {
+      "episode": 1000,
+      "val": {
+        "gaze": {
+          "baseline": 5.832342857142859,
+          "learned": 5.956399999999999
+        },
+        "pace": {
+          "baseline": -10.493200000000003,
+          "learned": 3.9131200000000006
+        },
+        "dispatch": {
+          "baseline": 18.8,
+          "learned": 17.06
+        }
+      },
+      "score": 1.301636964016366
+    },
+    {
+      "episode": 2000,
+      "val": {
+        "gaze": {
+          "baseline": 5.832342857142859,
+          "learned": 5.97417142857143
+        },
+        "pace": {
+          "baseline": -10.493200000000003,
+          "learned": 0.647359999999999
+        },
+        "dispatch": {
+          "baseline": 18.8,
+          "learned": 15.499999999999993
+        }
+      },
+      "score": 0.9104789706042506
+    },
+    {
+      "episode": 3000,
+      "val": {
+        "gaze": {
+          "baseline": 5.832342857142859,
+          "learned": 5.996228571428572
+        },
+        "pace": {
+          "baseline": -10.493200000000003,
+          "learned": 3.8368800000000003
+        },
+        "dispatch": {
+          "baseline": 18.8,
+          "learned": 15.709999999999992
+        }
+      },
+      "score": 1.2293917102426282
+    },
+    {
+      "episode": 4000,
+      "val": {
+        "gaze": {
+          "baseline": 5.832342857142859,
+          "learned": 5.678800000000001
+        },
+        "pace": {
+          "baseline": -10.493200000000003,
+          "learned": 2.944239999999998
+        },
+        "dispatch": {
+          "baseline": 18.8,
+          "learned": 16.30999999999999
+        }
+      },
+      "score": 1.1218126108238884
+    },
+    {
+      "episode": 5000,
+      "val": {
+        "gaze": {
+          "baseline": 5.832342857142859,
+          "learned": 5.449199999999999
+        },
+        "pace": {
+          "baseline": -10.493200000000003,
+          "learned": 3.8368800000000003
+        },
+        "dispatch": {
+          "baseline": 18.8,
+          "learned": 16.39999999999999
+        }
+      },
+      "score": 1.1723015858300139
+    },
+    {
+      "episode": 6000,
+      "val": {
+        "gaze": {
+          "baseline": 5.832342857142859,
+          "learned": 6.011428571428569
+        },
+        "pace": {
+          "baseline": -10.493200000000003,
+          "learned": 3.8368800000000003
+        },
+        "dispatch": {
+          "baseline": 18.8,
+          "learned": 18.44
+        }
+      },
+      "score": 1.3772106330005767
+    }
+  ],
+  "held_out_return": {
+    "gaze": {
+      "baseline": 5.876580952380951,
+      "learned": 6.232771428571429
+    },
+    "pace": {
+      "baseline": -8.736733333333325,
+      "learned": 4.060266666666669
+    },
+    "dispatch": {
+      "baseline": 19.32333333333336,
+      "learned": 18.60833333333337
+    }
+  }
+}

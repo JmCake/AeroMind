@@ -1,15 +1,61 @@
 import * as T from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
-import {nodes, stations} from "./navigation.js";
+import {sportsAirspace, stations} from "./navigation.js";
 
 const v = a => new T.Vector3(...a);
 const W=320, H=180;
 
+function paintedTexture(w,h,paint){
+  const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+  paint(canvas.getContext("2d"));
+  const tex=new T.CanvasTexture(canvas);tex.colorSpace=T.SRGBColorSpace;return tex;
+}
+function cityHorizon(scene){
+  const pavement=paintedTexture(256,256,g=>{
+    g.fillStyle="#626f77";g.fillRect(0,0,256,256);
+    for(let x=0;x<2;x++)for(let y=0;y<2;y++){
+      const a=x*128+8,b=y*128+8;
+      g.fillStyle="#a5a99a";g.fillRect(a,b,112,112);g.fillStyle="#92a690";g.fillRect(a+4,b+4,104,104);
+      g.fillStyle="#b8bac0";g.fillRect(a+15,b+12,49,34);g.fillRect(a+53,b+64,40,27);
+      g.fillStyle="#757f78";g.fillRect(a+19,b+17,14,7);g.fillRect(a+59,b+69,12,8);
+      g.fillStyle="#758e79";for(let k=0;k<5;k++){g.beginPath();g.arc(a+12+k*20,b+100,4,0,2*Math.PI);g.fill();}
+    }
+    g.strokeStyle="#c9c9b2";g.setLineDash([5,6]);g.lineWidth=1;
+    for(const n of [0,128]){g.beginPath();g.moveTo(n,0);g.lineTo(n,256);g.moveTo(0,n);g.lineTo(256,n);g.stroke();}
+  });
+  pavement.wrapS=pavement.wrapT=T.RepeatWrapping;pavement.repeat.set(10,10);
+  const ground=new T.Mesh(new T.PlaneGeometry(1100,1100),new T.MeshStandardMaterial({map:pavement,roughness:.96}));
+  ground.rotation.x=-Math.PI/2;ground.position.y=-1.6;ground.receiveShadow=true;scene.add(ground);
+  const facade=paintedTexture(64,128,g=>{
+    g.fillStyle="#c1cecf";g.fillRect(0,0,64,128);
+    for(let y=4;y<128;y+=9)for(let x=2;x<64;x+=7){
+      g.fillStyle=(x*3+y)%5?"#8299a9":"#a2ada7";g.fillRect(x,y,5,5);
+      g.fillStyle="#c7c7b9";g.fillRect(x,y+5,5,1);
+    }
+  });
+  const mat=new T.MeshStandardMaterial({map:facade,roughness:.74});
+  const buildings=new T.InstancedMesh(new T.BoxGeometry(),mat,126);
+  const crowns=new T.InstancedMesh(new T.CylinderGeometry(.5,.5,1,8),new T.MeshStandardMaterial({color:0x95abae,roughness:.7}),21);
+  const transform=new T.Object3D(),color=new T.Color();
+  for(let i=0;i<63;i++){
+    const angle=i*2.39996,radius=172+i%5*13,h=10+(i*37%58),x=Math.cos(angle)*radius,z=Math.sin(angle)*radius;
+    const w=11+i%9,d=10+i%12;
+    transform.position.set(x,h/2-1.6,z);transform.rotation.y=(i%3)*.18;transform.scale.set(w,h,d);transform.updateMatrix();
+    buildings.setMatrixAt(i*2,transform.matrix);color.setHex([0xb9d1d1,0xe1d0b4,0xaebcc9,0xc4cebf][i%4]);buildings.setColorAt(i*2,color);
+    transform.position.y=h+1.6;transform.scale.set(w*.64,6.4,d*.68);transform.updateMatrix();buildings.setMatrixAt(i*2+1,transform.matrix);buildings.setColorAt(i*2+1,color);
+    if(i%3===0){
+      transform.position.y=h+6;transform.scale.set(w*.52,3.8,d*.54);transform.updateMatrix();crowns.setMatrixAt(i/3,transform.matrix);
+    }
+  }
+  scene.add(buildings,crowns);
+}
+
 export class City {
   constructor(view, image) {
     this.renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.4));
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));
+    this.frameWindow=[];this.autoQuality=true;
     this.renderer.outputColorSpace=T.SRGBColorSpace;
     this.renderer.toneMapping=T.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure=1.02;
@@ -28,16 +74,7 @@ export class City {
     Object.assign(this.sun.shadow.camera,{left:-139,right:139,top:139,bottom:-139,near:1,far:365});
     this.sun.shadow.mapSize.set(1024,1024); this.sun.shadow.normalBias=.14;
     this.scene.add(this.hemi,this.sun);
-    const floor=new T.Mesh(new T.PlaneGeometry(1100,1100),new T.MeshStandardMaterial({color:0x80978f,roughness:.96}));
-    floor.rotation.x=-Math.PI/2; floor.position.y=-1.6; floor.receiveShadow=true; this.scene.add(floor);
-    const distant=new T.InstancedMesh(new T.BoxGeometry(),new T.MeshStandardMaterial({color:0x97a9ae,roughness:.85}),64);
-    const transform=new T.Object3D();
-    for(let i=0;i<64;i++) {
-      const t=i*2.39996, radius=175+(i%5)*12, height=8+(i*37%62);
-      transform.position.set(Math.cos(t)*radius,height/2-1.6,Math.sin(t)*radius);
-      transform.scale.set(11+i%9,height,10+i%12); transform.updateMatrix(); distant.setMatrixAt(i,transform.matrix);
-    }
-    this.scene.add(distant);
+    cityHorizon(this.scene);
     this.camera=new T.PerspectiveCamera(42,1,.2,850); this.camera.layers.enable(1);
     this.controls=new OrbitControls(this.camera,this.renderer.domElement);
     this.controls.enableDamping=true; this.controls.maxPolarAngle=1.48;
@@ -58,13 +95,24 @@ export class City {
       side:T.DoubleSide, toneMapped:false
     });
     this.raw=new Uint8Array(W*H*4); this.zraw=new Uint8Array(W*H*4);
-    this.craft=[]; this.rotors=[]; this.panelMeshes={}; this.panelTextures={};
+    this.craft=[]; this.rotors=[]; this.parcels=[]; this.panelMeshes={}; this.panelTextures={};
+    this.litGlass=new Set();
     this.layer=new T.Group(); this.layer.layers.set(1); this.scene.add(this.layer);
     const lineMaterial=new T.LineBasicMaterial({color:0x13d0c1,transparent:true,opacity:.9,depthTest:false});
     this.route=new T.Line(new T.BufferGeometry(),lineMaterial); this.route.layers.set(1); this.layer.add(this.route);
     this.route.frustumCulled=false;
+    this.mapPositions=new T.BufferAttribute(new Float32Array(2400*3),3).setUsage(T.DynamicDrawUsage);
+    this.mapColors=new T.BufferAttribute(new Float32Array(2400*3),3).setUsage(T.DynamicDrawUsage);
+    const mapGeometry=new T.BufferGeometry();mapGeometry.setAttribute("position",this.mapPositions);mapGeometry.setAttribute("color",this.mapColors);
+    mapGeometry.setDrawRange(0,0);
+    this.mapPoints=new T.Points(mapGeometry,new T.PointsMaterial({size:2.15,vertexColors:true,transparent:true,opacity:.7,depthTest:false,depthWrite:false}));
+    this.mapPoints.frustumCulled=false;this.mapPoints.renderOrder=2;this.mapPoints.layers.set(1);this.layer.add(this.mapPoints);
     this.meshRay=new T.Raycaster();
     this.tags=new Map(); this.colliders=[]; this.challenge=null;this.occupants={};
+    const bounds=sportsAirspace;
+    this.restriction=new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(...bounds.max.map((n,i)=>n-bounds.min[i]))),
+      new T.LineBasicMaterial({color:0xefaa63,transparent:true,opacity:.8}));
+    this.restriction.position.fromArray(bounds.max.map((n,i)=>(n+bounds.min[i])/2));this.restriction.layers.set(1);this.restriction.visible=false;this.layer.add(this.restriction);
     new ResizeObserver(()=>this.resize()).observe(view);
     this.resize();
   }
@@ -76,13 +124,29 @@ export class City {
     if(!width||!height)return;
     this.renderer.setSize(width,height,false); this.camera.aspect=width/height; this.camera.updateProjectionMatrix();
   }
+  quality(economy){
+    this.autoQuality=!economy;this.frameWindow=[];
+    this.renderer.setPixelRatio(economy?.72:Math.min(devicePixelRatio,1.25));this.resize();
+  }
+  budget(interval){
+    if(!this.autoQuality || interval<=0 || interval>500)return;
+    this.frameWindow.push(interval);
+    if(this.frameWindow.length<120)return;
+    const times=this.frameWindow.sort((a,b)=>a-b),q90=times[Math.floor(.9*times.length)],q95=times[Math.floor(.95*times.length)];
+    this.frameWindow=[];
+    const scale=this.renderer.getPixelRatio();
+    const next=q90>36||q95>52?Math.max(.68,scale-.12):q90<16&&q95<30?Math.min(Math.min(1.25,devicePixelRatio),scale+.05):scale;
+    if(Math.abs(scale-next)>.01){this.renderer.setPixelRatio(next);this.resize();}
+  }
   async load() {
     const loader=new GLTFLoader();
     const [city,quad]=await Promise.all([loader.loadAsync("/assets/CampusDistrict.glb"),loader.loadAsync("/assets/CourierQuad.glb")]);
     this.city=city.scene; this.scene.add(this.city);
     this.city.traverse(o=>{
+      o.updateMatrix();o.matrixAutoUpdate=false;
       if(!o.isMesh)return;
       o.castShadow=o.receiveShadow=true; this.colliders.push(o);
+      if(["glass","glasslight","darkglass"].includes(o.material.name))this.litGlass.add(o.material);
       if(o.name.startsWith("StationDisplay_")) this.panelMeshes[Number(o.name.split("_")[1])]=o;
     });
     const textures=new T.TextureLoader();
@@ -97,8 +161,10 @@ export class City {
       this.scene.add(crate);this.occupants[id]=crate;this.panelState(id,"available");
     }
     for(let i=0;i<2;i++) {
-      const root=quad.scene.clone(true), pivots=[];
-      root.traverse(o=>{ if(/^Rotor_[1-4]$/.test(o.name))pivots.push(o); });
+      const root=quad.scene.clone(true), pivots=[], parcels=[];
+      root.traverse(o=>{ if(/^Rotor_[1-4]$/.test(o.name))pivots.push(o);
+        if(o.isMesh && o.name.startsWith("Parcel_"))parcels.push(o); });
+      this.parcels.push(parcels);
       this.rotors.push(pivots); this.craft.push(root); this.scene.add(root);
     }
     for(const [id,s] of Object.entries(stations)) {
@@ -115,7 +181,7 @@ export class City {
     if(this.occupants[id])this.occupants[id].visible=state==="occupied";
     this.renderer.shadowMap.needsUpdate=true;
   }
-  barrier(enabled, moving=false) {
+  barrier(enabled, moving=false,site="south") {
     if(!this.challenge) {
       const g=new T.Group(), orange=new T.MeshStandardMaterial({color:0xe98245,roughness:.62});
       const dark=new T.MeshStandardMaterial({color:0x485b62,roughness:.52});
@@ -126,11 +192,16 @@ export class City {
       for(let z=-4;z<5;z+=2)part(0,.3,z,.87,1.05,.75,dark);
       this.scene.add(g); this.challenge=g;
     }
-    this.challenge.visible=enabled; this.moving=moving; this.challenge.position.set(-12,25,33);
+    this.challenge.visible=enabled; this.moving=moving;this.site=site;
+    this.challenge.position.set(...(site==="north"?[-33,25,-14]:[-12,25,33]));
+    this.challenge.rotation.y=site==="north"?Math.PI/2:0;
     this.renderer.shadowMap.needsUpdate=true;
   }
   eventTick(time) {
-    if(this.challenge?.visible && this.moving)this.challenge.position.z=33+6*Math.sin(time*.42);
+    if(this.challenge?.visible && this.moving){
+      if(this.site==="north")this.challenge.position.x=-33+6*Math.sin(time*.42);
+      else this.challenge.position.z=33+6*Math.sin(time*.42);
+    }
     this.challenge?.updateMatrixWorld(true);
   }
   climate(kind) {
@@ -139,6 +210,7 @@ export class City {
     this.scene.fog.color.copy(this.sky); this.scene.fog.density=fog?.018:rain?.009:.0027;
     this.sun.intensity=night?.68:rain?1.3:2.6; this.hemi.intensity=night?.8:1.5;
     this.sun.color.setHex(night?0x97b6ff:rain?0xccd8e1:0xffdfad);
+    for(const glass of this.litGlass){glass.emissive.setHex(night?0x4a9ba4:0x000000);glass.emissiveIntensity=night?.28:0;}
   }
   setRoute(points) {
     this.route.geometry.dispose();
@@ -152,15 +224,16 @@ export class City {
       o.rotation.z=T.MathUtils.clamp(-b.vel[0]*.018,-.22,.22);
       o.rotation.x=T.MathUtils.clamp(b.vel[2]*.016,-.2,.2);
       this.rotors[i].forEach((rotor,j)=>rotor.rotation.y=(j%2?1:-1)*time*(b.airborne?55:4));
+      this.parcels[i].forEach(part=>{part.visible=b.cargo;});
     });
-    this.scene.updateMatrixWorld(true);
+    this.scene.updateMatrixWorld();
   }
   aim(b) {
     this.sensor.position.fromArray(b.pos); this.sensor.position.y+=.23;
     this.sensor.rotation.order="YXZ"; this.sensor.rotation.set(b.pitch,b.yaw+b.look,0,"YXZ");
     this.sensor.translateZ(-.41); this.sensor.updateMatrixWorld(true);
   }
-  capture(b,id,time,stream,station,level,show=true) {
+  capture(b,id,time,stream,station,level,checkpoint) {
     this.aim(b);
     const renderer=this.renderer, scene=this.scene;
     const own=this.craft[b.index], visible=own.visible; own.visible=false;
@@ -176,7 +249,7 @@ export class City {
       renderer.setRenderTarget(null);
     }
     const e=this.sensor.matrixWorld.elements;
-    const meta={width:W,height:H,fov:this.sensor.fov,stream,id,sim_time:time,station,level,
+    const meta={width:W,height:H,fov:this.sensor.fov,stream,id,sim_time:time,station,level,checkpoint,
                 camera_basis:[e[0],e[4],e[8],e[1],e[5],e[9],e[2],e[6],e[10]]};
     const header=new TextEncoder().encode(JSON.stringify(meta));
     const out=new Uint8Array(4+header.length+W*H*6);
@@ -187,8 +260,11 @@ export class City {
       const from=(H-y-1)*W*4; color.set(this.raw.subarray(from,from+W*4),y*W*4);
       for(let x=0;x<W;x++){ const p=from+x*4,k=(y*W+x)*2;depth[k]=this.zraw[p];depth[k+1]=this.zraw[p+1]; }
     }
-    if(show){this.imageData.data.set(color);this.imageContext.putImageData(this.imageData,0,0);}
-    return out;
+    return {packet:out,pixels:color.slice()};
+  }
+  showFrame(pixels) {
+    if(!pixels){this.imageContext.clearRect(0,0,W,H);return;}
+    this.imageData.data.set(pixels);this.imageContext.putImageData(this.imageData,0,0);
   }
   collision(from,to) {
     const d=v(to).sub(v(from)), length=d.length();
@@ -200,6 +276,18 @@ export class City {
   }
   draw(b,time) {
     const body=v(b.pos);
+    this.mapPoints.visible=this.mode==="map";
+    if(this.mapPoints.visible&&this.mapFrame!==b.last){
+      this.mapFrame=b.last;
+      const stride=Math.max(1,Math.ceil(b.map.voxels.size/2400));let k=0,i=0;
+      for(const cell of b.map.voxels.values()){
+        if(i++%stride)continue;
+        this.mapPositions.setXYZ(k,...cell.point);
+        const c=cell.odds>1?[1,.45,.10]:cell.odds<-.8?[.06,.86,.67]:[.47,.54,.59];
+        this.mapColors.setXYZ(k++,...c);
+      }
+      this.mapPositions.needsUpdate=this.mapColors.needsUpdate=true;this.mapPoints.geometry.setDrawRange(0,k);
+    }
     this.controls.enabled=this.mode==="overview"||this.mode==="map";
     if(this.mode==="follow"){
       const off=v([-.95,.78,1.2]).applyAxisAngle(v([0,1,0]),b.yaw);

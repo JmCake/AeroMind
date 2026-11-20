@@ -1,0 +1,298 @@
+{
+  "model": "campus-segments-v1",
+  "seed": 2701,
+  "classes": [
+    "background",
+    "station_display",
+    "construction"
+  ],
+  "cpu_threads": 2,
+  "batch": 12,
+  "epochs": 24,
+  "optimizer": "AdamW",
+  "learning_rate": 0.003,
+  "loss": "weighted cross-entropy + foreground soft Dice",
+  "groups": [
+    {
+      "split": "train",
+      "station": 17,
+      "weather": "day",
+      "worksite": [
+        -12,
+        25,
+        33
+      ],
+      "seed": 1216,
+      "count": 72
+    },
+    {
+      "split": "train",
+      "station": 46,
+      "weather": "rain",
+      "worksite": [
+        -33,
+        22,
+        9
+      ],
+      "seed": 2193,
+      "count": 72
+    },
+    {
+      "split": "train",
+      "station": 17,
+      "weather": "fog",
+      "worksite": [
+        24,
+        25,
+        -31
+      ],
+      "seed": 3170,
+      "count": 72
+    },
+    {
+      "split": "train",
+      "station": 46,
+      "weather": "night",
+      "worksite": [
+        -48,
+        22,
+        60
+      ],
+      "seed": 4147,
+      "count": 72
+    },
+    {
+      "split": "val",
+      "station": 17,
+      "weather": "night",
+      "worksite": [
+        32,
+        23,
+        41
+      ],
+      "seed": 5124,
+      "count": 36
+    },
+    {
+      "split": "val",
+      "station": 46,
+      "weather": "day",
+      "worksite": [
+        -30,
+        28,
+        1
+      ],
+      "seed": 6101,
+      "count": 36
+    },
+    {
+      "split": "test",
+      "station": 31,
+      "weather": "day",
+      "worksite": [
+        18,
+        24,
+        64
+      ],
+      "seed": 7078,
+      "count": 36
+    },
+    {
+      "split": "test",
+      "station": 31,
+      "weather": "night",
+      "worksite": [
+        31,
+        22,
+        -43
+      ],
+      "seed": 8055,
+      "count": 36
+    }
+  ],
+  "corpus_rgb_mask_sha256": {
+    "train": "f4341aea4bce09132c29e6ca7dd3c1957046b742c8442940a11626a1b8ea6240",
+    "val": "73a523c6b927cbb98a8828c27cf66a0d7051ce00d7b7234f3ef286189f7bdff0",
+    "test": "9aebb9a4c3567a0df275a00883eaf2f0ea3bfca69bf64831c82382c55665ed9f"
+  },
+  "parameters": 13341,
+  "torch": "2.15.0+cpu",
+  "selection": "highest validation foreground mean IoU, earliest tie",
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 1.8596210380395253,
+      "val_foreground_miou": 0.1910553276538849
+    },
+    {
+      "epoch": 2,
+      "loss": 1.2181115100781124,
+      "val_foreground_miou": 0.4004620909690857
+    },
+    {
+      "epoch": 3,
+      "loss": 1.0563711524009705,
+      "val_foreground_miou": 0.5492660999298096
+    },
+    {
+      "epoch": 4,
+      "loss": 0.8749708458781242,
+      "val_foreground_miou": 0.6275047659873962
+    },
+    {
+      "epoch": 5,
+      "loss": 0.76616453876098,
+      "val_foreground_miou": 0.6689493656158447
+    },
+    {
+      "epoch": 6,
+      "loss": 0.6389695356289545,
+      "val_foreground_miou": 0.661750078201294
+    },
+    {
+      "epoch": 7,
+      "loss": 0.6172322904070219,
+      "val_foreground_miou": 0.7102700471878052
+    },
+    {
+      "epoch": 8,
+      "loss": 0.639784241716067,
+      "val_foreground_miou": 0.710135817527771
+    },
+    {
+      "epoch": 9,
+      "loss": 0.6181599969665209,
+      "val_foreground_miou": 0.679187536239624
+    },
+    {
+      "epoch": 10,
+      "loss": 0.5250332926710447,
+      "val_foreground_miou": 0.6674195528030396
+    },
+    {
+      "epoch": 11,
+      "loss": 0.5006096487243971,
+      "val_foreground_miou": 0.7478833794593811
+    },
+    {
+      "epoch": 12,
+      "loss": 0.49420486638943356,
+      "val_foreground_miou": 0.5191519260406494
+    },
+    {
+      "epoch": 13,
+      "loss": 0.5326638991634051,
+      "val_foreground_miou": 0.736802339553833
+    },
+    {
+      "epoch": 14,
+      "loss": 0.5250450844566027,
+      "val_foreground_miou": 0.7044051885604858
+    },
+    {
+      "epoch": 15,
+      "loss": 0.4135758653283119,
+      "val_foreground_miou": 0.6905432939529419
+    },
+    {
+      "epoch": 16,
+      "loss": 0.40449152886867523,
+      "val_foreground_miou": 0.7364478707313538
+    },
+    {
+      "epoch": 17,
+      "loss": 0.3958321114381154,
+      "val_foreground_miou": 0.7611666321754456
+    },
+    {
+      "epoch": 18,
+      "loss": 0.36557934433221817,
+      "val_foreground_miou": 0.7128854990005493
+    },
+    {
+      "epoch": 19,
+      "loss": 0.41158900161584216,
+      "val_foreground_miou": 0.6039892435073853
+    },
+    {
+      "epoch": 20,
+      "loss": 0.4039008642236392,
+      "val_foreground_miou": 0.7504932880401611
+    },
+    {
+      "epoch": 21,
+      "loss": 0.35797106722990674,
+      "val_foreground_miou": 0.7277929782867432
+    },
+    {
+      "epoch": 22,
+      "loss": 0.34271743645270664,
+      "val_foreground_miou": 0.7829878330230713
+    },
+    {
+      "epoch": 23,
+      "loss": 0.325942687690258,
+      "val_foreground_miou": 0.6926352977752686
+    },
+    {
+      "epoch": 24,
+      "loss": 0.3515866622328758,
+      "val_foreground_miou": 0.7214884161949158
+    }
+  ],
+  "best_epoch": 22,
+  "validation": {
+    "images": 72,
+    "confusion_true_by_pred": [
+      [
+        832225,
+        7733,
+        17939
+      ],
+      [
+        2953,
+        29967,
+        175
+      ],
+      [
+        8706,
+        183,
+        136919
+      ]
+    ],
+    "iou": [
+      0.957068920135498,
+      0.7307063937187195,
+      0.8352692127227783
+    ],
+    "foreground_miou": 0.7829878330230713
+  },
+  "held_out_test": {
+    "images": 72,
+    "confusion_true_by_pred": [
+      [
+        860417,
+        12057,
+        34488
+      ],
+      [
+        2707,
+        62097,
+        68
+      ],
+      [
+        4782,
+        4,
+        60180
+      ]
+    ],
+    "iou": [
+      0.9409109950065613,
+      0.8071568608283997,
+      0.604690432548523
+    ],
+    "foreground_miou": 0.7059236764907837
+  },
+  "wall_seconds": 62.99268199999642,
+  "weights_sha256": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368"
+}

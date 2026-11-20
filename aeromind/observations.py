@@ -30,6 +30,7 @@ def parse_packet(packet):
     if (type(meta["id"]) is not int or meta["id"] < 0 or not 20 <= meta["fov"] <= 120
             or not math.isfinite(meta["sim_time"]) or meta["sim_time"] < 0
             or meta["station"] not in STATIONS or meta.get("level",4) not in range(1,6)
+            or meta.get("checkpoint","selected") not in ("selected","early")
             or not isinstance(meta["stream"], str) or not 1 <= len(meta["stream"]) <= 80):
         raise ValueError("Invalid sensor metadata")
     rotation = np.asarray(meta["camera_basis"], dtype="float64").reshape(3, 3)
@@ -78,9 +79,93 @@ def displacement(previous, gray, depth, basis, focal, interval):
     return np.median(change[keep], axis=0).round(5).tolist(), int(keep.sum()), float(np.median(residual[keep]))
 
 
+def track_regions(regions, old, number, stamp):
+    remaining = list(old)
+    for region in regions:
+        u, v = region["center_uv"]
+        candidates = [r for r in remaining if r["label"] == region["label"] and 0 < stamp-r["time"] < .7]
+        matched = min(candidates, key=lambda r: math.dist(r["center_uv"], (u,v)), default=None)
+        if matched and math.dist(matched["center_uv"], (u,v)) < .18:
+            remaining.remove(matched)
+            dt = stamp - matched["time"]
+            velocity = [(p-q)/dt for p,q in zip((u,v), matched["center_uv"])]
+            dr = ((region["range_m"]-matched["range_m"])/dt if region["range_m"] is not None
+                  and matched["range_m"] is not None else 0)
+            region["track"] = matched["track"]
+            region["motion_uv_s"] = [round(.4*a+.6*b,4) for a,b in zip(velocity, matched["motion_uv_s"])]
+            region["range_rate_m_s"] = round(.4*max(-15,min(15,dr))+.6*matched["range_rate_m_s"],3)
+            region["age"] = matched["age"]+1
+        else:
+            number += 1
+            region.update(track=number, motion_uv_s=[0,0], range_rate_m_s=0, age=1)
+        region["time"] = stamp
+        region["predicted_uv_035s"] = [round(p+.35*q,4) for p,q in zip((u,v),region["motion_uv_s"])]
+    return number
+
+
+class KeyframeMap:
+    """Sparse RGB-D visual landmarks expressed in each keyframe's camera origin."""
+
+    def __init__(self):
+        self.frames = []
+        self.last_probe = -10.
+
+    def update(self, gray, depth, basis, focal, frame, stamp):
+        if stamp - self.last_probe < 1.1:
+            return None, False
+        self.last_probe = stamp
+        orb = cv2.ORB_create(nfeatures=210,edgeThreshold=10,fastThreshold=12)
+        keys, descriptors = orb.detectAndCompute(gray,None)
+        if descriptors is None or len(keys) < 18:
+            return None, False
+        pixels = np.float32([k.pt for k in keys])
+        points = camera_points(pixels,depth,focal)
+        keep = (points[:,2] < -.4) & (points[:,2] > -55)
+        pixels, descriptors, points = pixels[keep], descriptors[keep], (points[keep] @ basis.T).astype("float32")
+        if len(points) < 18:
+            return None, False
+        direction = basis[:,2].copy()
+        matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
+        best = None
+        for reference in self.frames:
+            if stamp-reference["time"] < 7 or reference["direction"] @ direction < .72:
+                continue
+            pairs = matcher.knnMatch(descriptors,reference["descriptors"],k=2)
+            matches = [a for a,b in pairs if a.distance < .72*b.distance and a.distance < 52]
+            if len(matches) < 12:
+                continue
+            # Reciprocal assignment rejects repeated facade panels that all
+            # voted for the same descriptor. Check metric consistency as well.
+            reverse = matcher.match(reference["descriptors"],descriptors)
+            inverse = {m.queryIdx:m.trainIdx for m in reverse}
+            matches = [m for m in matches if inverse.get(m.trainIdx) == m.queryIdx]
+            if len(matches) < 12:
+                continue
+            ids = [m.queryIdx for m in matches]
+            change = reference["points"][[m.trainIdx for m in matches]] - points[ids]
+            median = np.median(change,axis=0)
+            residual = np.linalg.norm(change-median,axis=1)
+            inliers = residual < .30
+            n = int(inliers.sum())
+            if n < max(12,.62*len(matches)) or (best and n <= best["inliers"]):
+                continue
+            span = np.ptp(pixels[ids][inliers],axis=0)
+            if span[0]<gray.shape[1]*.18 or span[1]<gray.shape[0]*.12:
+                continue
+            best = {"frame":reference["id"],"inliers":n,"residual_m":round(float(np.median(residual[inliers])),4),
+                    "translation_m":np.median(change[inliers],axis=0).round(4).tolist()}
+        add = not self.frames or stamp - self.frames[-1]["time"] >= 2.8
+        if add:
+            self.frames.append({"id":frame,"time":stamp,"direction":direction,"points":points,"descriptors":descriptors})
+            if len(self.frames)>30:
+                self.frames.pop(1)
+        return best,add
+
+
 class ImageService:
-    def __init__(self, perception):
+    def __init__(self, perception, segments=None):
         self.perception = perception
+        self.segments = segments or {}
         self.previous = OrderedDict()
         self.lock = threading.Lock()
 
@@ -105,20 +190,26 @@ class ImageService:
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
         level = meta.get("level",4)
         readings = self.perception.inspect(bgr) if level >= 2 else []
+        checkpoint = meta.get("checkpoint","selected")
+        segments = self.segments.get(checkpoint)
+        regions = segments.inspect(bgr,depth) if segments and level >= 2 else []
         with self.lock:
             key = meta["stream"]
             last = self.previous.get(key)
             delta, support, error = None, 0, None
+            keymap = last[6] if last else KeyframeMap()
             gate = last[3] if last and last[3].station == meta["station"] else HandoffCheck(meta["station"], max_gap_ns=1_000_000_000)
             if last:
-                frame_id, stamp, previous, _ = last
+                frame_id, stamp, previous = last[:3]
                 if meta["id"] <= frame_id or meta["sim_time"] <= stamp:
                     raise ValueError("Stale frame")
                 if level >= 3:
                     delta, support, error = displacement(previous, gray, depth, basis, focal,
                                                          meta["sim_time"] - stamp)
             decision = gate.observe(round(meta["sim_time"] * 1e9), readings)
-            self.previous[key] = (meta["id"], meta["sim_time"], (gray, depth, basis, focal), gate)
+            number = track_regions(regions,last[4] if last else [],last[5] if last else 0,meta["sim_time"])
+            loop,added = keymap.update(gray,depth,basis,focal,meta["id"],meta["sim_time"]) if level>=3 else (None,False)
+            self.previous[key] = (meta["id"], meta["sim_time"], (gray, depth, basis, focal), gate, regions, number,keymap)
             self.previous.move_to_end(key)
             if len(self.previous) > 32:
                 self.previous.popitem(last=False)
@@ -138,7 +229,8 @@ class ImageService:
             measured = (point @ basis.T).round(4).tolist() if -.2 > point[2] >= -30 else None
             panels.append({**asdict(item), "panel_relative_m":measured})
         return {"id":meta["id"], "sim_time":meta["sim_time"], "stream":meta["stream"],
-                "readings":panels, "handoff": asdict(decision), "sector_m":sectors,
+                "readings":panels,"regions":regions,"segmentation_checkpoint":checkpoint,"loop_closure":loop,"keyframe_added":added,
+                "handoff": asdict(decision), "sector_m":sectors,
                 "rays_world_relative_m":(endpoints @ basis.T).round(2).tolist(),
                 "translation_m":delta, "tracked_features":support, "flow_residual_m":error,
                 "processing_ms":round((perf_counter()-started)*1000, 2)}

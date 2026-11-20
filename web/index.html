@@ -20,6 +20,7 @@
    <div class="map-title"><span class="eyebrow">CAMPUS DISTRICT</span><h1>云港学区</h1></div>
    <div class="map-stats"><span id="clock">00:00</span><small>仿真时间</small></div>
    <div id="stage-tip" role="status">正在载入三维城市与机载相机…</div>
+   <div id="map-legend" hidden>认知地图　<i></i>通行　<b></b>占用　灰绿为不确定，未取样处保留未知</div>
    <div class="views" aria-label="观察视角">
     <button data-view="overview" class="selected">总览</button><button data-view="follow">跟随</button>
     <button data-view="fpv">机载</button><button data-view="map">认知</button><button data-view="cinema">运镜</button>
@@ -36,6 +37,10 @@
     </select></div>
     <button class="launch" id="launch" disabled><span>开始配送</span><b aria-hidden="true">↗</b></button>
     <div class="telemetry"><div><small>任务状态</small><strong id="phase">等待订单</strong></div><div><small>飞行里程</small><strong id="travel">0 m</strong></div><div><small>剩余电量</small><strong id="energy">100%</strong></div></div>
+    <details id="classroom"><summary>课堂讲演 · 7 分 30 秒</summary>
+      <label class="field">讲演速度<select id="lecture-rate"><option value="1">课堂实速</option><option value="3">3× 排练</option></select></label>
+      <button id="lecture" class="secondary">开始课堂讲演</button><p id="lecture-status" class="hint">五阶段课程、状态分叉和双机配送。</p>
+    </details>
   </section>
   <section class="card optical">
     <div class="section-line"><h3>机载视觉</h3><span id="frame-num">F —</span></div>
@@ -45,24 +50,38 @@
   </section>
   <details class="card" id="controls"><summary>环境与驾驶</summary>
     <label class="field">环境<select id="weather"><option value="day">日照</option><option value="fog">薄雾</option><option value="night">夜间</option><option value="rain">阴雨与阵风</option></select></label>
+    <label class="field">施工位置<select id="worksite"><option value="south">南侧通道</option><option value="north">北侧住宅支线</option></select></label>
+    <label class="field">限飞时长<select id="zone-time"><option value="0">直到解除</option><option value="20">20 仿真秒</option><option value="45">45 仿真秒</option></select></label>
+    <label class="field">双机订单<select id="second-route"><option value="mixed">分别配送两站</option><option value="shared">共用图书馆走廊</option></select></label>
+    <label class="field">机间通信<select id="link"><option value="local">0.6 秒延迟</option><option value="slow">4 秒延迟</option><option value="loss">50% 丢包</option><option value="off">断连</option></select></label>
+    <label class="field">显示画质<select id="quality"><option value="standard">标准集显</option><option value="economy">节能</option></select></label>
+    <label class="field">决策策略<select id="policy"><option value="rules">规划规则</option><option value="learned">校园 Q 学习</option></select></label>
     <div class="switches"><label><input type="checkbox" id="barrier">通道施工</label><label><input type="checkbox" id="moving">吊臂摆动</label>
       <label><input type="checkbox" id="occupied">占用站台</label><label><input type="checkbox" id="zone">南侧限飞</label>
       <label><input type="checkbox" id="gps" checked>GPS 更新</label><label><input type="checkbox" id="fleet">双机配送</label>
-      <label><input type="checkbox" id="manual">手动接管</label></div>
-    <p class="hint" id="drive-hint" hidden>WASD 平移，Q/E 升降。解除接管后恢复任务。</p>
+      <label><input type="checkbox" id="manual">手动接管</label><label><input type="checkbox" id="low-battery">一号机低电量</label>
+      <label><input type="checkbox" id="sound">飞行与回执音效</label></div>
+    <p class="hint" id="drive-hint" hidden>WASD 或左摇杆平移，Q/E 或双肩键升降。</p>
+    <button id="recall" class="secondary">召回当前机与包裹</button>
     <label class="field">任务指令<input id="command" placeholder="将包裹送到图书馆指定平台"></label>
     <button id="parse" class="secondary">应用指令</button>
   </details>
   <details class="card" id="knowledge"><summary>认知地图与决策</summary>
     <canvas id="cognitive" width="300" height="170" aria-label="观测体素俯视图"></canvas>
     <p class="legend">深灰 未知　青色 通行　琥珀 占用　灰绿 不确定</p><p id="rationale" class="hint">等待地图更新</p>
+    <ol id="decision-events"></ol>
   </details>
   <details class="card" id="experiment"><summary>实验与协作</summary>
-    <button id="compare" class="secondary">比较主动观察开 / 关</button><p id="compare-state" class="hint">相同初始条件和施工事件，各次运行独立取帧。</p>
+    <label class="field">对照变量<select id="factor"><option value="active_observation">主动观察</option><option value="checkpoint">分割检查点</option><option value="gps">GPS 更新</option><option value="policy">巡航与观察策略</option></select></label>
+    <button id="compare" class="secondary">运行双分支实验</button><p id="compare-state" class="hint">保存同一时刻的飞机、地图和视觉跟踪状态，两次运行只改变选定因素。</p>
     <button id="switch-unit" class="secondary" disabled>切换观测无人机</button><p id="fleet-state" class="hint">单机运行</p>
     <label class="field">关键帧回放<input aria-label="回放时间" id="replay-time" type="range" min="0" max="0" value="0" step="0.2"></label>
     <div id="replay" hidden><div class="replay-pair"></div><p id="replay-caption" class="hint"></p></div>
     <button id="export" class="secondary">导出运行证据</button>
+  </details>
+  <details class="card" id="training"><summary>模型训练记录</summary>
+    <canvas id="learning-curve" width="300" height="120" aria-label="各训练轮次的独立验证集前景平均交并比"></canvas>
+    <p id="training-score" class="hint"></p>
   </details>
  </aside>
 </main>

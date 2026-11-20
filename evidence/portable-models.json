@@ -1,0 +1,26 @@
+{
+  "parcel-display-v1": {
+    "torch_sha256": "8dbed0d617413dea0eee07bbdc556dd3e0787a3af1d9de198004ad802bb36e9f",
+    "onnx_sha256": "52908aa4c0c3df107309326ed46df7cdbe32d8a9d76279d6ac32277544eb94da",
+    "frames": 72,
+    "max_abs_logit_error": 5.7220458984375e-06,
+    "argmax_agree": 72,
+    "argmax_total": 72
+  },
+  "campus-segments-v1": {
+    "torch_sha256": "0c4d5e5b31867ebffbbe5e4199918a4a38921ab77bd4ad3a17626054ec267368",
+    "onnx_sha256": "608bd42496ec02fb178ecb2759b3b1e605de32a4e2cd96020fbd1a4280426ffd",
+    "frames": 72,
+    "max_abs_logit_error": 1.2874603271484375e-05,
+    "argmax_agree": 1036800,
+    "argmax_total": 1036800
+  },
+  "campus-segments-epoch1": {
+    "torch_sha256": "475649e8228fca0e5b7fdaf0d0564678fefca8f60381fe6200c6e5d2f12a6cc0",
+    "onnx_sha256": "5ec0fc4a87c0881f25106a780adbddf0c59fb791d86e318d6e8aef97bc9ae4be",
+    "frames": 72,
+    "max_abs_logit_error": 1.430511474609375e-06,
+    "argmax_agree": 1036800,
+    "argmax_total": 1036800
+  }
+}

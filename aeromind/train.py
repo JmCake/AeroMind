@@ -14,7 +14,7 @@ import cv2
 import numpy as np
 import torch
 
-from . import stations, vision
+from . import panels, stations, vision
 from .stations import LABELS, SETTINGS, STATIONS, photograph
 from .vision import DisplayNet, PanelReader, tensors
 
@@ -94,7 +94,7 @@ def train(output, epochs, views, seed):
         "parameters": sum(p.numel() for p in model.parameters()),
         "input": [1, stations.PATCH_SIZE, stations.PATCH_SIZE], "command": sys.argv[1:],
         "source_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                          for p in [Path(__file__), Path(stations.__file__), Path(vision.__file__)]},
+                          for p in [Path(__file__), Path(stations.__file__), Path(vision.__file__), Path(panels.__file__)]},
         "splits": {key: {"groups": [g.name for g in SETTINGS[key]], "images": len(value[2]),
                          "frames_sha256": value[3]} for key, value in splits.items()},
     }

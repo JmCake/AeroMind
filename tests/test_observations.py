@@ -5,7 +5,7 @@ import unittest
 import cv2
 import numpy as np
 
-from aeromind.observations import ImageService, displacement, parse_packet
+from aeromind.observations import ImageService, KeyframeMap, displacement, parse_packet, track_regions
 from aeromind.vision import Reading
 
 
@@ -55,3 +55,25 @@ class ObservationTests(unittest.TestCase):
     def test_truncated_packet_cannot_produce_depth(self):
         with self.assertRaises(ValueError):
             parse_packet(packet("A",1,.1)[:-4])
+
+    def test_revisit_recognizes_old_rgbd_keyframe(self):
+        image=np.random.default_rng(46).integers(0,255,(180,320),np.uint8)
+        depth=np.full(image.shape,7,np.float32)
+        landmarks=KeyframeMap()
+        match,added=landmarks.update(image,depth,np.eye(3),160,3,.4)
+        self.assertTrue(added)
+        self.assertIsNone(match)
+        match,_=landmarks.update(image.copy(),depth,np.eye(3),160,114,15)
+        self.assertEqual(match["frame"],3)
+        self.assertGreater(match["inliers"],20)
+        np.testing.assert_allclose(match["translation_m"],(0,0,0),atol=.002)
+
+    def test_semantic_tracks_measure_relative_approach(self):
+        old=[{"label":"construction","center_uv":[.4,.5],"range_m":8}]
+        n=track_regions(old,[],0,1)
+        new=[{"label":"construction","center_uv":[.44,.5],"range_m":7.4}]
+        next_n=track_regions(new,old,n,1.2)
+        self.assertEqual(n,next_n)
+        self.assertEqual(new[0]["track"],old[0]["track"])
+        self.assertLess(new[0]["range_rate_m_s"],0)
+        self.assertGreater(new[0]["predicted_uv_035s"][0],.44)
