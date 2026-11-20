@@ -30,7 +30,7 @@ async function verifyControls(page,dest,software){
   assert.equal(await page.locator("#frame-num").innerText(),pausedFrame);
   const before=(await readExport(page)).units[0].evaluation_samples.at(-1);
   await page.locator("#pause").click();
-  await page.locator("#world > canvas").click({position:{x:50,y:80}});
+  await page.locator("#world").click({position:{x:180,y:170}});
   await page.keyboard.down("e");
   try{
     await page.waitForFunction(target=>{

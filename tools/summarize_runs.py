@@ -59,6 +59,32 @@ def sampled_memory(file):
     }
 
 
+def lecture_details(file):
+    rows = json.loads(file.read_bytes())
+    for row in rows:
+        raw = (file.parent / f"lecture-{row['run']}.json").read_bytes()
+        lecture = json.loads(raw)
+        row["export_sha256"] = hashlib.sha256(raw).hexdigest()
+        row["stage_results"] = [
+            {"title": stage["title"], "sim_time": stage["sim_time"],
+             "observed_frames": stage["observed_frames"],
+             "outcomes": [u["phase"] for u in stage["results"]],
+             "contacts": [u["contacts"] for u in stage["results"]]}
+            for stage in lecture["lecture"]["stages"]
+        ]
+        experiment = lecture.get("experiment")
+        if experiment:
+            row["comparison"] = {
+                "factor": experiment["factor"], "fixed_event": experiment["fixed_event"],
+                "branches": [
+                    {k: branch[k] for k in ("label", "snapshot_tick", "shared_frame", "initial_position_error_m", "seed_at_fork")}
+                    | {k: branch["metrics"][k] for k in ("outcome", "delivered", "length_m", "wait_s", "contacts")}
+                    for branch in experiment["branches"]
+                ],
+            }
+    return rows
+
+
 if __name__=="__main__":
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output",type=Path)
@@ -66,14 +92,12 @@ if __name__=="__main__":
     parser.add_argument("--lecture",type=Path)
     parser.add_argument("--memory",type=Path)
     parser.add_argument("--bundle",type=Path)
+    parser.add_argument("--controls",type=Path)
     args=parser.parse_args()
     report={"device":"Core Ultra 5 125H / Intel Arc integrated / Windows / 31.6 GiB RAM",
             "runs":[summarize(k,Path(v)) for k,v in (entry.split("=",1) for entry in args.runs)]}
     if args.lecture:
-        report["rehearsals"]=json.loads(args.lecture.read_bytes())
-        for row in report["rehearsals"]:
-            export = args.lecture.parent / f"lecture-{row['run']}.json"
-            row["export_sha256"] = hashlib.sha256(export.read_bytes()).hexdigest()
+        report["rehearsals"] = lecture_details(args.lecture)
     if args.memory:
         report["windows_process_memory"] = sampled_memory(args.memory)
     if args.bundle:
@@ -81,4 +105,6 @@ if __name__=="__main__":
             "file": args.bundle.name, "bytes": args.bundle.stat().st_size,
             "sha256": hashlib.sha256(args.bundle.read_bytes()).hexdigest(),
         }
+    if args.controls:
+        report["interactive_controls"] = json.loads(args.controls.read_bytes())
     args.output.write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n",encoding="utf8")
