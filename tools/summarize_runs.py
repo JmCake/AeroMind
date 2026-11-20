@@ -4,6 +4,7 @@ import argparse
 import csv
 import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -62,9 +63,11 @@ def sampled_memory(file):
 def lecture_details(file):
     rows = json.loads(file.read_bytes())
     for row in rows:
-        raw = (file.parent / f"lecture-{row['run']}.json").read_bytes()
+        exported = file.parent / f"lecture-{row['run']}.json"
+        raw = exported.read_bytes()
         lecture = json.loads(raw)
         row["export_sha256"] = hashlib.sha256(raw).hexdigest()
+        row["export_saved_utc"] = datetime.fromtimestamp(exported.stat().st_mtime, timezone.utc).isoformat()
         row["stage_results"] = [
             {"title": stage["title"], "sim_time": stage["sim_time"],
              "observed_frames": stage["observed_frames"],

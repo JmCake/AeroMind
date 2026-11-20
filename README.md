@@ -4,7 +4,7 @@ AeroMind 是面向计算机视觉课堂的本地三维配送应用。Three.js/We
 
 ## 启动
 
-**课堂便携版**。解压 `AeroMind-3D-Windows-x64.zip` 整个文件夹，双击 `AeroMind-3D.exe`。应用自带本机视觉推理、模型和全部三维资源，使用已安装的 WebGL2 浏览器。课堂电脑可以断网运行。开发工作区生成的便携包位于 `dist/`。
+**课堂便携版**。从项目发布页下载 `AeroMind-3D-Windows-x64.zip`，解压整个文件夹，双击 `AeroMind-3D.exe`。应用自带本机视觉推理、模型和全部三维资源，使用已安装的 WebGL2 浏览器。课堂电脑可以断网运行。开发工作区生成的便携包位于 `dist/`。[Windows 课堂版下载](https://github.com/JmCake/AeroMind/releases)
 
 当前 Windows 工作区双击 **Start-AeroMind.cmd**。浏览器打开本机服务后，选“图书馆 · 屋顶站台”，点击“开始配送”。服务只监听回环地址。前台启动的服务可以在其命令窗口按 Ctrl+C 停止。
 
@@ -12,6 +12,7 @@ AeroMind 是面向计算机视觉课堂的本地三维配送应用。Three.js/We
 
 ```powershell
 py -3.11 -m venv .venv
+.venv/Scripts/python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 .venv/Scripts/python.exe -m pip install -r requirements.txt
 npm ci
 .venv/Scripts/python.exe -m aeromind.app --open
@@ -42,9 +43,11 @@ npm ci
 
 本机课堂回归使用 1280×720 浏览器窗口、1 至 2 架无人机，预设门槛为平均画面帧率 ≥30 FPS、95 分位帧时间 ≤55 ms，取帧到决策 95 分位单机 ≤160 ms、双机 ≤220 ms。物理与控制 30 Hz，有效传感器频率 ≥7 Hz，正常场景要求零碰撞与请求失败。配送接触误差须小于 0.45 m，GPS 拒止课程定位 RMSE 目标为 ≤2 m。实速和加速排练分别记录，学生可理解性须经独立试演。
 
-在本机单实例 Edge 中，早期单机实速配送平均 88.6 FPS，帧时间 P95 为 25.0 ms，机载取帧到视觉结果返回 P95 为 105.2 ms，接触误差 0.206 m。关闭 GPS 的独立飞行完成交付和返航，定位 RMSE 为 0.77 m。报告还保留施工、动态吊臂、占用、通信断连、召回交接和算法对照的实际结局。窗口分辨率与自适应三维画布分辨率分别记录。[运行证据](evidence/classroom-runs.json)
+从发布 ZIP 解压运行的便携版在 Intel Arc 集显上完成了单机实速配送。Edge 以无头模式启用 D3D11 硬件渲染，1280×720 窗口内的三维画布在这次单机运行结束时为 963×578。平均 96.1 FPS，帧时间 P95 为 16.9 ms。472 个机载帧记录了两个墙钟终点，取帧到视觉结果返回 P95 为 104.3 ms，取帧到该帧首次控制指令 P95 为 107.7 ms。站台接触误差为 0.206 m，返仓接触误差为 0.312 m。另一趟关闭 GPS 的配送定位 RMSE 为 0.824 m，仍收到投递与返仓回执。[便携版验收数据](evidence/portable-acceptance.json)
 
-早期 Windows 便携版在同一条走廊完成两单，共享观测使二号机改道，两架飞机均返仓。最近间距 2.25 m，零碰撞，双机画面平均 66.6 FPS，帧时间 P95 为 33.3 ms，机载取帧到视觉结果返回 P95 分别为 70.8 与 69.2 ms。从第 3 版运行记录起，应用独立测量取帧到该帧首次控制指令的墙钟延迟，涵盖图像传输、模型推理、定位、地图更新、调度等待与控制计算。[便携版运行记录](evidence/classroom-runs.json)
+同一浏览器标签页连续运行十轮标准讲演，累计 75 分 6 秒。七十个阶段均无浏览器异常或传感器请求失败，双机段合计完成二十笔交付，每架飞机都收到返仓回执。双机段每轮平均 63.6–87.5 FPS，各轮帧时间 P95 为 16.9–33.4 ms，两机取帧到控制指令的 P95 为 49.4–82.2 ms。分叉实验中，关闭主动观察的分支到 95 仿真秒截止时仍受阻，开启观察的分支在 75.5 仿真秒完成返仓。发布页附逐轮原始导出、机载关键帧和内存采样。独立学生理解度待现场试演。[十轮讲演与两分支结果](evidence/portable-acceptance.json)
+
+专项运行另覆盖不同天气、站台占用、链路断连、低电量、学习策略和模型检查点。这些历史导出的延迟统计终点为视觉结果返回。[专项实测记录](evidence/classroom-runs.json)
 
 ![云港学区的真实运行画面与机载站台识别](evidence/classroom.png)
 
@@ -70,12 +73,13 @@ node tools/art/capture_corpus.cjs http://127.0.0.1:8863 runs/city-images
 .venv/Scripts/python.exe -m aeromind.segments runs/city-images runs/segments-01
 node tools/train_policy.mjs runs/policy-01
 node tools/verify_browser.cjs http://127.0.0.1:8863 fleet-share output/playwright/fleet
+node tools/verify_browser.cjs http://127.0.0.1:8863 controls output/playwright/controls
 node tools/verify_lecture.cjs http://127.0.0.1:8863 output/playwright/lecture 10 1
 ```
 
 浏览器验收复用已安装的 Edge。导出的 JSON 含实际帧、模型摘要、实验共同帧、各分支指标和带时间戳的通信。完整导出保存在本机 `output/playwright/`。
 
-连续试演期间可用 `tools/measure_windows.ps1` 采样指定测试会话的 Edge 私有内存与推理进程的内存。参数为运行 `verify_lecture.cjs` 的 Node 进程号、便携进程号和新 CSV 文件路径。每轮导出另含 JavaScript 堆用量。
+连续试演期间可用 `tools/measure_windows.ps1` 采样指定测试会话的 Edge 私有内存与推理进程的内存。参数为运行 `verify_lecture.cjs` 的 Node 进程号、便携进程号和新 CSV 文件路径。本次 98 个采样点中，Edge 子进程私有内存合计最高 964.2 MiB，推理进程工作集最高 123.3 MiB。每轮导出另含 JavaScript 堆用量。
 
 便携版使用 OpenCV DNN 在 CPU 上执行由同一批 PyTorch 权重导出的 ONNX。用独立的 72 帧核对导出，两个分割检查点各 1,036,800 个像素的类别与 PyTorch 一致。[运行时数值对照](evidence/portable-models.json)
 
