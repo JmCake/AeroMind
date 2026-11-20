@@ -19,6 +19,11 @@ async function verifyControls(page,dest,software){
   await page.locator("#parse").click();
   assert.equal(await page.locator("#station").inputValue(),"31");
   assert.equal(await page.locator("#zone").isChecked(),true);
+  if(software){
+    await page.locator("#quality").selectOption("economy");
+    await page.locator('[data-view="map"]').click();
+  }
+  console.log("Order accepted for station 31 with a published airspace restriction.");
   await page.locator("#launch").click();
   await page.waitForFunction(()=>document.querySelector("#phase").textContent==="航路配送",null,{timeout:software?120000:35000});
   await page.locator("#manual").check();
@@ -42,14 +47,26 @@ async function verifyControls(page,dest,software){
   const after=(await readExport(page)).units[0].evaluation_samples.at(-1);
   const rise=after.estimate[1]-before.estimate[1];
   assert.ok(rise>2,"Manual climb must change the estimated height");
+  console.log("Keyboard climb measured",rise,"metres between frames",before.frame,after.frame);
   await page.locator("#manual").uncheck();
   for(const view of ["follow","fpv","map","cinema","overview"]){
     const button=page.locator('[data-view="'+view+'"]');await button.click();
     assert.ok(await button.evaluate(el=>el.classList.contains("selected")));
   }
+  if(software)await page.locator('[data-view="map"]').click();
   await page.locator("#speed").click();await page.locator("#speed").click();
-  await page.waitForFunction(()=>!document.querySelector("#launch").disabled,null,{timeout:software?480000:180000});
+  const deadline=Date.now()+(software?840000:180000);
+  let lastPhase="",lastNote=0;
+  while(await page.locator("#launch").isDisabled()&&Date.now()<deadline){
+    const phase=await page.locator("#phase").innerText();
+    if(phase!==lastPhase||Date.now()-lastNote>45000){
+      console.log(await page.locator("#clock").innerText(),phase,await page.locator("#events").innerText());
+      lastPhase=phase;lastNote=Date.now();
+    }
+    await page.waitForTimeout(1600);
+  }
   const data=await readExport(page,path.join(dest,"run.json")),unit=data.units[0];
+  console.log(JSON.stringify({outcome:unit.outcome,elapsed_sim_s:unit.elapsed_sim_s,events:data.events.slice(-5)}));
   assert.equal(data.orders[0].priority,2);
   assert.ok(data.options.avoid.length&&unit.outcome==="done"&&unit.delivered&&unit.contacts===0&&unit.home_contact_error_m!=null&&unit.home_contact_error_m<.45);
   assert.ok(data.events.some(e=>e.reason==="已手动接管")&&data.events.some(e=>e.reason==="恢复任务控制"));
@@ -69,7 +86,8 @@ async function main(){
   fs.mkdirSync(dest,{recursive:true});
   const renderArgs=software?["--use-angle=swiftshader","--enable-unsafe-swiftshader"]:["--enable-gpu","--use-angle=d3d11"];
   const browser=await chromium.launch({channel:"msedge",headless:true,args:renderArgs});
-  const page=await browser.newPage({viewport:{width:1280,height:720},acceptDownloads:true});
+  const viewport=software?{width:960,height:640}:{width:1280,height:720};
+  const page=await browser.newPage({viewport,acceptDownloads:true});
   const errors=[];
   page.on("pageerror",e=>{errors.push(String(e));console.error(String(e));});
   page.on("console",m=>{if(m.type()==="error")console.error(m.text().slice(0,400));});
