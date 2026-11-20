@@ -34,7 +34,7 @@ jobs:
           python -m venv .local/package-python
           .local/package-python/Scripts/python.exe -m pip install PyInstaller==6.16.0 opencv-python==4.12.0.88 numpy==2.2.6
           python tools/packaging/build_windows.py --python .local/package-python/Scripts/python.exe
-      - name: Open the packaged local service
+      - name: Fly the packaged application with Edge
         if: github.event_name != 'pull_request'
         run: |
           Expand-Archive -LiteralPath dist/AeroMind-3D-Windows-x64.zip -DestinationPath dist
@@ -51,6 +51,8 @@ jobs:
               Start-Sleep -Seconds 1
             }
             if (!$ready) { throw 'Portable vision service did not become ready' }
+            node tools/verify_browser.cjs http://127.0.0.1:8863 controls output/playwright/controls software
+            if ($LASTEXITCODE -ne 0) { throw 'The packaged classroom failed its interactive delivery check' }
           } finally { if (!$app.HasExited) { Stop-Process -Id $app.Id } }
       - name: Windows classroom download
         if: github.event_name != 'pull_request'
@@ -60,3 +62,11 @@ jobs:
           path: dist/AeroMind-3D-Windows-x64.zip
           compression-level: 0
           retention-days: 14
+      - name: Preserve an incomplete interaction for diagnosis
+        if: failure() && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: classroom-interaction-diagnostics
+          path: output/playwright/controls/
+          if-no-files-found: ignore
+          retention-days: 3

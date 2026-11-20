@@ -2,12 +2,92 @@
 const {chromium}=require("playwright-core");
 const fs=require("node:fs");
 const path=require("node:path");
+const assert=require("node:assert/strict");
+
+async function readExport(page,destination){
+  if(!await page.locator("#experiment").evaluate(el=>el.open))await page.locator("#experiment summary").click();
+  const event=page.waitForEvent("download");
+  await page.locator("#export").click();
+  const download=await event;
+  if(destination)await download.saveAs(destination);
+  return JSON.parse(fs.readFileSync(await download.path(),"utf8"));
+}
+
+async function verifyControls(page,dest,software){
+  await page.getByRole("button",{name:"自由配送",exact:true}).click();
+  await page.locator("#command").fill("请加急将包裹送到居民服务站，避开体育场上空");
+  await page.locator("#parse").click();
+  assert.equal(await page.locator("#station").inputValue(),"31");
+  assert.equal(await page.locator("#zone").isChecked(),true);
+  if(software){
+    await page.locator("#quality").selectOption("economy");
+    await page.locator('[data-view="map"]').click();
+  }
+  console.log("Order accepted for station 31 with a published airspace restriction.");
+  await page.locator("#launch").click();
+  await page.waitForFunction(()=>document.querySelector("#phase").textContent==="航路配送",null,{timeout:software?120000:35000});
+  await page.locator("#manual").check();
+  await page.locator("#pause").click();
+  await page.waitForTimeout(550);
+  const pausedAt=await page.locator("#clock").innerText(),pausedFrame=await page.locator("#frame-num").innerText();
+  await page.waitForTimeout(1250);
+  assert.equal(await page.locator("#clock").innerText(),pausedAt);
+  assert.equal(await page.locator("#frame-num").innerText(),pausedFrame);
+  const before=(await readExport(page)).units[0].evaluation_samples.at(-1);
+  await page.locator("#pause").click();
+  await page.locator("#world").click({position:{x:180,y:170}});
+  await page.keyboard.down("e");
+  try{
+    await page.waitForFunction(target=>{
+      const [minutes,seconds]=document.querySelector("#clock").textContent.split(":").map(Number);
+      return 60*minutes+seconds>=target;
+    },Math.ceil(before.time+3),{timeout:60000});
+  }finally{await page.keyboard.up("e");}
+  await page.waitForTimeout(600);
+  const after=(await readExport(page)).units[0].evaluation_samples.at(-1);
+  const rise=after.estimate[1]-before.estimate[1];
+  assert.ok(rise>2,"Manual climb must change the estimated height");
+  console.log("Keyboard climb measured",rise,"metres between frames",before.frame,after.frame);
+  await page.locator("#manual").uncheck();
+  for(const view of ["follow","fpv","map","cinema","overview"]){
+    const button=page.locator('[data-view="'+view+'"]');await button.click();
+    assert.ok(await button.evaluate(el=>el.classList.contains("selected")));
+  }
+  if(software)await page.locator('[data-view="map"]').click();
+  await page.locator("#speed").click();await page.locator("#speed").click();
+  const deadline=Date.now()+(software?840000:180000);
+  let lastPhase="",lastNote=0;
+  while(await page.locator("#launch").isDisabled()&&Date.now()<deadline){
+    const phase=await page.locator("#phase").innerText();
+    if(phase!==lastPhase||Date.now()-lastNote>45000){
+      console.log(await page.locator("#clock").innerText(),phase,await page.locator("#events").innerText());
+      lastPhase=phase;lastNote=Date.now();
+    }
+    await page.waitForTimeout(1600);
+  }
+  const data=await readExport(page,path.join(dest,"run.json")),unit=data.units[0];
+  console.log(JSON.stringify({outcome:unit.outcome,elapsed_sim_s:unit.elapsed_sim_s,events:data.events.slice(-5)}));
+  assert.equal(data.orders[0].priority,2);
+  assert.ok(data.options.avoid.length&&unit.outcome==="done"&&unit.delivered&&unit.contacts===0&&unit.home_contact_error_m!=null&&unit.home_contact_error_m<.45);
+  assert.ok(data.events.some(e=>e.reason==="已手动接管")&&data.events.some(e=>e.reason==="恢复任务控制"));
+  await page.locator("#reset").click();
+  await page.waitForFunction(()=>document.querySelector("#phase").textContent==="等待订单");
+  const result={paused_at:pausedAt,paused_frame:pausedFrame,renderer:data.gpu,
+    keyboard_climb_estimate_m:rise,before_frame:before.frame,after_frame:after.frame,station:31,priority:2,
+    cameras:5,reset:true,home_error_m:unit.home_contact_error_m};
+  fs.writeFileSync(path.join(dest,"controls.json"),JSON.stringify(result,null,2));
+  console.log(JSON.stringify(result));
+}
 
 async function main(){
-  const [url="http://127.0.0.1:8863",profile="delivery",dest="output/playwright/delivery"]=process.argv.slice(2);
+  const [url="http://127.0.0.1:8863",profile="delivery",dest="output/playwright/delivery",renderer="hardware"]=process.argv.slice(2);
+  const software=renderer==="software";
+  if(!["hardware","software"].includes(renderer))throw new Error("Select hardware or software rendering for the browser test");
   fs.mkdirSync(dest,{recursive:true});
-  const browser=await chromium.launch({channel:"msedge",headless:true,args:["--enable-gpu","--use-angle=d3d11"]});
-  const page=await browser.newPage({viewport:{width:1280,height:720},acceptDownloads:true});
+  const renderArgs=software?["--use-angle=swiftshader","--enable-unsafe-swiftshader"]:["--enable-gpu","--use-angle=d3d11"];
+  const browser=await chromium.launch({channel:"msedge",headless:true,args:renderArgs});
+  const viewport=software?{width:960,height:640}:{width:1280,height:720};
+  const page=await browser.newPage({viewport,acceptDownloads:true});
   const errors=[];
   page.on("pageerror",e=>{errors.push(String(e));console.error(String(e));});
   page.on("console",m=>{if(m.type()==="error")console.error(m.text().slice(0,400));});
@@ -20,6 +100,9 @@ async function main(){
     await page.waitForFunction(()=>!document.querySelector("#launch").disabled,{},{timeout:30000});
     await page.screenshot({path:path.join(dest,"city.png")});
     if(profile==="inspect")return;
+    if(profile==="controls"){
+      await verifyControls(page,dest,software);assert.deepEqual(errors,[]);return;
+    }
     const experiment=["ab","checkpoint-ab","gps-ab","policy-ab"].includes(profile);
     if(["fleet","fleet-share","blackout","battery","recall"].includes(profile))await page.locator("#chapter").selectOption("5");
     if(profile==="resident")await page.locator("#station").selectOption("31");
@@ -68,11 +151,8 @@ async function main(){
         if(!(await page.locator("#compare").isDisabled()))break;
       }else if(!(await page.locator("#launch").isDisabled()))break;
     }
-    if(await page.locator("#experiment").getAttribute("open")===null)await page.locator("#experiment summary").click();
-    const download=page.waitForEvent("download");await page.locator("#export").click();
-    await (await download).saveAs(path.join(dest,"run.json"));
+    const data=await readExport(page,path.join(dest,"run.json"));
     await page.screenshot({path:path.join(dest,"result.png")});
-    const data=JSON.parse(fs.readFileSync(path.join(dest,"run.json"),"utf8"));
     console.log(JSON.stringify({gpu:data.gpu,fps:data.mean_fps,units:data.units.map(({trajectory,evaluation_samples,visual_loop_closures,...r})=>r),frames:data.keyframes.length,
       experiment:data.experiment?.branches.map(b=>({active:b.active_observation,outcome:b.metrics.outcome,delivered:b.metrics.delivered})),errors}));
     let exercised=experiment?data.experiment?.branches.length===2:
