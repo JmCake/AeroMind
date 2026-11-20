@@ -306,6 +306,8 @@ function bind(){
   for(const button of document.querySelectorAll("[data-view]"))button.onclick=()=>{
     document.querySelector("[data-view].selected")?.classList.remove("selected");button.classList.add("selected");city.switchView(button.dataset.view);
     $("map-legend").hidden=button.dataset.view!=="map";
+    document.querySelector(".map-title h1").textContent=button.dataset.view==="map"?"机载认知地图":"云港学区";
+    document.querySelector(".map-title .eyebrow").textContent=button.dataset.view==="map"?"LOCAL MAP":"CAMPUS DISTRICT";
     if(button.dataset.view==="map")$("knowledge").open=true;
   };
   for(const button of document.querySelectorAll("[data-mode]"))button.onclick=()=>{

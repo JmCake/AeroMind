@@ -101,12 +101,23 @@ export class City {
     const lineMaterial=new T.LineBasicMaterial({color:0x13d0c1,transparent:true,opacity:.9,depthTest:false});
     this.route=new T.Line(new T.BufferGeometry(),lineMaterial); this.route.layers.set(1); this.layer.add(this.route);
     this.route.frustumCulled=false;
+    this.knowledgeScene=new T.Scene();
+    this.knowledgeScene.background=new T.Color(0x10272b);
+    const grid=new T.GridHelper(264,66,0x3d6a6c,0x264448);
+    this.knowledgeScene.add(grid);
     this.mapPositions=new T.BufferAttribute(new Float32Array(2400*3),3).setUsage(T.DynamicDrawUsage);
     this.mapColors=new T.BufferAttribute(new Float32Array(2400*3),3).setUsage(T.DynamicDrawUsage);
     const mapGeometry=new T.BufferGeometry();mapGeometry.setAttribute("position",this.mapPositions);mapGeometry.setAttribute("color",this.mapColors);
     mapGeometry.setDrawRange(0,0);
-    this.mapPoints=new T.Points(mapGeometry,new T.PointsMaterial({size:2.15,vertexColors:true,transparent:true,opacity:.7,depthTest:false,depthWrite:false}));
-    this.mapPoints.frustumCulled=false;this.mapPoints.renderOrder=2;this.mapPoints.layers.set(1);this.layer.add(this.mapPoints);
+    this.mapPoints=new T.Points(mapGeometry,new T.PointsMaterial({size:1.2,vertexColors:true,toneMapped:false}));
+    this.mapPoints.frustumCulled=false;this.knowledgeScene.add(this.mapPoints);
+    const traceGeometry=new T.BufferGeometry();
+    this.tracePositions=new T.BufferAttribute(new Float32Array(1801*3),3).setUsage(T.DynamicDrawUsage);
+    traceGeometry.setAttribute("position",this.tracePositions);traceGeometry.setDrawRange(0,0);
+    this.estimatedTrace=new T.Line(traceGeometry,new T.LineBasicMaterial({color:0xffecaf,depthTest:false,toneMapped:false}));
+    this.estimatedTrace.frustumCulled=false;this.estimatedTrace.renderOrder=2;this.knowledgeScene.add(this.estimatedTrace);
+    this.estimateArrow=new T.ArrowHelper(v([0,0,-1]),v([0,0,0]),5,0xffed9d,2.8,2.2);
+    this.knowledgeScene.add(this.estimateArrow);
     this.meshRay=new T.Raycaster();
     this.tags=new Map(); this.colliders=[]; this.challenge=null;this.occupants={};
     const bounds=sportsAirspace;
@@ -282,21 +293,35 @@ export class City {
     for(const obj of Object.values(this.occupants))if(obj.visible&&this.meshRay.intersectObject(obj).length)return true;
     return this.meshRay.intersectObjects(this.colliders,false).length>0 || to[1]<.14;
   }
-  draw(b,time) {
-    const body=v(b.pos);
-    this.mapPoints.visible=this.mode==="map";
-    if(this.mapPoints.visible&&this.mapFrame!==b.last){
+  drawKnowledge(b){
+    if(this.mapFrame!==b.last){
       this.mapFrame=b.last;
       const stride=Math.max(1,Math.ceil(b.map.voxels.size/2400));let k=0,i=0;
       for(const cell of b.map.voxels.values()){
         if(i++%stride)continue;
         this.mapPositions.setXYZ(k,...cell.point);
-        const c=cell.odds>1?[1,.45,.10]:cell.odds<-.8?[.06,.86,.67]:[.47,.54,.59];
+        const c=cell.odds>1?[1,.33,.045]:cell.odds<-.8?[.025,.8,.54]:[.19,.27,.27];
         this.mapColors.setXYZ(k++,...c);
       }
       this.mapPositions.needsUpdate=this.mapColors.needsUpdate=true;this.mapPoints.geometry.setDrawRange(0,k);
+      b.trajectory.forEach((point,index)=>this.tracePositions.setXYZ(index,...point));
+      this.tracePositions.setXYZ(b.trajectory.length,...b.est);
+      this.tracePositions.needsUpdate=true;this.estimatedTrace.geometry.setDrawRange(0,b.trajectory.length+1);
     }
-    this.controls.enabled=this.mode==="overview"||this.mode==="map";
+    this.estimateArrow.position.fromArray(b.est);
+    this.estimateArrow.setDirection(v([-Math.sin(b.yaw),0,-Math.cos(b.yaw)]));
+    if(this.mapNeedsFocus){
+      this.controls.target.set(b.est[0]*.5,13,b.est[2]*.5);
+      this.camera.position.copy(this.controls.target).add(v([33,98,46]));
+      this.mapNeedsFocus=false;
+    }
+    this.controls.enabled=true;this.controls.update();
+    this.renderer.render(this.knowledgeScene,this.camera);
+  }
+  draw(b,time) {
+    if(this.mode==="map"){this.drawKnowledge(b);return;}
+    const body=v(b.pos);
+    this.controls.enabled=this.mode==="overview";
     if(this.mode==="follow"){
       const off=v([-.95,.78,1.2]).applyAxisAngle(v([0,1,0]),b.yaw);
       this.camera.position.lerp(body.clone().addScaledVector(off,3.4),.14);
@@ -319,6 +344,9 @@ export class City {
   switchView(name) {
     this.mode=name;
     if(name==="overview")this.resetView();
-    if(name==="map"){this.camera.position.set(0,159,1);this.controls.target.set(0,0,0);this.controls.update();}
+    if(name==="map"){
+      this.mapNeedsFocus=true;this.mapFrame=undefined;
+      for(const tag of this.tags.values())tag.hidden=true;
+    }
   }
 }

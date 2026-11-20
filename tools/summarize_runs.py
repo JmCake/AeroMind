@@ -1,6 +1,7 @@
 """Condense actual desktop exports without screenshots, synthetic metrics or averages of percentiles."""
 
 import argparse
+import csv
 import hashlib
 import json
 from pathlib import Path
@@ -42,14 +43,42 @@ def summarize(name, file):
     return record
 
 
+def sampled_memory(file):
+    with file.open(encoding="utf-8-sig", newline="") as stream:
+        samples = list(csv.DictReader(stream))
+    if not samples:
+        raise ValueError("The Windows process sampler did not capture any observations")
+    fields = ("edge_private_bytes", "inference_private_bytes", "inference_working_set_bytes")
+    return {
+        "sample_count": len(samples),
+        "first_utc": samples[0]["utc"], "last_utc": samples[-1]["utc"],
+        "csv_sha256": hashlib.sha256(file.read_bytes()).hexdigest(),
+        "ranges": {
+            key: [min(int(s[key]) for s in samples), max(int(s[key]) for s in samples)] for key in fields
+        },
+    }
+
+
 if __name__=="__main__":
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output",type=Path)
     parser.add_argument("runs",nargs="+",help="case-name=path-to-export")
     parser.add_argument("--lecture",type=Path)
+    parser.add_argument("--memory",type=Path)
+    parser.add_argument("--bundle",type=Path)
     args=parser.parse_args()
     report={"device":"Core Ultra 5 125H / Intel Arc integrated / Windows / 31.6 GiB RAM",
             "runs":[summarize(k,Path(v)) for k,v in (entry.split("=",1) for entry in args.runs)]}
     if args.lecture:
         report["rehearsals"]=json.loads(args.lecture.read_bytes())
+        for row in report["rehearsals"]:
+            export = args.lecture.parent / f"lecture-{row['run']}.json"
+            row["export_sha256"] = hashlib.sha256(export.read_bytes()).hexdigest()
+    if args.memory:
+        report["windows_process_memory"] = sampled_memory(args.memory)
+    if args.bundle:
+        report["tested_distribution"] = {
+            "file": args.bundle.name, "bytes": args.bundle.stat().st_size,
+            "sha256": hashlib.sha256(args.bundle.read_bytes()).hexdigest(),
+        }
     args.output.write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n",encoding="utf8")
