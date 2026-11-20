@@ -65,3 +65,15 @@ test("protective braking uses estimate and ranges without access to physics pose
   for(const key of ["pos","vel"])Object.defineProperty(b,key,{get(){throw new Error("read independent truth");}});
   assert.equal(Simulation.prototype.obstacle.call({time:1,options:{chapter:4}},b),true);
 });
+test("a camera frame gets one latency sample at its next actual control tick",()=>{
+  const city={restriction:{},barrier(){},climate(){},panelState(){},setRoute(){},animateCraft(){},eventTick(){},collision(){return false;}};
+  const sim=new Simulation(city,()=>{},{}),unit=sim.units[0];
+  sim.start();
+  unit.pendingControlFrame={id:17,capturedAt:performance.now()-80,visionMs:50};
+  sim.advance();
+  sim.advance();
+  assert.equal(unit.frameTimings.length,1);
+  const [sample]=unit.frameTimings;
+  assert.deepEqual([sample.frame,sample.control_tick,sample.vision_ms],[17,1,50]);
+  assert.ok(sample.command_ms>=79&&sample.command_ms>sample.vision_ms);
+});

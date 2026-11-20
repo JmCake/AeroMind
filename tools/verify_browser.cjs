@@ -87,8 +87,12 @@ async function main(){
     if(profile==="blackout")exercised&&=data.communications.some(m=>m.event==="dropped") && !data.communications.some(m=>m.event==="fused");
     if(profile==="recall")exercised&&=data.orders.some(o=>o.returned_by===0&&o.unit===1) && data.units[1].receipts.length===2;
     if(profile==="sensor-noise")exercised&&=data.units[0].simulated_dropped_frames>0;
-    if(!experiment)exercised&&=data.units.filter(u=>u.receipts.length).every(u=>u.home_contact_error_m!=null&&u.home_contact_error_m<.45);
-    if(errors.length||!exercised)process.exitCode=1;
+    if(!experiment)exercised&&=data.units.filter(u=>u.receipts.length).every(u=>
+      u.home_contact_error_m!=null&&u.home_contact_error_m<.45&&u.measured_control_frames>0&&u.timing_samples.length>0&&
+      u.timing_samples.every(t=>t.command_ms>=t.vision_ms&&t.control_tick>0));
+    const withinRealtimeBudget=profile!=="realtime"||(data.mean_fps>=30&&data.frame_time_p95_ms<=55&&
+      data.units[0].camera_to_decision_p95_ms<=160&&data.units[0].sensor_sim_hz>=7);
+    if(errors.length||data.failed_frame_requests||!exercised||!withinRealtimeBudget)process.exitCode=1;
   }finally{await browser.close();}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

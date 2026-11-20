@@ -4,6 +4,7 @@
     {
       "name": "portable-shared",
       "export_sha256": "ff05412eb1d830efe93aa942c804b3247253d0fb248ac8a1a7501119f4850b9d",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D",
       "inference_backend": "opencv",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
@@ -80,8 +81,6 @@
           "min_aircraft_spacing_m": 2.2513968068271386,
           "delivery_error_m": 0.2423939738178797,
           "localization_rmse_m": 0.04045531392061513,
-          "camera_to_decision_p50_ms": 45,
-          "camera_to_decision_p95_ms": 70.79999999701977,
           "accepted_sensor_frames": 555,
           "sensor_sim_hz": 7.500000000000001,
           "minimum_observed_forward_range_m": 3.18,
@@ -94,7 +93,9 @@
               "time": 42.233333333333334,
               "error_m": 0.2423939738178797
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 45,
+          "camera_to_vision_result_p95_ms": 70.79999999701977
         },
         {
           "unit": 2,
@@ -107,8 +108,6 @@
           "min_aircraft_spacing_m": 2.2513968068271386,
           "delivery_error_m": 0.21719245796028636,
           "localization_rmse_m": 0.04014715284600479,
-          "camera_to_decision_p50_ms": 44.20000000298023,
-          "camera_to_decision_p95_ms": 69.20000000298023,
           "accepted_sensor_frames": 754,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 4.4,
@@ -121,7 +120,9 @@
               "time": 68.06666666666666,
               "error_m": 0.21719245796028636
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 44.20000000298023,
+          "camera_to_vision_result_p95_ms": 69.20000000298023
         }
       ],
       "events": [
@@ -349,6 +350,7 @@
     {
       "name": "realtime",
       "export_sha256": "5fc334df99eb60fad65949949d33656f7f5cc0f4a202d2749f855446cf1c02b7",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D",
       "inference_backend": "torch",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
@@ -416,8 +418,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.20579748763138925,
           "localization_rmse_m": 0.040146098190495354,
-          "camera_to_decision_p50_ms": 52.30000000447035,
-          "camera_to_decision_p95_ms": 105.20000000298023,
           "accepted_sensor_frames": 461,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 4.42,
@@ -430,7 +430,9 @@
               "time": 30.866666666666667,
               "error_m": 0.20579748763138925
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 52.30000000447035,
+          "camera_to_vision_result_p95_ms": 105.20000000298023
         }
       ],
       "events": [
@@ -496,6 +498,7 @@
     {
       "name": "gps-denied",
       "export_sha256": "7716c892f529b7d0efa7252d57a2ddbe56a28dad01c8c62410d1aa5940d1c9d5",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -562,8 +565,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.2203171920677599,
           "localization_rmse_m": 0.7737110401306169,
-          "camera_to_decision_p50_ms": 48.70000000298023,
-          "camera_to_decision_p95_ms": 76.30000000447035,
           "accepted_sensor_frames": 463,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 3.03,
@@ -576,7 +577,9 @@
               "time": 31.2,
               "error_m": 0.2203171920677599
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 48.70000000298023,
+          "camera_to_vision_result_p95_ms": 76.30000000447035
         }
       ],
       "events": [
@@ -898,6 +901,7 @@
     {
       "name": "shared-corridor",
       "export_sha256": "e250ed5f5bee27daa9db78adf401395efee3ff66826420c643f17a0f7c9fde44",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -973,8 +977,6 @@
           "min_aircraft_spacing_m": 2.250671536158686,
           "delivery_error_m": 0.2423939738178797,
           "localization_rmse_m": 0.04045531392061513,
-          "camera_to_decision_p50_ms": 82.60000000149012,
-          "camera_to_decision_p95_ms": 115.5,
           "accepted_sensor_frames": 555,
           "sensor_sim_hz": 7.500000000000001,
           "minimum_observed_forward_range_m": 3.18,
@@ -987,7 +989,9 @@
               "time": 42.233333333333334,
               "error_m": 0.2423939738178797
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 82.60000000149012,
+          "camera_to_vision_result_p95_ms": 115.5
         },
         {
           "unit": 2,
@@ -1000,8 +1004,6 @@
           "min_aircraft_spacing_m": 2.250671536158686,
           "delivery_error_m": 0.32007130936679357,
           "localization_rmse_m": 0.04015279777552423,
-          "camera_to_decision_p50_ms": 51.100000001490116,
-          "camera_to_decision_p95_ms": 69.20000000298023,
           "accepted_sensor_frames": 755,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 4.4,
@@ -1014,7 +1016,9 @@
               "time": 68.03333333333333,
               "error_m": 0.32007130936679357
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 51.100000001490116,
+          "camera_to_vision_result_p95_ms": 69.20000000298023
         }
       ],
       "events": [
@@ -1242,6 +1246,7 @@
     {
       "name": "construction",
       "export_sha256": "a970cc1b31eaf6bfb497cd08771d29829ac75d341d049c5bbcfd85716fd0cd0d",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -1308,8 +1313,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.2423939738178797,
           "localization_rmse_m": 0.04045531392061513,
-          "camera_to_decision_p50_ms": 55.5,
-          "camera_to_decision_p95_ms": 99.39999999850988,
           "accepted_sensor_frames": 555,
           "sensor_sim_hz": 7.500000000000001,
           "minimum_observed_forward_range_m": 3.18,
@@ -1322,7 +1325,9 @@
               "time": 42.233333333333334,
               "error_m": 0.2423939738178797
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 55.5,
+          "camera_to_vision_result_p95_ms": 99.39999999850988
         }
       ],
       "events": [
@@ -1416,6 +1421,7 @@
     {
       "name": "recall-and-reassign",
       "export_sha256": "4b2296c742d5a37c4ad22b3c9f8e22ed54f5a5ef19c5b2b917d19c742b4277db",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -1493,14 +1499,14 @@
           "min_aircraft_spacing_m": 2.2516822782743544,
           "delivery_error_m": null,
           "localization_rmse_m": 0.04055069525478101,
-          "camera_to_decision_p50_ms": 91.30000000447035,
-          "camera_to_decision_p95_ms": 128.90000000596046,
           "accepted_sensor_frames": 132,
           "sensor_sim_hz": 7.500000000000001,
           "minimum_observed_forward_range_m": 4.42,
           "semantic_frames": 65,
           "simulated_energy_used_pct": 1.2070674505666876,
-          "receipts": []
+          "receipts": [],
+          "camera_to_vision_result_p50_ms": 91.30000000447035,
+          "camera_to_vision_result_p95_ms": 128.90000000596046
         },
         {
           "unit": 2,
@@ -1513,8 +1519,6 @@
           "min_aircraft_spacing_m": 2.2516822782743544,
           "delivery_error_m": 0.21770138326014057,
           "localization_rmse_m": 0.040124833250670996,
-          "camera_to_decision_p50_ms": 48.30000000447035,
-          "camera_to_decision_p95_ms": 77.79999999701977,
           "accepted_sensor_frames": 1176,
           "sensor_sim_hz": 7.500000000000001,
           "minimum_observed_forward_range_m": 4.4,
@@ -1533,7 +1537,9 @@
               "time": 124.33333333333333,
               "error_m": 0.21770138326014057
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 48.30000000447035,
+          "camera_to_vision_result_p95_ms": 77.79999999701977
         }
       ],
       "events": [
@@ -1697,6 +1703,7 @@
     {
       "name": "learned-policy",
       "export_sha256": "e6ce17578adc6b399efdf3912440ac1c66febeb0bbe0f2d241bdb6071a2639d1",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -1763,8 +1770,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.2653559339932898,
           "localization_rmse_m": 0.04048336494453526,
-          "camera_to_decision_p50_ms": 53.600000001490116,
-          "camera_to_decision_p95_ms": 85.60000000149012,
           "accepted_sensor_frames": 563,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 3.4,
@@ -1777,7 +1782,9 @@
               "time": 43.166666666666664,
               "error_m": 0.2653559339932898
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 53.600000001490116,
+          "camera_to_vision_result_p95_ms": 85.60000000149012
         }
       ],
       "events": [
@@ -1878,6 +1885,7 @@
     {
       "name": "moving-crane",
       "export_sha256": "371138d9c7544a17e379a365755271952e62eb3e44bcc657b0804860e5106cd9",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -1944,8 +1952,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.24046769667852222,
           "localization_rmse_m": 0.04046613864094378,
-          "camera_to_decision_p50_ms": 47.399999998509884,
-          "camera_to_decision_p95_ms": 77,
           "accepted_sensor_frames": 552,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 3.46,
@@ -1958,7 +1964,9 @@
               "time": 41.9,
               "error_m": 0.24046769667852222
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 47.399999998509884,
+          "camera_to_vision_result_p95_ms": 77
         }
       ],
       "events": [
@@ -2059,6 +2067,7 @@
     {
       "name": "night",
       "export_sha256": "59b7c19dcbbcb4481db17201f5a1cc4ce6f338a4806b542245a8ae6fb529ee73",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D",
       "inference_backend": "torch",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
@@ -2126,8 +2135,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.2063052282945273,
           "localization_rmse_m": 0.040146098190495354,
-          "camera_to_decision_p50_ms": 53.29999999701977,
-          "camera_to_decision_p95_ms": 89.5,
           "accepted_sensor_frames": 461,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 4.42,
@@ -2140,7 +2147,9 @@
               "time": 30.866666666666667,
               "error_m": 0.2063052282945273
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 53.29999999701977,
+          "camera_to_vision_result_p95_ms": 89.5
         }
       ],
       "events": [
@@ -2206,6 +2215,7 @@
     {
       "name": "rain",
       "export_sha256": "bf1c27b9f759f6eb5324466e4d0f1364f40fcca7eba09d96e080a5fb42584061",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D",
       "inference_backend": "torch",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
@@ -2273,8 +2283,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.18233718883965605,
           "localization_rmse_m": 0.04015263417421518,
-          "camera_to_decision_p50_ms": 48.100000001490116,
-          "camera_to_decision_p95_ms": 75.89999999850988,
           "accepted_sensor_frames": 464,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 4.42,
@@ -2287,7 +2295,9 @@
               "time": 31.133333333333333,
               "error_m": 0.18233718883965605
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 48.100000001490116,
+          "camera_to_vision_result_p95_ms": 75.89999999850988
         }
       ],
       "events": [
@@ -2353,6 +2363,7 @@
     {
       "name": "checkpoint-fork",
       "export_sha256": "e8428018fb2f8cd7afadfd691457a7bb4ec0ea9c8bf7d31e73de90fb5ae2c039",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D",
       "inference_backend": "torch",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
@@ -2421,8 +2432,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.2423939738178797,
           "localization_rmse_m": 0.04045531392061513,
-          "camera_to_decision_p50_ms": 58.900000005960464,
-          "camera_to_decision_p95_ms": 86.5,
           "accepted_sensor_frames": 555,
           "sensor_sim_hz": 7.500000000000001,
           "minimum_observed_forward_range_m": 3.18,
@@ -2435,7 +2444,9 @@
               "time": 42.233333333333334,
               "error_m": 0.2423939738178797
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 58.900000005960464,
+          "camera_to_vision_result_p95_ms": 86.5
         }
       ],
       "events": [
@@ -2555,8 +2566,6 @@
               "min_aircraft_spacing_m": null,
               "delivery_error_m": 0.2423939738178797,
               "localization_rmse_m": 0.04045531392061513,
-              "camera_to_decision_p50_ms": 62.5,
-              "camera_to_decision_p95_ms": 93.70000000298023,
               "accepted_sensor_frames": 555,
               "sensor_sim_hz": 7.500000000000001,
               "minimum_observed_forward_range_m": 3.18,
@@ -2569,7 +2578,9 @@
                   "time": 42.233333333333334,
                   "error_m": 0.2423939738178797
                 }
-              ]
+              ],
+              "camera_to_vision_result_p50_ms": 62.5,
+              "camera_to_vision_result_p95_ms": 93.70000000298023
             },
             "events": [
               {
@@ -2680,8 +2691,6 @@
               "min_aircraft_spacing_m": null,
               "delivery_error_m": 0.2423939738178797,
               "localization_rmse_m": 0.04045531392061513,
-              "camera_to_decision_p50_ms": 58.900000005960464,
-              "camera_to_decision_p95_ms": 86.5,
               "accepted_sensor_frames": 555,
               "sensor_sim_hz": 7.500000000000001,
               "minimum_observed_forward_range_m": 3.18,
@@ -2694,7 +2703,9 @@
                   "time": 42.233333333333334,
                   "error_m": 0.2423939738178797
                 }
-              ]
+              ],
+              "camera_to_vision_result_p50_ms": 58.900000005960464,
+              "camera_to_vision_result_p95_ms": 86.5
             },
             "events": [
               {
@@ -2790,6 +2801,7 @@
     {
       "name": "policy-fork",
       "export_sha256": "ab67fccbd02c611980a077bb70d36522967ba09e93045500a6d80a3af05dc911",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D",
       "inference_backend": "torch",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
@@ -2857,8 +2869,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.2653559339932898,
           "localization_rmse_m": 0.04048336494453526,
-          "camera_to_decision_p50_ms": 46.899999998509884,
-          "camera_to_decision_p95_ms": 78,
           "accepted_sensor_frames": 563,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 3.4,
@@ -2871,7 +2881,9 @@
               "time": 43.166666666666664,
               "error_m": 0.2653559339932898
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 46.899999998509884,
+          "camera_to_vision_result_p95_ms": 78
         }
       ],
       "events": [
@@ -2998,8 +3010,6 @@
               "min_aircraft_spacing_m": null,
               "delivery_error_m": 0.2423939738178797,
               "localization_rmse_m": 0.04045531392061513,
-              "camera_to_decision_p50_ms": 52,
-              "camera_to_decision_p95_ms": 81,
               "accepted_sensor_frames": 555,
               "sensor_sim_hz": 7.500000000000001,
               "minimum_observed_forward_range_m": 3.18,
@@ -3012,7 +3022,9 @@
                   "time": 42.233333333333334,
                   "error_m": 0.2423939738178797
                 }
-              ]
+              ],
+              "camera_to_vision_result_p50_ms": 52,
+              "camera_to_vision_result_p95_ms": 81
             },
             "events": [
               {
@@ -3123,8 +3135,6 @@
               "min_aircraft_spacing_m": null,
               "delivery_error_m": 0.2653559339932898,
               "localization_rmse_m": 0.04048336494453526,
-              "camera_to_decision_p50_ms": 46.899999998509884,
-              "camera_to_decision_p95_ms": 78,
               "accepted_sensor_frames": 563,
               "sensor_sim_hz": 7.5,
               "minimum_observed_forward_range_m": 3.4,
@@ -3137,7 +3147,9 @@
                   "time": 43.166666666666664,
                   "error_m": 0.2653559339932898
                 }
-              ]
+              ],
+              "camera_to_vision_result_p50_ms": 46.899999998509884,
+              "camera_to_vision_result_p95_ms": 78
             },
             "events": [
               {
@@ -3240,6 +3252,7 @@
     {
       "name": "active-fork",
       "export_sha256": "f5e69e44395a61d461be3962e81722e6596a47464b2006a64f38126584d527ff",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -3303,8 +3316,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.1830178784184104,
           "localization_rmse_m": 0.0404169250560133,
-          "camera_to_decision_p50_ms": 85.59999999403954,
-          "camera_to_decision_p95_ms": 152.5,
           "accepted_sensor_frames": 541,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 3.3,
@@ -3317,7 +3328,9 @@
               "time": 40.36666666666667,
               "error_m": 0.1830178784184104
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 85.59999999403954,
+          "camera_to_vision_result_p95_ms": 152.5
         }
       ],
       "events": [
@@ -3451,14 +3464,14 @@
               "min_aircraft_spacing_m": null,
               "delivery_error_m": null,
               "localization_rmse_m": 0.040757428442998046,
-              "camera_to_decision_p50_ms": 84.89999999850988,
-              "camera_to_decision_p95_ms": 144,
               "accepted_sensor_frames": 713,
               "sensor_sim_hz": 7.5,
               "minimum_observed_forward_range_m": 3.3,
               "semantic_frames": 696,
               "simulated_energy_used_pct": 4.9416390552864815,
-              "receipts": []
+              "receipts": [],
+              "camera_to_vision_result_p50_ms": 84.89999999850988,
+              "camera_to_vision_result_p95_ms": 144
             },
             "events": [
               {
@@ -3527,8 +3540,6 @@
               "min_aircraft_spacing_m": null,
               "delivery_error_m": 0.1830178784184104,
               "localization_rmse_m": 0.0404169250560133,
-              "camera_to_decision_p50_ms": 85.59999999403954,
-              "camera_to_decision_p95_ms": 152.5,
               "accepted_sensor_frames": 541,
               "sensor_sim_hz": 7.5,
               "minimum_observed_forward_range_m": 3.3,
@@ -3541,7 +3552,9 @@
                   "time": 40.36666666666667,
                   "error_m": 0.1830178784184104
                 }
-              ]
+              ],
+              "camera_to_vision_result_p50_ms": 85.59999999403954,
+              "camera_to_vision_result_p95_ms": 152.5
             },
             "events": [
               {
@@ -3651,6 +3664,7 @@
     {
       "name": "occupied-pad",
       "export_sha256": "f4cc6254e3913eda5d63d89bce1368fbce946cef2cce9943d9bc8f37708432d1",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -3717,8 +3731,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.20621847665501786,
           "localization_rmse_m": 0.040431282717445075,
-          "camera_to_decision_p50_ms": 62.20000000298023,
-          "camera_to_decision_p95_ms": 110.89999999850988,
           "accepted_sensor_frames": 544,
           "sensor_sim_hz": 7.499999999999999,
           "minimum_observed_forward_range_m": 4.42,
@@ -3731,7 +3743,9 @@
               "time": 42.43333333333333,
               "error_m": 0.20621847665501786
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 62.20000000298023,
+          "camera_to_vision_result_p95_ms": 110.89999999850988
         }
       ],
       "events": [
@@ -3811,6 +3825,7 @@
     {
       "name": "disconnected",
       "export_sha256": "c3343a2868b1b8de137daf667a0bd44d022fb32cff6102ec4e68d452a26c07a1",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -3886,8 +3901,6 @@
           "min_aircraft_spacing_m": 2.235260648691998,
           "delivery_error_m": 0.1830178784184104,
           "localization_rmse_m": 0.0404169250560133,
-          "camera_to_decision_p50_ms": 82.69999999552965,
-          "camera_to_decision_p95_ms": 115.5,
           "accepted_sensor_frames": 541,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 3.3,
@@ -3900,7 +3913,9 @@
               "time": 40.36666666666667,
               "error_m": 0.1830178784184104
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 82.69999999552965,
+          "camera_to_vision_result_p95_ms": 115.5
         },
         {
           "unit": 2,
@@ -3913,8 +3928,6 @@
           "min_aircraft_spacing_m": 2.235260648691998,
           "delivery_error_m": 0.24925302778975092,
           "localization_rmse_m": 0.04014305070966253,
-          "camera_to_decision_p50_ms": 53.399999998509884,
-          "camera_to_decision_p95_ms": 93.5,
           "accepted_sensor_frames": 713,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 4.4,
@@ -3927,7 +3940,9 @@
               "time": 62.833333333333336,
               "error_m": 0.24925302778975092
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 53.399999998509884,
+          "camera_to_vision_result_p95_ms": 93.5
         }
       ],
       "events": [
@@ -4126,6 +4141,7 @@
     {
       "name": "low-battery",
       "export_sha256": "007d92df7bec0e0b590ff7c04f0bda83dd08a2ed23ae0b1e57d09757a684f49e",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -4191,8 +4207,6 @@
           "min_aircraft_spacing_m": 2.275457043477853,
           "delivery_error_m": 0.19099468972292985,
           "localization_rmse_m": 0.040733384794260134,
-          "camera_to_decision_p50_ms": 51.20000000298023,
-          "camera_to_decision_p95_ms": 70.90000000596046,
           "accepted_sensor_frames": 724,
           "sensor_sim_hz": 7.5,
           "simulated_energy_used_pct": 5.645684022841001,
@@ -4203,7 +4217,9 @@
               "time": 57.43333333333333,
               "error_m": 0.19099468972292985
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 51.20000000298023,
+          "camera_to_vision_result_p95_ms": 70.90000000596046
         },
         {
           "unit": 2,
@@ -4216,8 +4232,6 @@
           "min_aircraft_spacing_m": 2.275457043477853,
           "delivery_error_m": 0.25960869797801467,
           "localization_rmse_m": 0.03984898927447618,
-          "camera_to_decision_p50_ms": 39.69999999552965,
-          "camera_to_decision_p95_ms": 62.29999999701977,
           "accepted_sensor_frames": 487,
           "sensor_sim_hz": 7.5,
           "simulated_energy_used_pct": 4.168190849329624,
@@ -4228,7 +4242,9 @@
               "time": 34.56666666666666,
               "error_m": 0.25960869797801467
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 39.69999999552965,
+          "camera_to_vision_result_p95_ms": 62.29999999701977
         }
       ],
       "events": [
@@ -4350,6 +4366,7 @@
     {
       "name": "residence",
       "export_sha256": "50e053c0c8587cf565ff2b211f8cb41da63275d70a9df93ef048159ab092e692",
+      "format": 2,
       "source": "Three.js WebGL2 live RGB-D + local PyTorch/OpenCV",
       "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
       "gpu": "ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -4416,8 +4433,6 @@
           "min_aircraft_spacing_m": null,
           "delivery_error_m": 0.26818039439422453,
           "localization_rmse_m": 0.04054506506348375,
-          "camera_to_decision_p50_ms": 49.69999999552965,
-          "camera_to_decision_p95_ms": 78.19999999552965,
           "accepted_sensor_frames": 605,
           "sensor_sim_hz": 7.5,
           "minimum_observed_forward_range_m": 4.42,
@@ -4430,7 +4445,9 @@
               "time": 41.5,
               "error_m": 0.26818039439422453
             }
-          ]
+          ],
+          "camera_to_vision_result_p50_ms": 49.69999999552965,
+          "camera_to_vision_result_p95_ms": 78.19999999552965
         }
       ],
       "events": [

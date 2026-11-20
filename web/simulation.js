@@ -26,7 +26,8 @@ function vehicle(index,station,seed) {
     route:[],at:"depot",next:null,phase:"idle",returnTrip:false,airborne:false,cargo:false,delivered:false,
     fix:"初始已知停机位",map:new Knowledge(),frame:0,last:null,firstSense:null,
     lastSense:index===0?-1:2*step-sensorPeriod,lastMapPose:copy(p),
-    distance:0,wait:0,energy:100,startingEnergy:100,deliveredError:null,trajectory:[],metrics:[],latencies:[],
+    distance:0,wait:0,energy:100,startingEnergy:100,deliveredError:null,trajectory:[],metrics:[],
+    frameTimings:[],pendingControlFrame:null,lastVisionRttMs:null,
     odometry:{velocity:[0,0,0],reference:null,lastVision:0,anchors:new Map(),loops:[]},samples:[],accepted:0,unavailable:0,order:null,
     capacity:index===0?1.5:1.2,receipts:[],releaseAt:0,spent:0,
     observation:null, rangeTrack:null,blockedSince:null,visionNote:"等待机载帧",minGap:null,contacts:0};
@@ -91,6 +92,7 @@ export class Simulation {
     if(!this.paused||this.pending||this.serviceError)throw new Error("快照需要已排空的仿真边界");
     const state=structuredClone(Object.fromEntries(stateKeys.map(k=>[k,this[k]])));
     for(const b of state.units){
+      b.pendingControlFrame=null;
       const archive=stamp(), info=await cloneCamera(b.stream,archive);
       if(info.last_frame!==b.last?.id)throw new Error("视觉与仿真帧不同步");
       b.stream=archive;
@@ -193,9 +195,11 @@ export class Simulation {
     this.log("取消进站，包裹随本机返仓，抵达后办理交接",b,"fleet");
   }
   accept(b,result,rtt,sample) {
-    b.last=result;b.pixels=sample.pixels;b.accepted++; b.latencies.push(rtt);
+    b.last=result;b.pixels=sample.pixels;b.accepted++;b.lastVisionRttMs=rtt;
+    if(sample.inFlightClock && this.running && !this.paused){
+      b.pendingControlFrame={id:result.id,capturedAt:sample.capturedAt,visionMs:rtt};
+    }
     b.firstSense??=result.sim_time;
-    if(b.latencies.length>5000)b.latencies.shift();
     const odo=b.odometry,ref=odo.reference;
     if(this.options.gps && sample.gps) {
       if(ref?.gps && result.sim_time>ref.time){
@@ -269,7 +273,8 @@ export class Simulation {
           return;
         }
         const ct=Math.cos(b.pitch),offset=[-.41*Math.sin(b.yaw+b.look)*ct,.23+.41*Math.sin(b.pitch),-.41*Math.cos(b.yaw+b.look)*ct];
-        const sample={gps:this.options.gps?b.pos.map(x=>x+noise(b)*.08):null,
+        const sample={capturedAt:start,inFlightClock:this.running&&!this.paused,
+                      gps:this.options.gps?b.pos.map(x=>x+noise(b)*.08):null,
                       offset,evaluationPose:copy(b.pos)};
         const capture=this.city.capture(b,id,this.time,b.stream,b.returnTrip?46:b.station,this.options.chapter,this.options.checkpoint||"selected",
           this.options.rangeLimit||90,this.options.depthNoise||0,random);
@@ -447,10 +452,11 @@ export class Simulation {
         goal=copy(stations[46].hold);goal[0]-=b.index*2.3;
         if(distance(here,goal)<.55){
           b.homeBerth=measuredBerth(b,46,this.time,b.index);
-          if(!b.homeBerth && this.options.chapter===1 && this.options.gps){
+          if(b.homeBerth)this.log("机载视觉确认物流中心回收仓位",b,"vision");
+          else if(this.options.chapter===1 && this.options.gps){
             b.homeBerth=copy(stations[46].pad);b.homeBerth[0]-=b.index*2.3;
+            this.log("航线自动化按公布仓位和模拟 GPS 进站",b,"state");
           }
-          if(b.homeBerth)this.log("确认物流中心回收仓位",b,"vision");
         }
         break;
       }
@@ -497,6 +503,15 @@ export class Simulation {
     });
     for(const b of this.units){
       const {goal,max}=this.control(b);
+      const observation=b.pendingControlFrame;
+      if(observation){
+        if(b.airborne || b.phase==="done"){
+          b.frameTimings.push({frame:observation.id,control_tick:this.tick,
+            vision_ms:observation.visionMs,command_ms:performance.now()-observation.capturedAt});
+          if(b.frameTimings.length>5000)b.frameTimings.shift();
+        }
+        b.pendingControlFrame=null;
+      }
       if(!b.airborne || b.phase==="failed")continue;
       const before=copy(b.pos), wind=this.options.weather==="rain"?.15*Math.sin(this.time*.7):0;
       const priorVelocity=copy(b.vel);
@@ -528,6 +543,7 @@ export class Simulation {
   }
   frame(now) {
     const interval=now-this.lastWall, dt=Math.min(.09,interval/1000);this.lastWall=now;
+    if(this.paused)for(const b of this.units)b.pendingControlFrame=null;
     if(this.running&&!this.paused&&interval>0){this.frameTimes.push(interval);this.city.budget(interval);if(this.frameTimes.length>10000)this.frameTimes.shift();}
     if(this.running&&!this.paused){
       this.clockDebt=Math.min(.22,this.clockDebt+dt*this.speed);

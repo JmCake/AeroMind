@@ -54,15 +54,21 @@ async function main(){
         stages:stages.length,brake,visual,shared,branch_outcomes:branches.map(b=>b.phase),
         gps_cut:stages[2].events.some(e=>e.reason==="GPS 更新已解除"),
         fleet:data.units.map(u=>({outcome:u.outcome,delivered:u.delivered,contacts:u.contacts,min_spacing_m:u.min_aircraft_spacing_m,
-          dock_error_m:u.delivery_error_m,frame_to_decision_p95_ms:u.camera_to_decision_p95_ms})),
+          dock_error_m:u.delivery_error_m,home_error_m:u.home_contact_error_m,sensor_sim_hz:u.sensor_sim_hz,
+          timed_control_frames:u.measured_control_frames,vision_p95_ms:u.camera_to_vision_result_p95_ms,frame_to_decision_p95_ms:u.camera_to_decision_p95_ms})),
         backend:data.inference_backend,viewport:data.viewport,render_resolution:data.resolution,failed_sensor_requests:data.failed_frame_requests,
+        stage_failed_requests:stages.map(s=>s.failed_sensor_requests),
         fps:data.mean_fps,frame_p95_ms:data.frame_time_p95_ms,heap_bytes:data.js_heap_bytes};
+      row.mission_pass=stages.length===7&&brake&&visual&&shared&&row.gps_cut&&branches.length===2&&
+        branches[0].phase!=="done"&&branches[1].phase==="done"&&row.fleet.length===2&&row.fleet.every(u=>
+          u.delivered&&u.outcome==="done"&&u.contacts===0&&u.dock_error_m!=null&&u.dock_error_m<.45&&u.home_error_m!=null&&u.home_error_m<.45);
+      row.stability_pass=row.browser_errors.length===0&&row.failed_sensor_requests===0&&row.stage_failed_requests.every(n=>n===0);
+      row.performance_pass=whole.mean_fps>=30&&whole.frame_p95_ms<=55&&row.fps>=30&&row.frame_p95_ms<=55&&
+        row.fleet.every(u=>u.sensor_sim_hz>=7&&u.timed_control_frames>0&&u.frame_to_decision_p95_ms!=null&&u.frame_to_decision_p95_ms<=220);
       rows.push(row);console.log(JSON.stringify(row));
       fs.writeFileSync(path.join(folder,"summary.json"),JSON.stringify(rows,null,2));
       if(run===1)await page.screenshot({path:path.join(folder,"lecture.png")});
-      if(row.browser_errors.length||row.stages!==7||!brake||!visual||!shared||!row.gps_cut||
-        branches.length!==2||branches[0].phase==="done"||branches[1].phase!=="done"||
-        row.fleet.some(u=>!u.delivered||u.outcome!=="done"||u.contacts))process.exitCode=1;
+      if(!row.mission_pass||!row.stability_pass||(Number(rate)===1&&!row.performance_pass))process.exitCode=1;
     }
   }finally{await browser.close();}
 }

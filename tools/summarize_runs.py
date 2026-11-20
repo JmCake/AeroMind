@@ -6,18 +6,26 @@ import json
 from pathlib import Path
 
 
-def essential_unit(unit):
-    return {key:value for key,value in unit.items() if key not in ("trajectory","evaluation_samples","visual_loop_closures")}
+def essential_unit(unit, version):
+    record = {key:value for key,value in unit.items() if key not in ("trajectory","evaluation_samples","visual_loop_closures")}
+    if version < 3:
+        # v2 sampled the instant the vision response was parsed, before control.
+        for quantile in ("p50", "p95"):
+            old_key = f"camera_to_decision_{quantile}_ms"
+            if old_key in record:
+                record[f"camera_to_vision_result_{quantile}_ms"] = record.pop(old_key)
+    return record
 
 
 def summarize(name, file):
     raw=file.read_bytes()
     data=json.loads(raw)
-    keys=("source","inference_backend","browser","gpu","viewport","resolution","sensor","physics_hz","sensor_target_hz",
+    version=data.get("format",2)
+    keys=("format","source","timing_boundary","inference_backend","browser","gpu","viewport","resolution","sensor","physics_hz","sensor_target_hz",
           "mean_fps","frame_time_p95_ms","failed_frame_requests","js_heap_bytes","render_pixel_ratio",
           "model_sha256","segmentation_sha256","policy_sha256","options","orders")
     record={"name":name,"export_sha256":hashlib.sha256(raw).hexdigest(),
-            **{k:data[k] for k in keys if k in data},"units":[essential_unit(u) for u in data["units"]],
+            **{k:data[k] for k in keys if k in data},"units":[essential_unit(u,version) for u in data["units"]],
             "events":data["events"],"keyframe_count":len(data["keyframes"])}
     if not data["options"].get("gps",True):
         record["localization_samples"]=[u.get("evaluation_samples",[])[::8] for u in data["units"]]
@@ -29,7 +37,7 @@ def summarize(name, file):
         exp=data["experiment"]
         record["experiment"]={k:v for k,v in exp.items() if k!="branches"}
         record["experiment"]["branches"]=[{k:v for k,v in b.items() if k not in ("events","keyframes","metrics")}
-            |{"metrics":essential_unit(b["metrics"]),"events":b["events"],"keyframes":len(b["keyframes"])}
+            |{"metrics":essential_unit(b["metrics"],version),"events":b["events"],"keyframes":len(b["keyframes"])}
             for b in exp["branches"]]
     return record
 
