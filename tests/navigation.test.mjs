@@ -77,3 +77,16 @@ test("a camera frame gets one latency sample at its next actual control tick",()
   assert.deepEqual([sample.frame,sample.control_tick,sample.vision_ms],[17,1,50]);
   assert.ok(sample.command_ms>=79&&sample.command_ms>sample.vision_ms);
 });
+test("standard gamepad axis dead zone and shoulder inputs reach the manual controller",()=>{
+  const previous=Object.getOwnPropertyDescriptor(globalThis,"navigator");
+  const simulated={mapping:"standard",axes:[.75,.1],buttons:[{},{},{},{},{value:0},{value:1}]};
+  Object.defineProperty(globalThis,"navigator",{configurable:true,value:{getGamepads:()=>[null,simulated]}});
+  try{
+    const unit={index:0,station:17,phase:"cruise",est:[1,2,3]};
+    const action=Simulation.prototype.control.call({manual:true,activeUnit:0,keys:new Set()},unit);
+    assert.deepEqual(action,{goal:[4,6,3],max:4});
+  }finally{
+    if(previous)Object.defineProperty(globalThis,"navigator",previous);
+    else delete globalThis.navigator;
+  }
+});
