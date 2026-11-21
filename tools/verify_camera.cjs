@@ -65,23 +65,21 @@ async function main() {
         if (lastShot) window.cameraSamples.push({...lastShot, now, paused: this.paused, speed: Math.hypot(...this.units[this.activeUnit].vel)});
       };
     });
-    await page.getByRole("button", {name: "起飞送货"}).click();
-    await at("route");
-    await page.getByRole("button", {name: "设置前方施工"}).click();
+    await page.getByRole("button", {name: "开始配送"}).click();
+    await at("search");
     if (profile === "quick") await page.waitForTimeout(4500);
     else {
       await page.waitForTimeout(4500);
       await page.screenshot({path: path.join(dest, "follow.png")});
       await at("evidence");
-      await page.getByRole("button", {name: "继续配送"}).click();
       await at("station");
-      await page.getByRole("button", {name: "暂停飞行"}).click();
+      await page.getByRole("button", {name: "暂停演示"}).click();
       await page.waitForTimeout(450);
       const paused = await page.evaluate(() => window.cameraSamples.filter(s => s.stage === "station" && s.paused).slice(-5));
       assert.ok(paused.length >= 2 && paused.every(s => distance(s.eye, paused[0].eye) < 1e-7 &&
         distance(s.body, paused[0].body) < 1e-7), "A teacher pause must also stop the spectator camera and model");
       await page.screenshot({path: path.join(dest, "station.png")});
-      await page.getByRole("button", {name: "继续飞行"}).click();
+      await page.getByRole("button", {name: "继续演示"}).click();
       await at("complete");
     }
     const samples = await page.evaluate(() => window.cameraSamples);

@@ -4,7 +4,7 @@ const states = {available: "可交接", occupied: "占用", unreadable: "看不�
 // granted berth entry. These canvases are presentation surfaces only.
 export function drawStationEvidence(panel, observation, rgb, station) {
   const proof = observation?.panel_proof;
-  if (proof?.station !== station || observation.handoff.state !== "ready" || proof.frames.length !== 2) return false;
+  if (proof?.station !== station || observation.handoff?.state !== "ready" || proof.frames?.length !== 2) return false;
   const frames = proof.frames, current = frames[1];
   if (current.id !== observation.id || !frames.every((f, i) => f.stamp_ns === observation.handoff.evidence_ns[i])) return false;
 
@@ -21,7 +21,7 @@ export function drawStationEvidence(panel, observation, rgb, station) {
   ctx.strokeStyle = "#89ffdb";
   ctx.lineWidth = 1.4;
   ctx.stroke();
-  panel.querySelector("#station-source").textContent = "机载原图 · F" + current.id + " · 框内为状态图案";
+  panel.querySelector("#station-source").textContent = "机载原图 · F" + current.id;
 
   const list = panel.querySelector("#station-readings");
   list.replaceChildren();

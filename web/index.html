@@ -3,46 +3,63 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#153a38">
-  <title>无人机如何从图像决定下一步？ · AeroMind</title>
+  <meta name="theme-color" content="#f8f6ef">
+  <title>无人机视觉配送课 · AeroMind</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/app/classroom.css">
   <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/addons/"}}</script>
 </head>
 <body>
-  <header>
-    <div class="brand"><i aria-hidden="true"></i><strong>AeroMind</strong><span>计算机视觉课堂</span></div>
-    <a href="/app/lab.html">课后实验 <span aria-hidden="true">↗</span></a>
-  </header>
   <main id="lesson" data-stage="loading">
-    <section class="stage" aria-label="配送现场">
-      <div id="world" aria-label="实时三维校园"></div>
-      <canvas id="route-overlay" aria-hidden="true"></canvas>
-      <div id="observation" aria-label="施工现场和机载观测" hidden>
-        <figure><canvas id="site-still" width="640" height="360" role="img" aria-label="作出判断时，无人机与施工挡板的相对位置"></canvas><figcaption>施工现场</figcaption></figure>
-        <figure><canvas id="feed" width="320" height="180" role="img" aria-label="触发判断的机载画面，圆圈标出前方的一个实际测距点"></canvas><figcaption id="frame-label"></figcaption></figure>
-      </div>
-      <section id="station-proof" aria-label="图书馆进站时的模型证据" hidden>
-        <figure class="station-camera">
-          <canvas id="station-frame" width="320" height="180" role="img" aria-label="机载相机原图，框内是送入分类网络的站牌区域"></canvas>
-          <figcaption id="station-source"></figcaption>
-        </figure>
-        <div class="station-readout">
-          <h2 id="input-title">卷积网络读到的图像</h2>
-          <ol id="station-readings"></ol>
-          <p id="station-rule"></p>
+    <header class="masthead">
+      <div class="brand"><i aria-hidden="true"></i><strong>AeroMind</strong><span>计算机视觉课堂</span></div>
+      <ol class="progress" aria-label="配送进度">
+        <li aria-current="step">起飞</li><li>避障</li><li>进站</li>
+      </ol>
+    </header>
+    <section class="brief" aria-label="课堂操作">
+      <h1 id="question" aria-live="polite">送一件包裹到图书馆</h1>
+      <p id="explanation" aria-live="polite">点一次「开始配送」，沿途看它避障、读站牌。</p>
+      <button type="button" id="next" disabled><i aria-hidden="true"></i><span>正在载入…</span></button>
+    </section>
+    <div class="workbench">
+      <section class="scene-card" aria-labelledby="scene-title">
+        <div class="card-heading">
+          <h2 id="scene-title">飞行现场</h2>
+          <span id="scene-text">物流中心 → 图书馆</span>
         </div>
+        <div id="world" aria-label="校园内的实时三维跟拍画面"></div>
       </section>
-      <div class="scene-caption" id="scene-caption"><span class="route-swatch" hidden></span><span id="scene-text">物流中心 → 图书馆</span><span id="old-edge-key" hidden><i></i>受阻原路</span></div>
-    </section>
-    <section class="teacher" aria-label="课堂操作">
-      <div class="copy" aria-live="polite" aria-atomic="true">
-        <p class="topic" id="topic">图书馆配送</p>
-        <h1 id="question">无人机如何从图像决定下一步？</h1>
-        <p id="explanation">路上看它怎样发现挡板，到站看它怎样读懂站牌。</p>
-      </div>
-      <button type="button" id="next" disabled>正在载入…</button>
-    </section>
+      <section class="vision-card" id="station-proof" aria-labelledby="vision-title">
+        <div class="card-heading">
+          <h2 id="vision-title">机载视觉</h2>
+          <span id="vision-mode">相机启动中</span>
+        </div>
+        <figure class="camera-readout">
+          <div class="image-plane">
+            <canvas id="feed" width="320" height="180" role="img" aria-label="当前机载相机画面"></canvas>
+            <canvas id="mask-overlay" width="320" height="180" role="img" aria-label="分割网络在同一帧上预测的物体轮廓"></canvas>
+            <canvas id="station-frame" width="320" height="180" role="img" aria-label="进站时相机拍到的原图，框内为模型读取的站牌" hidden></canvas>
+            <div class="image-labels" id="segmentation-labels"><span id="construction-label" hidden>施工构件</span><span id="sign-label" hidden>站牌</span></div>
+          </div>
+          <figcaption>
+            <span id="frame-label">等待第一帧</span><span id="station-source" hidden></span>
+            <strong id="vision-result">等待机载画面</strong>
+            <span id="vision-note">相机和视觉模型正在连接。</span>
+          </figcaption>
+        </figure>
+      </section>
+    </div>
+    <footer id="recap" hidden>
+      <details id="review">
+        <summary>回看两次判断</summary>
+        <div class="proofs">
+          <figure><canvas id="obstacle-replay" width="320" height="180" role="img" aria-label="绕行时保存的真实机载观测与测距点"></canvas><figcaption id="obstacle-caption"></figcaption></figure>
+          <section><h2 id="input-title">卷积网络输入</h2><ol id="station-readings"></ol><p id="station-rule"></p></section>
+        </div>
+      </details>
+      <a href="/app/lab.html">课后实验 <span aria-hidden="true">↗</span></a>
+    </footer>
   </main>
   <script type="module" src="/app/classroom.js"></script>
 </body>
