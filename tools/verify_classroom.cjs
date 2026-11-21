@@ -155,15 +155,17 @@ async function checkFrame(page, recent) {
 
 async function main() {
   const [url = "http://127.0.0.1:8863", dest = "output/playwright/classroom", repeats = "1", profile = "hardware"] = process.argv.slice(2);
-  const software = profile === "software-checkpoint";
+  const windowsSoftware = profile === "windows-software";
+  const software = windowsSoftware || profile === "software-checkpoint";
   const faultTest = profile === "reconnect" || software;
   assert.ok(software || faultTest || profile === "hardware");
   fs.mkdirSync(dest, {recursive: true});
-  const browser = await chromium.launch({channel: "msedge", headless: true, args: software
-    ? ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] : ["--enable-gpu", "--use-angle=d3d11"]});
+  const args = windowsSoftware ? ["--enable-gpu", "--use-angle=d3d11-warp"] : software
+    ? ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] : ["--enable-gpu", "--use-angle=d3d11"];
+  const browser = await chromium.launch({channel: "msedge", headless: true, args});
   const page = await browser.newPage({viewport: software ? {width: 820, height: 500} : {width: 1280, height: 720},
     deviceScaleFactor: software ? 0.65 : 1});
-  const errors = [], recent = [], runs = [];
+  const errors = [], recent = [], runs = [], failedFrameRequests = {};
   let requests = 0, submitted = 0, interruptedRequests = 0;
   const observed = new Map();
   let lastStage = "", lastFrame = null, lastProgress = Date.now();
@@ -188,6 +190,11 @@ async function main() {
   page.on("crash", () => errors.push("Classroom page crashed"));
   page.on("request", request => {
     if (new URL(request.url()).pathname === "/api/frame") submitted++;
+  });
+  page.on("requestfailed", request => {
+    if (new URL(request.url()).pathname !== "/api/frame") return;
+    const reason = request.failure()?.errorText ?? "unknown";
+    failedFrameRequests[reason] = (failedFrameRequests[reason] ?? 0) + 1;
   });
   page.on("response", response => {
     if (new URL(response.url()).pathname !== "/api/frame") return;
@@ -239,6 +246,8 @@ async function main() {
       const ext = gl.getExtension("WEBGL_debug_renderer_info");
       return gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
     });
+    if (windowsSoftware) assert.match(gpu, /Microsoft Basic Render Driver|WARP/i, "Windows must actually rasterize this flight in software");
+    if (software) console.log("Classroom renderer", gpu);
     const saveReport = labRoundTrip => {
       const report = {edition: health.classroom_edition, backend: health.backend, renderer: gpu, profile, runs,
         deliberately_interrupted_requests: interruptedRequests, page_errors: errors, lab_round_trip: labRoundTrip};
@@ -338,7 +347,7 @@ async function main() {
     const report = saveReport(true);
     console.log("Verified", report.runs.length, "classroom run(s) and the return from the lab.", path.join(dest, "classroom.json"));
   } catch (error) {
-    const diagnostic = {error: String(error), lastStage, lastFrame, requests, submitted, errors, stages: [...observed.values()]};
+    const diagnostic = {error: String(error), lastStage, lastFrame, requests, submitted, failedFrameRequests, errors, stages: [...observed.values()]};
     console.error(diagnostic);
     fs.writeFileSync(path.join(dest, "incomplete.json"), JSON.stringify(diagnostic, null, 2));
     await page.screenshot({path: path.join(dest, "incomplete.png"), timeout: 5000}).catch(() => {});
