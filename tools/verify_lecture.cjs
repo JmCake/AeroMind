@@ -14,7 +14,7 @@ async function main(){
   try{
     const health=await page.request.get(url+"/api/health");
     if(!health.ok()||(await health.json()).application!=="JmCake/AeroMind/3D")throw new Error("使用三维课堂地址");
-    await page.goto(url,{waitUntil:"networkidle"});
+    await page.goto(new URL("/app/lab.html",url).href,{waitUntil:"networkidle"});
     await page.waitForFunction(()=>!document.querySelector("#launch").disabled);
     for(let run=1;run<=Number(count);run++){
       const started=Date.now(),before=errors.length;

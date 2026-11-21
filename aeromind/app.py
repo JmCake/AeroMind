@@ -20,6 +20,7 @@ from .observations import ImageService
 
 
 ROOT=Path(__file__).resolve().parents[1]
+CLASSROOM_EDITION = "classroom.2"
 PUBLIC = {"/app/": ROOT/"web", "/assets/": ROOT/"ContentSource",
           "/three/": ROOT/"node_modules/three/build", "/addons/": ROOT/"node_modules/three/examples/jsm"}
 
@@ -85,7 +86,7 @@ class Classroom(BaseHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=8863)
+    parser.add_argument("--port", type=int, help="Local port (default 8863)")
     parser.add_argument("--open", action="store_true")
     parser.add_argument("--backend",choices=("torch","opencv"),default="opencv" if getattr(sys,"frozen",False) else "torch")
     args = parser.parse_args()
@@ -99,25 +100,34 @@ def main():
             if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
                 self.socket.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE,1)
             super().server_bind()
-    try:
-        desktop = LocalServer(("127.0.0.1", args.port), Classroom)
-    except OSError as exc:
-        if exc.errno not in (errno.EADDRINUSE, 10048, 10013):
-            raise
-        address = f"http://127.0.0.1:{args.port}"
+    ports = [args.port] if args.port is not None else range(8863, 8873)
+    for port in ports:
         try:
-            with urlopen(address+"/api/health",timeout=2) as response:
-                own = json.load(response).get("application") == "JmCake/AeroMind/3D"
-        except (OSError,ValueError,AttributeError):
-            own = False
-        if not own:
-            raise SystemExit(f"Port {args.port} is in use. Select a different --port.") from exc
-        print(f"AeroMind is already running at {address}",flush=True)
-        if args.open:
-            webbrowser.open(address)
-        return
+            desktop = LocalServer(("127.0.0.1", port), Classroom)
+            break
+        except OSError as exc:
+            if exc.errno not in (errno.EADDRINUSE, 10048, 10013):
+                raise
+        address = f"http://127.0.0.1:{port}"
+        try:
+            with urlopen(address+"/api/health", timeout=2) as response:
+                info = json.load(response)
+        except (OSError, ValueError):
+            info = {}
+        own = isinstance(info, dict) and info.get("application") == "JmCake/AeroMind/3D"
+        if own and info.get("classroom_edition") == CLASSROOM_EDITION and info.get("backend") == args.backend:
+            print(f"AeroMind is already running at {address}", flush=True)
+            if args.open:
+                webbrowser.open(address)
+            return
+        if args.port is not None or (port == 8863 and not own):
+            raise SystemExit(f"Port {port} is in use. Select a different --port.")
+        # A previous classroom may be projected in another window. Start the
+        # new edition on the next available port and leave that lesson running.
+    else:
+        raise SystemExit("No available classroom port. Select a different --port.")
     with desktop as server:
-        health={"application":"JmCake/AeroMind/3D","model":"parcel-display-v1","device":"CPU",
+        health={"application":"JmCake/AeroMind/3D","classroom_edition":CLASSROOM_EDITION,"model":"parcel-display-v1","device":"CPU",
                 "backend":args.backend,"opencv":cv2.__version__}
         if args.backend=="torch":
             import torch

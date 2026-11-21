@@ -94,7 +94,7 @@ async function main(){
   try{
     const health=await page.request.get(url+"/api/health");
     if(!health.ok() || (await health.json()).application!=="JmCake/AeroMind/3D")throw new Error("当前地址未运行指定的三维课堂");
-    await page.goto(url,{waitUntil:"networkidle",timeout:35000});
+    await page.goto(new URL("/app/lab.html",url).href,{waitUntil:"networkidle",timeout:35000});
     console.log(await page.locator("header").innerText());
     await page.getByRole("button",{name:"开始配送"}).waitFor();
     await page.waitForFunction(()=>!document.querySelector("#launch").disabled,{},{timeout:30000});

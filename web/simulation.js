@@ -119,8 +119,9 @@ export class Simulation {
     this.city.setRoute([b.est,...[b.next,...b.route].filter(Boolean).map(k=>airWaypoint(k,b.index))]);
     this.city.animateCraft(this.units,this.time);
   }
-  log(reason,b=this.units[this.activeUnit],kind="state") {
+  log(reason,b=this.units[this.activeUnit],kind="state",passage) {
     const entry={time:this.time,unit:b.index,kind,reason,frame:b.last?.id??null};
+    if(passage)entry.passage=passage;
     this.events.push(entry);this.notify(entry);
   }
   start() {
@@ -410,7 +411,8 @@ export class Simulation {
         b.observation.evidence={frame:b.last.id,...seen,newCells:b.map.voxels.size-b.observation.before};
         if(seen.occupied>=2){
           const key=edgeId(b.at,b.next);b.map.observeEdge(key,this.time,b.index,b.last.id);
-          this.log("F"+b.last.id+" 的 "+seen.occupied+" 条测距射线确认通道占用，退回后改道",b,"vision");
+          this.log("F"+b.last.id+" 的 "+seen.occupied+" 条测距射线确认通道占用，退回后改道",b,"vision",
+            {edge:key, rayIndices:seen.occupiedRayIndices});
           if(this.units.length>1)this.share(b,key);
           b.phase="retreat";b.look=0;b.blockedSince=null;
         }else if(seen.free>=3){

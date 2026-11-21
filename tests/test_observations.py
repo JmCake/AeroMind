@@ -42,6 +42,20 @@ class ObservationTests(unittest.TestCase):
         self.assertEqual(r["sector_m"],[4]*5)
         self.assertIsNone(r["translation_m"])
 
+    def test_range_pixels_stay_paired_with_geometry_after_invalid_depth_is_removed(self):
+        raw = bytearray(packet("range", 1, .1, level=1))
+        offset = 4 + struct.unpack_from("<I", raw)[0] + 96*72*4
+        depth = np.frombuffer(raw, "<u2", offset=offset).reshape(72, 96)
+        depth[:, :48] = 0
+        depth[:, 72:] = 9100
+        result = ImageService(EmptyPanel()).process(raw)
+        pixels = np.asarray(result["ray_pixels_px"])
+        self.assertGreater(len(pixels), 2)
+        self.assertTrue(np.all((pixels[:, 0] >= 48) & (pixels[:, 0] < 72)))
+        focal = 36 / np.tan(np.deg2rad(30))
+        expected = np.column_stack(((pixels[:, 0]-47.5)*4/focal, (35.5-pixels[:, 1])*4/focal, np.full(len(pixels), -4)))
+        np.testing.assert_allclose(result["rays_world_relative_m"], expected, atol=.0051)
+
     def test_rgbd_odometry_recovers_translation_from_pixel_motion(self):
         rng=np.random.default_rng(42)
         gray=cv2.GaussianBlur(rng.integers(0,255,(120,160),np.uint8),(3,3),0)

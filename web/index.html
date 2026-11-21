@@ -1,99 +1,38 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#142e32"><title>AeroMind · 智航纪元</title>
-  <link rel="icon" href="data:,"><link rel="stylesheet" href="/app/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#153a38">
+  <title>无人机为什么会改道？ · AeroMind</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/app/classroom.css">
   <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/addons/"}}</script>
 </head>
 <body>
-<header>
-  <div class="brand"><i class="wing"></i><div><strong>AeroMind</strong><small>智航纪元</small></div></div>
-  <nav aria-label="应用模式">
-    <button data-mode="course" class="selected">课程</button><button data-mode="free">自由配送</button>
-    <button data-mode="challenge">现场挑战</button><button data-mode="experiment">对照实验</button>
-  </nav>
-  <span id="connection" class="status"><i></i>连接本机服务</span>
-</header>
-<main>
- <section id="world" aria-label="实时三维城市">
-   <div class="map-title"><span class="eyebrow">CAMPUS DISTRICT</span><h1>云港学区</h1></div>
-   <div class="map-stats"><span id="clock">00:00</span><small>仿真时间</small></div>
-   <div id="stage-tip" role="status">正在载入三维城市与机载相机…</div>
-   <div id="map-legend" hidden><i></i>通行　<b></b>占用　灰绿 不确定　深色 未知　浅黄 估计航迹</div>
-   <div class="views" aria-label="观察视角">
-    <button data-view="overview" class="selected">总览</button><button data-view="follow">跟随</button>
-    <button data-view="fpv">机载</button><button data-view="map">认知</button><button data-view="cinema">运镜</button>
-   </div>
- </section>
- <aside>
-  <section class="card order">
-    <div class="section-line"><span class="eyebrow">DISPATCH</span><span id="unit-name">AM–01</span></div>
-    <h2>配送任务</h2>
-    <label class="field">配送站点<select id="station"><option value="17">图书馆 · 屋顶站台</option><option value="31">居民区 · 服务站</option></select></label>
-    <div class="chapter field"><label for="chapter">课程章节</label><select id="chapter">
-      <option value="1">01 · 航线自动化</option><option value="2">02 · 视觉感知</option><option value="3">03 · 空间理解</option>
-      <option value="4" selected>04 · 主动观察与预测</option><option value="5">05 · 协同配送</option>
-    </select></div>
-    <button class="launch" id="launch" disabled><span>开始配送</span><b aria-hidden="true">↗</b></button>
-    <div class="telemetry"><div><small>任务状态</small><strong id="phase">等待订单</strong></div><div><small>飞行里程</small><strong id="travel">0 m</strong></div><div><small>剩余电量</small><strong id="energy">100%</strong></div></div>
-    <details id="classroom"><summary>课堂讲演 · 7 分 30 秒</summary>
-      <label class="field">讲演速度<select id="lecture-rate"><option value="1">课堂实速</option><option value="3">3× 排练</option></select></label>
-      <button id="lecture" class="secondary">开始课堂讲演</button><p id="lecture-status" class="hint">五阶段课程、状态分叉和双机配送。</p>
-    </details>
-  </section>
-  <section class="card optical">
-    <div class="section-line"><h3>机载视觉</h3><span id="frame-num">F —</span></div>
-    <div class="feed"><canvas id="feed" aria-label="机载原始图像"></canvas><canvas id="detections" width="320" height="180" aria-label="检测框和置信度"></canvas><i class="cross"></i></div>
-    <div class="percept"><i></i><span id="percept">等待第一帧</span></div>
-    <dl><div><dt>定位来源</dt><dd id="fix">初始停机位</dd></div><div><dt>前向距离</dt><dd id="range">—</dd></div><div><dt>图像往返</dt><dd id="latency">—</dd></div></dl>
-  </section>
-  <details class="card" id="controls"><summary>环境与驾驶</summary>
-    <label class="field">环境<select id="weather"><option value="day">日照</option><option value="fog">薄雾</option><option value="night">夜间</option><option value="rain">阴雨与阵风</option></select></label>
-    <label class="field">施工位置<select id="worksite"><option value="south">南侧通道</option><option value="north">北侧住宅支线</option></select></label>
-    <label class="field">限飞时长<select id="zone-time"><option value="0">直到解除</option><option value="20">20 仿真秒</option><option value="45">45 仿真秒</option></select></label>
-    <label class="field">深度量程<select id="range-limit"><option value="90">90 m</option><option value="30">30 m</option><option value="15">15 m</option></select></label>
-    <label class="field">深度噪声<select id="depth-noise"><option value="0">无附加噪声</option><option value="0.05">±5 cm</option><option value="0.2">±20 cm</option></select></label>
-    <label class="field">相机丢帧<select id="drop-rate"><option value="0">关闭</option><option value="0.15">15%</option><option value="0.35">35%</option></select></label>
-    <label class="field">双机订单<select id="second-route"><option value="mixed">分别配送两站</option><option value="shared">共用图书馆走廊</option></select></label>
-    <label class="field">机间通信<select id="link"><option value="local">0.6 秒延迟</option><option value="slow">4 秒延迟</option><option value="loss">50% 丢包</option><option value="off">断连</option></select></label>
-    <label class="field">通讯范围<select id="link-range"><option value="250">全学区</option><option value="25">25 m</option><option value="10">10 m</option></select></label>
-    <label class="field">二号机起飞<select id="departure"><option value="0">按订单安排</option><option value="8">第 8 仿真秒</option><option value="18">第 18 仿真秒</option></select></label>
-    <label class="field">显示画质<select id="quality"><option value="standard">标准集显</option><option value="economy">节能</option></select></label>
-    <label class="field">决策策略<select id="policy"><option value="rules">规划规则</option><option value="learned">校园 Q 学习</option></select></label>
-    <div class="switches"><label><input type="checkbox" id="barrier">通道施工</label><label><input type="checkbox" id="moving">吊臂摆动</label>
-      <label><input type="checkbox" id="occupied">占用站台</label><label><input type="checkbox" id="zone">南侧限飞</label>
-      <label><input type="checkbox" id="gps" checked>GPS 更新</label><label><input type="checkbox" id="fleet">双机配送</label>
-      <label><input type="checkbox" id="manual">手动接管</label><label><input type="checkbox" id="low-battery">一号机低电量</label>
-      <label><input type="checkbox" id="sound">飞行与回执音效</label></div>
-    <p class="hint" id="drive-hint" hidden>WASD 或左摇杆平移，Q/E 或双肩键升降。</p>
-    <button id="recall" class="secondary">召回当前机与包裹</button>
-    <label class="field">任务指令<input id="command" placeholder="将包裹送到图书馆指定平台"></label>
-    <button id="parse" class="secondary">应用指令</button>
-  </details>
-  <details class="card" id="knowledge"><summary>认知地图与决策</summary>
-    <canvas id="cognitive" width="300" height="170" aria-label="观测体素俯视图"></canvas>
-    <p class="legend">深灰 未知　青色 通行　琥珀 占用　灰绿 不确定</p><p id="rationale" class="hint">等待地图更新</p>
-    <ol id="decision-events"></ol>
-  </details>
-  <details class="card" id="experiment"><summary>实验与协作</summary>
-    <label class="field">对照变量<select id="factor"><option value="active_observation">主动观察</option><option value="checkpoint">分割检查点</option><option value="gps">GPS 更新</option><option value="policy">巡航与观察策略</option></select></label>
-    <label class="field">共同快照<select id="fork-time"><option value="3">第 3 仿真秒</option><option value="6" selected>第 6 仿真秒</option><option value="8">第 8 仿真秒</option></select></label>
-    <button id="compare" class="secondary">运行双分支实验</button><p id="compare-state" class="hint">保存同一时刻的飞机、地图和视觉跟踪状态，两次运行只改变选定因素。</p>
-    <button id="switch-unit" class="secondary" disabled>切换观测无人机</button><p id="fleet-state" class="hint">单机运行</p>
-    <label class="field">关键帧回放<input aria-label="回放时间" id="replay-time" type="range" min="0" max="0" value="0" step="0.2"></label>
-    <div id="replay" hidden><div class="replay-pair"></div><p id="replay-caption" class="hint"></p></div>
-    <button id="export" class="secondary">导出运行证据</button>
-  </details>
-  <details class="card" id="training"><summary>模型训练记录</summary>
-    <canvas id="learning-curve" width="300" height="120" aria-label="各训练轮次的独立验证集前景平均交并比"></canvas>
-    <p id="training-score" class="hint"></p>
-  </details>
- </aside>
-</main>
-<footer>
- <div class="timeline"><span class="eyebrow">任务时间轴</span><div id="events" aria-live="polite">等待选择订单</div></div>
- <div class="transport"><button id="pause" disabled>暂停</button><button id="speed">1×</button><button id="reset">重置</button></div>
-</footer>
-<script type="module" src="/app/main.js"></script>
-</body></html>
+  <header>
+    <div class="brand"><i aria-hidden="true"></i><strong>AeroMind</strong><span>计算机视觉课堂</span></div>
+    <a href="/app/lab.html">课后实验 <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="lesson" data-stage="loading">
+    <section class="stage" aria-label="配送现场">
+      <div id="world" aria-label="实时三维校园"></div>
+      <canvas id="route-overlay" aria-hidden="true"></canvas>
+      <div id="observation" aria-label="施工现场和机载观测" hidden>
+        <figure><canvas id="site-still" width="640" height="360" role="img" aria-label="作出判断时，无人机与施工挡板的相对位置"></canvas><figcaption>施工现场</figcaption></figure>
+        <figure><canvas id="feed" width="320" height="180" role="img" aria-label="触发判断的机载画面，圆圈标出前方的一个实际测距点"></canvas><figcaption id="frame-label"></figcaption></figure>
+      </div>
+      <div class="scene-caption" id="scene-caption"><span class="route-swatch" hidden></span><span id="scene-text">物流中心 → 图书馆</span><span id="old-edge-key" hidden><i></i>受阻原路</span></div>
+    </section>
+    <section class="teacher" aria-label="课堂操作">
+      <div class="copy" aria-live="polite" aria-atomic="true">
+        <p class="topic" id="topic">图书馆配送</p>
+        <h1 id="question">无人机为什么会改道？</h1>
+        <p id="explanation">从物流中心送一件包裹到图书馆。先看它准备怎么走。</p>
+      </div>
+      <button type="button" id="next" disabled>正在载入…</button>
+    </section>
+  </main>
+  <script type="module" src="/app/classroom.js"></script>
+</body>
+</html>

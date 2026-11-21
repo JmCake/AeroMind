@@ -217,7 +217,8 @@ class ImageService:
         yy, xx = np.mgrid[h//8:h: max(1,h//7), w//24:w: max(1,w//15)]
         pixels = np.column_stack([xx.ravel(), yy.ravel()])
         endpoints = camera_points(pixels, depth, focal)
-        endpoints = endpoints[(endpoints[:,2] < -.2) & (endpoints[:,2] >= -90)]
+        valid = (endpoints[:,2] < -.2) & (endpoints[:,2] >= -90)
+        endpoints = endpoints[valid]
         sectors = []
         for band in np.array_split(depth[2*h//5:3*h//5], 5, axis=1):
             hits = band[(band > .2) & (band <= 90)]
@@ -232,5 +233,6 @@ class ImageService:
                 "readings":panels,"regions":regions,"segmentation_checkpoint":checkpoint,"loop_closure":loop,"keyframe_added":added,
                 "handoff": asdict(decision), "sector_m":sectors,
                 "rays_world_relative_m":(endpoints @ basis.T).round(2).tolist(),
+                "ray_pixels_px":pixels[valid].tolist(),
                 "translation_m":delta, "tracked_features":support, "flow_residual_m":error,
                 "processing_ms":round((perf_counter()-started)*1000, 2)}

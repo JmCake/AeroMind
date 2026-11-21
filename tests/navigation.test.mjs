@@ -1,8 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {allocateOrders,pathBetween,edgeId,Knowledge,orderFromText,observationYaw,integrate,restrictedEdges,intersectsZone,measurementRandom} from "../web/navigation.js";
+import {allocateOrders,pathBetween,edgeId,Knowledge,orderFromText,observationYaw,integrate,restrictedEdges,intersectsZone,measurementRandom,inspectPassage} from "../web/navigation.js";
 import {Simulation} from "../web/simulation.js";
 import {learnedAction} from "../web/policy.js";
+
+test("the classroom marks only the range rays that establish occupancy inside the flight corridor",()=>{
+  const rays=[[5,0,-3],[0,0,-4],[0,0,-18],[.5,0,-5],[0,0,2]];
+  assert.deepEqual(inspectPassage([0,0,0],[0,0,-25],rays,4),{occupied:2,free:1,occupiedRayIndices:[1,3]});
+});
 
 test("reported or published closure changes the three-dimensional route",()=>{
   const direct=pathBetween("depot","library");

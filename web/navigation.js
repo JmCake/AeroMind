@@ -164,17 +164,18 @@ export function observationYaw(map, pose, yaw, time) {
 
 export function inspectPassage(origin, waypoint, rays, observedRange) {
   const offset=waypoint.map((n,i)=>n-origin[i]), length=Math.hypot(...offset);
-  if(length<.1)return {occupied:0,free:0};
+  const occupiedRayIndices=[];
+  if(length<.1)return {occupied:0,free:0,occupiedRayIndices};
   const axis=offset.map(n=>n/length), probe=Math.max(2,Math.min(12,observedRange));
-  let occupied=0,free=0;
-  for(const ray of rays){
+  let free=0;
+  for(const [index,ray] of rays.entries()){
     const along=ray.reduce((s,n,i)=>s+n*axis[i],0);
     if(along<.4)continue;
     const side=Math.hypot(...ray.map((n,i)=>n-axis[i]*along));
-    if(side<1.9 && along<Math.min(length,probe+3))occupied++;
+    if(side<1.9 && along<Math.min(length,probe+3))occupiedRayIndices.push(index);
     if(along>probe+2 && side*probe/along<1.9)free++;
   }
-  return {occupied,free};
+  return {occupied:occupiedRayIndices.length,free,occupiedRayIndices};
 }
 
 export function integrate(body, goal, estimate, dt, maxSpeed, wind=0) {
