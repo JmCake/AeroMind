@@ -165,7 +165,27 @@ async function main() {
     deviceScaleFactor: software ? 0.65 : 1});
   const errors = [], recent = [], runs = [];
   let requests = 0, submitted = 0, interruptedRequests = 0;
+  const observed = new Map();
+  let lastStage = "", lastFrame = null, lastProgress = Date.now();
+  await page.exposeFunction("recordLessonStage", entry => {
+    if (entry.stage === "loading" || entry.stage === "takeoff") observed.clear();
+    observed.set(entry.stage, entry);
+    lastStage = entry.stage;
+    lastProgress = Date.now();
+    if (software) console.log("Lesson", entry.stage, "at", lastFrame);
+  });
+  await page.addInitScript(() => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const lesson = document.querySelector("#lesson");
+      if (!lesson) return;
+      const record = () => window.recordLessonStage({stage: lesson.dataset.stage,
+        explanation: document.querySelector("#explanation").textContent, route: document.querySelector("#scene-text").textContent});
+      new MutationObserver(record).observe(lesson, {attributes: true, attributeFilter: ["data-stage"]});
+      record();
+    });
+  });
   page.on("pageerror", error => errors.push(error.message));
+  page.on("crash", () => errors.push("Classroom page crashed"));
   page.on("request", request => {
     if (new URL(request.url()).pathname === "/api/frame") submitted++;
   });
@@ -174,13 +194,28 @@ async function main() {
     requests++;
     if (faultTest && response.headers()["x-classroom-test"] === "dropped-frame") interruptedRequests++;
     else if (!response.ok()) errors.push("frame HTTP " + response.status());
+    if (response.ok()) {
+      lastProgress = Date.now();
+      if (software && requests % 32 === 0) response.json().then(({id, sim_time}) => {
+        lastFrame = {id, sim_time};
+        console.log("Accepted camera frame", id, "at", sim_time, "simulated seconds during", lastStage);
+      }).catch(() => {}); // A navigation may release this optional timing sample.
+    }
     recent.push(response);
     if (recent.length > 16) recent.shift();
   });
   const at = async stage => {
-    await page.waitForFunction(expected => [expected, "error"].includes(document.querySelector("#lesson")?.dataset.stage),
-      stage, {timeout: software ? 240000 : 105000});
-    assert.equal(await page.locator("#lesson").getAttribute("data-stage"), stage, await page.locator("#explanation").innerText());
+    const start = Date.now();
+    // Read real DOM transitions once. Polling layout on a virtual GPU competes
+    // with actual RGB-D capture. A slow return still has to produce new frames.
+    const limit = software && stage === "complete" ? 480000 : software ? 240000 : 105000;
+    while (!observed.has(stage)) {
+      if (observed.has("error")) throw new Error(observed.get("error").explanation);
+      if (errors.length || Date.now() - Math.max(lastProgress, start) > 90000 || Date.now() - start > limit)
+        throw new Error("Waiting for " + stage + ": " + JSON.stringify({lastStage, lastFrame, requests, errors}));
+      await new Promise(resolve => setTimeout(resolve, 150));
+    }
+    return observed.get(stage);
   };
   const click = name => page.getByRole("button", {name, exact: true}).click();
   const lessonFits = () => page.evaluate(() => {
@@ -229,6 +264,8 @@ async function main() {
     for (let i = 0; i < Number(repeats); i++) {
       const start = Date.now(), baseline = requests;
       const before = await page.evaluate(() => window.classroomClicks);
+      observed.clear();
+      lastFrame = null;
       if (i === 0) {
         await page.keyboard.press("Tab");
         assert.equal(await page.evaluate(() => document.activeElement.id), "next");
@@ -271,8 +308,8 @@ async function main() {
       assert.ok(!(await page.locator("#feed").isVisible()));
       const stationEvidence = await checkStation(page, recent.slice(), i === 0 ? dest : null);
       if (i === 0) await page.screenshot({path: path.join(dest, "station-classifier.png")});
-      await at("delivered");
-      assert.equal(await page.locator("#scene-text").innerText(), "图书馆 → 物流中心");
+      const delivered = await at("delivered");
+      assert.equal(delivered.route, "图书馆 → 物流中心");
       await at("complete");
       assert.ok((await page.locator("#explanation").innerText()).includes(confirmation.range_m + " 米"));
       assert.ok((await page.locator("#station-rule").textContent()).includes("80%"));
@@ -293,6 +330,7 @@ async function main() {
     }
     await page.getByRole("link", {name: "课后实验"}).click();
     await page.waitForFunction(() => document.querySelector("#launch")?.disabled === false);
+    observed.clear();
     await page.getByRole("link", {name: "返回课堂"}).click();
     await at("ready");
     assert.deepEqual(errors, []);
@@ -300,13 +338,10 @@ async function main() {
     const report = saveReport(true);
     console.log("Verified", report.runs.length, "classroom run(s) and the return from the lab.", path.join(dest, "classroom.json"));
   } catch (error) {
-    console.error(await page.locator("body").innerText(), errors);
-    const last = recent.at(-1);
-    if (last?.ok()) {
-      const {id, sim_time} = await last.json();
-      console.error("Last accepted camera response", id, sim_time);
-    }
-    await page.screenshot({path: path.join(dest, "incomplete.png")});
+    const diagnostic = {error: String(error), lastStage, lastFrame, requests, submitted, errors, stages: [...observed.values()]};
+    console.error(diagnostic);
+    fs.writeFileSync(path.join(dest, "incomplete.json"), JSON.stringify(diagnostic, null, 2));
+    await page.screenshot({path: path.join(dest, "incomplete.png"), timeout: 5000}).catch(() => {});
     throw error;
   } finally { await browser.close(); }
 }
