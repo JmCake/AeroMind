@@ -21,11 +21,12 @@ const routeStages = new Set(["route", "detour"]);
 const overlay = el("route-overlay");
 const routeContext = overlay.getContext("2d");
 const projected = new Vector3();
-let city, sim, stage, evidence, originalRoute;
+let city, sim, stage, evidence, originalRoute, interruptedExplanation;
 let showingRoute = false;
 
 function show(stageName, detail) {
   stage = stageName;
+  interruptedExplanation = null;
   const [topic, question, explanation, action] = copy[stage];
   el("lesson").dataset.stage = stage;
   el("topic").textContent = topic;
@@ -177,8 +178,18 @@ function fail(message) {
 
 function update() {
   const b = sim.units[0];
-  if (sim.serviceError) return fail("未能取得新的机载画面。" + sim.serviceError);
   if (b.phase === "failed") return fail(b.visionNote);
+  if (sim.serviceError && sim.running) {
+    if (interruptedExplanation === null) {
+      interruptedExplanation = el("explanation").textContent;
+      el("explanation").textContent = "机载画面暂时中断。无人机正在制动，收到新画面后继续。";
+    }
+    return;
+  }
+  if (interruptedExplanation !== null) {
+    el("explanation").textContent = interruptedExplanation;
+    interruptedExplanation = null;
+  }
   if (stage === "takeoff" && b.phase === "cruise" && b.next) {
     hold();
     originalRoute = [b.at, b.next, ...b.route];
@@ -240,7 +251,9 @@ async function boot() {
     show("ready");
     city.renderer.setAnimationLoop(now => {
       if (stage === "evidence" || stage === "error" || stage === "complete") return;
-      sim.frame(now);
+      // A pending sensor request holds the physics tick. Repainting the same
+      // city on a software renderer competes with that request for CPU time.
+      sim.frame(now, !sim.pending || sim.paused);
       update();
       drawRoute();
     });

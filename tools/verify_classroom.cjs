@@ -54,23 +54,29 @@ async function checkFrame(page, recent) {
 async function main() {
   const [url = "http://127.0.0.1:8863", dest = "output/playwright/classroom", repeats = "1", profile = "hardware"] = process.argv.slice(2);
   const software = profile === "software-checkpoint";
-  assert.ok(software || profile === "hardware");
+  const faultTest = profile === "reconnect" || software;
+  assert.ok(software || faultTest || profile === "hardware");
   fs.mkdirSync(dest, {recursive: true});
   const browser = await chromium.launch({channel: "msedge", headless: true, args: software
     ? ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] : ["--enable-gpu", "--use-angle=d3d11"]});
   const page = await browser.newPage({viewport: software ? {width: 820, height: 500} : {width: 1280, height: 720},
     deviceScaleFactor: software ? 0.65 : 1});
   const errors = [], recent = [], runs = [];
-  let requests = 0;
+  let requests = 0, interruptedRequests = 0;
   page.on("pageerror", error => errors.push(error.message));
   page.on("response", response => {
     if (new URL(response.url()).pathname !== "/api/frame") return;
     requests++;
-    if (!response.ok()) errors.push("frame HTTP " + response.status());
+    if (faultTest && response.headers()["x-classroom-test"] === "dropped-frame") interruptedRequests++;
+    else if (!response.ok()) errors.push("frame HTTP " + response.status());
     recent.push(response);
     if (recent.length > 16) recent.shift();
   });
-  const at = stage => page.locator('#lesson[data-stage="' + stage + '"]').waitFor({timeout: software ? 240000 : 105000});
+  const at = async stage => {
+    await page.waitForFunction(expected => [expected, "error"].includes(document.querySelector("#lesson")?.dataset.stage),
+      stage, {timeout: software ? 240000 : 105000});
+    assert.equal(await page.locator("#lesson").getAttribute("data-stage"), stage, await page.locator("#explanation").innerText());
+  };
   const click = name => page.getByRole("button", {name, exact: true}).click();
   const buttonFits = () => page.locator("#next").evaluate(node => {
     const box = node.getBoundingClientRect();
@@ -105,7 +111,21 @@ async function main() {
       await at("search");
       await click("暂停飞行");
       await held();
-      await click("继续飞行");
+      if (faultTest) {
+        await page.locator("#explanation").evaluate(node => {
+          delete window.interruptedLessonStage;
+          const observer = new MutationObserver(() => {
+            if (!node.textContent.includes("机载画面暂时中断")) return;
+            window.interruptedLessonStage = document.querySelector("#lesson").dataset.stage;
+            observer.disconnect();
+          });
+          observer.observe(node, {childList: true, subtree: true});
+        });
+        await page.route("**/api/frame", route => route.fulfill({status: 503,
+          headers: {"x-classroom-test": "dropped-frame"}, body: "Camera temporarily unavailable"}), {times: 1});
+        await click("继续飞行");
+        await page.waitForFunction(() => window.interruptedLessonStage === "search", null, {timeout: software ? 60000 : 12000});
+      } else await click("继续飞行");
       await at("evidence");
       assert.ok(await page.locator("#observation").isVisible());
       await held();
@@ -138,11 +158,18 @@ async function main() {
     await page.getByRole("link", {name: "返回课堂"}).click();
     await at("ready");
     assert.deepEqual(errors, []);
-    const report = {edition: health.classroom_edition, backend: health.backend, renderer: gpu, profile, runs, page_errors: errors, lab_round_trip: true};
+    if (faultTest) assert.equal(interruptedRequests, Number(repeats));
+    const report = {edition: health.classroom_edition, backend: health.backend, renderer: gpu, profile, runs,
+      deliberately_interrupted_requests: interruptedRequests, page_errors: errors, lab_round_trip: true};
     fs.writeFileSync(path.join(dest, "classroom.json"), JSON.stringify(report, null, 2));
     console.log(JSON.stringify(report));
   } catch (error) {
     console.error(await page.locator("body").innerText(), errors);
+    const last = recent.at(-1);
+    if (last?.ok()) {
+      const {id, sim_time} = await last.json();
+      console.error("Last accepted camera response", id, sim_time);
+    }
     await page.screenshot({path: path.join(dest, "incomplete.png")});
     throw error;
   } finally { await browser.close(); }
