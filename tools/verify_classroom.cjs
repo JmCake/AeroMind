@@ -112,22 +112,19 @@ async function main() {
       await click("暂停飞行");
       await held();
       if (faultTest) {
-        let release, dropped = false;
-        const nextFrame = new Promise(resolve => {release = resolve;});
-        const interrupt = async route => {
-          if (dropped) { await nextFrame; return route.continue(); }
-          dropped = true;
-          await route.fulfill({status: 503, headers: {"x-classroom-test": "dropped-frame"}, body: "Camera temporarily unavailable"});
-        };
-        await page.route("**/api/frame", interrupt);
-        try {
-          await click("继续飞行");
-          await page.getByText("机载画面暂时中断", {exact: false}).waitFor({timeout: software ? 60000 : 12000});
-          assert.equal(await page.locator("#lesson").getAttribute("data-stage"), "search");
-        } finally {
-          release();
-          await page.unroute("**/api/frame", interrupt);
-        }
+        await page.locator("#explanation").evaluate(node => {
+          delete window.interruptedLessonStage;
+          const observer = new MutationObserver(() => {
+            if (!node.textContent.includes("机载画面暂时中断")) return;
+            window.interruptedLessonStage = document.querySelector("#lesson").dataset.stage;
+            observer.disconnect();
+          });
+          observer.observe(node, {childList: true, subtree: true});
+        });
+        await page.route("**/api/frame", route => route.fulfill({status: 503,
+          headers: {"x-classroom-test": "dropped-frame"}, body: "Camera temporarily unavailable"}), {times: 1});
+        await click("继续飞行");
+        await page.waitForFunction(() => window.interruptedLessonStage === "search", null, {timeout: software ? 60000 : 12000});
       } else await click("继续飞行");
       await at("evidence");
       assert.ok(await page.locator("#observation").isVisible());
