@@ -241,10 +241,10 @@ export class City {
     });
     this.scene.updateMatrixWorld();
   }
-  aim(b) {
-    this.sensor.position.fromArray(b.pos); this.sensor.position.y+=.23;
-    this.sensor.rotation.order="YXZ"; this.sensor.rotation.set(b.pitch,b.yaw+b.look,0,"YXZ");
-    this.sensor.translateZ(-.41); this.sensor.updateMatrixWorld(true);
+  aim(b,camera=this.sensor) {
+    camera.position.fromArray(b.pos); camera.position.y+=.23;
+    camera.rotation.set(b.pitch,b.yaw+b.look,0,"YXZ");
+    camera.translateZ(-.41); camera.updateMatrixWorld(true);
   }
   capture(b,id,time,stream,station,level,checkpoint,rangeLimit=90,depthNoise=0,random=Math.random) {
     this.aim(b);
@@ -318,16 +318,16 @@ export class City {
     this.controls.enabled=true;this.controls.update();
     this.renderer.render(this.knowledgeScene,this.camera);
   }
-  draw(b,time) {
+  draw(b,time,pose=b) {
     if(this.mode==="map"){this.drawKnowledge(b);return;}
-    const body=v(b.pos);
+    const body=v(pose.pos);
     this.controls.enabled=this.mode==="overview";
     if(this.mode==="follow"){
-      const off=v([-.95,.78,1.2]).applyAxisAngle(v([0,1,0]),b.yaw);
-      this.camera.position.lerp(body.clone().addScaledVector(off,this.followDistance),.14);
-      this.camera.lookAt(body.clone().add(v([0,.1,0])));
+      // A campus-fixed bearing lets students watch the aircraft turn in frame.
+      this.camera.position.set(body.x-.95*this.followDistance, body.y+.78*this.followDistance, body.z+1.2*this.followDistance);
+      this.camera.lookAt(body.x,body.y+.1,body.z);
     }else if(this.mode==="fpv"){
-      this.aim(b); this.camera.position.copy(this.sensor.position); this.camera.quaternion.copy(this.sensor.quaternion);
+      this.aim(pose,this.camera);
     }else if(this.mode==="cinema"){
       this.camera.position.set(body.x+Math.sin(time*.10+.7)*15,body.y+6.2,body.z+Math.cos(time*.10+.7)*15);
       this.camera.lookAt(body);

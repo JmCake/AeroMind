@@ -1,5 +1,6 @@
 import {airWaypoint,allocateOrders,distance, edgeId, forecastPace, inspectPassage, integrate, Knowledge, measurementRandom,observationYaw, pathBetween, restrictedEdges, stations} from "./navigation.js";
 import {dispatchState,gazeState,learnedAction,pace,paceState,viewAngles} from "./policy.js";
+import {FlightPlayback} from "./flight-playback.js";
 
 const step=1/30, sensorPeriod=1/8;
 const titles={idle:"等待订单",climb:"装载起飞",cruise:"航路配送",look:"主动观察",retreat:"退回已知航点",
@@ -86,6 +87,7 @@ export class Simulation {
     this.city.restriction.visible=options.avoid.length>0;
     this.city.barrier(false);this.city.climate(options.weather);
     for(const id of [17,31,46])this.city.panelState(id,"available");
+    this.playback=new FlightPlayback(this.units,0);
     this.city.setRoute([]);this.city.animateCraft(this.units,0);
   }
   async snapshot() {
@@ -117,6 +119,7 @@ export class Simulation {
     this.city.panelState(this.options.station,this.environment.occupied?"occupied":"available");
     const b=this.units[this.activeUnit];
     this.city.setRoute([b.est,...[b.next,...b.route].filter(Boolean).map(k=>airWaypoint(k,b.index))]);
+    this.playback=new FlightPlayback(this.units,this.time);
     this.city.animateCraft(this.units,this.time);
   }
   log(reason,b=this.units[this.activeUnit],kind="state",details={}) {
@@ -264,6 +267,8 @@ export class Simulation {
     if(!batch.length||this.pending)return;
     this.pending=true;
     try{
+      // Both RGB-D views see every craft at the authoritative acquisition tick.
+      this.city.animateCraft(this.units,this.time);
       await Promise.all(batch.map(async b=>{
         b.lastSense=this.time;const id=++b.frame,start=performance.now();
         const random=measurementRandom(6101+b.index*197,id);
@@ -542,6 +547,7 @@ export class Simulation {
     }
     this.final=this.units.every(b=>["done","failed"].includes(b.phase));
     if(this.final)this.running=false;
+    this.playback.record(this.units,this.time);
   }
   frame(now, drawWorld=true) {
     const interval=now-this.lastWall, dt=Math.min(.09,interval/1000);this.lastWall=now;
@@ -558,8 +564,11 @@ export class Simulation {
         if(this.final)break;
       }
     }
-    this.city.animateCraft(this.units,this.time);
     if(!this.paused&&!this.final)this.sense();
-    if(drawWorld)this.city.draw(this.units[this.activeUnit],this.time);
+    const poses=this.playback.sample(dt,this.speed,this.paused);
+    if(drawWorld){
+      this.city.animateCraft(poses,this.playback.time);
+      this.city.draw(this.units[this.activeUnit],this.playback.time,poses[this.activeUnit]);
+    }
   }
 }

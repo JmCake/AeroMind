@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {allocateOrders,pathBetween,edgeId,Knowledge,orderFromText,observationYaw,integrate,restrictedEdges,intersectsZone,measurementRandom,inspectPassage} from "../web/navigation.js";
 import {Simulation} from "../web/simulation.js";
+import {FlightPlayback} from "../web/flight-playback.js";
+import {City} from "../web/world.js";
+import {PerspectiveCamera} from "three";
 import {learnedAction} from "../web/policy.js";
 
 test("the classroom marks only the range rays that establish occupancy inside the flight corridor",()=>{
@@ -81,6 +84,51 @@ test("a camera frame gets one latency sample at its next actual control tick",()
   const [sample]=unit.frameTimings;
   assert.deepEqual([sample.frame,sample.control_tick,sample.vision_ms],[17,1,50]);
   assert.ok(sample.command_ms>=79&&sample.command_ms>sample.vision_ms);
+});
+
+test("spectator playback brackets completed poses, holds a pause and takes the short turn across pi", () => {
+  const craft = {pos: [0, 1, 0], vel: [2, 0, 0], yaw: 3.1, pitch: 0, look: 0, airborne: true, cargo: true};
+  const view = new FlightPlayback([craft], 0);
+  craft.pos[0] = .2;
+  craft.yaw = -3.1;
+  view.record([craft], .1);
+  craft.pos[0] = 30; // The next live physics state cannot mutate a recorded pose.
+  const middle = view.sample(.05, 1, false)[0];
+  assert.ok(middle.pos[0] > 0 && middle.pos[0] < .2);
+  assert.ok(Math.abs(middle.yaw) > 3);
+  assert.deepEqual(view.sample(.2, 1, true)[0], middle);
+  for (let i = 0; i < 120; i++) view.sample(1/60, 1, false);
+  assert.equal(view.time, .1);
+  assert.deepEqual(view.sample(.5, 3, false)[0].pos, [.2, 1, 0]);
+});
+
+test("a pending sensor frame settles to the same spectator pose at 30 and 120 Hz", () => {
+  function run(hz) {
+    const craft = {pos: [0, 0, 0], vel: [0, 0, 1], yaw: 0, pitch: 0, look: 0};
+    const view = new FlightPlayback([craft], 4);
+    craft.pos[2] = .05;
+    view.record([craft], 4.05);
+    for (let i = 0; i < hz / 2; i++) view.sample(1/hz, 1, false);
+    return view.sample(0, 1, true)[0].pos[2];
+  }
+  assert.ok(Math.abs(run(30) - run(120)) < 1e-10);
+});
+
+test("switching from a distant overview frames the displayed craft immediately and holds the horizon through a turn", () => {
+  const camera = new PerspectiveCamera(42, 1, .2, 850);
+  camera.position.set(-65, 98, 120);
+  const city = {camera, mode: "follow", followDistance: 3.4, controls: {}, tags: new Map(),
+    craft: [{visible:true}], renderer: {render() {}}, scene: {}};
+  const flight = {index: 0, pos: [11, 25, 30]}, shown = {pos: [10, 25, 30], yaw: 0};
+  City.prototype.draw.call(city, flight, 13, shown);
+  assert.ok(camera.position.distanceTo({x:10, y:25, z:30}) < 6);
+  const initial = camera.position.clone(), orientation = camera.quaternion.clone();
+  shown.pos[0] += 1;
+  shown.yaw = Math.PI;
+  City.prototype.draw.call(city, flight, 13.1, shown);
+  initial.x += 1;
+  assert.ok(camera.position.distanceTo(initial) < 1e-8);
+  assert.ok(camera.quaternion.angleTo(orientation) < 1e-6);
 });
 test("standard gamepad axis dead zone and shoulder inputs reach the manual controller",()=>{
   const previous=Object.getOwnPropertyDescriptor(globalThis,"navigator");

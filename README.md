@@ -4,7 +4,7 @@ AeroMind 是一堂可以操作的三维计算机视觉课。一架无人机送�
 
 ## 启动
 
-下载 Windows 课堂版，完整解压，双击 **AeroMind-3D.exe**。默认打开课堂，使用电脑上已有的 Edge 或 Chrome。模型和城市场景随包提供，可以断网讲课。[Windows 课堂版下载](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.3/AeroMind-3D-Windows-x64.zip)
+下载 Windows 课堂版，完整解压，双击 **AeroMind-3D.exe**。默认打开课堂，使用电脑上已有的 Edge 或 Chrome。模型和城市场景随包提供，可以断网讲课。[Windows 课堂版下载](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.4/AeroMind-3D-Windows-x64.zip)
 
 ## 投影时怎么讲
 
@@ -60,7 +60,7 @@ npm ci
 
 项目的五阶段课程、技术路线和验收要求见 [PLAN.md](PLAN.md)。
 
-课堂验收记录保留每趟试飞的挡板测距、两帧站牌分类和配送结果。验收程序读取同次飞行的 RGB-D 数据包，复算投影标出的距离，逐像素核对网络输入，再用训练时的 PyTorch 权重复算便携版显示的分类得分。[课堂试飞与模型复核记录](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.3/AeroMind-Classroom-Check.json) · [可复算的机载原帧与对应投影](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.3/AeroMind-Classroom-Frames.zip)
+课堂跟拍从机体旁取景，保持水平朝向。观众画面在已经完成的物理位置之间平滑移动，机载 RGB-D 相机按原采样时刻取帧。课堂验收记录包含镜头修复前后相邻画面的位移、机身重复画面比例，以及每趟试飞的挡板测距、站牌分类和配送结果。验收程序从原始数据复算距离、逐像素核对网络输入，并用训练时的 PyTorch 权重复算分类得分。[课堂试飞、镜头与模型复核](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.4/AeroMind-Classroom-Check.json) · [可复算的机载原帧与对应投影](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.4/AeroMind-Classroom-Frames.zip)
 
 机载相机在固定仿真时刻渲染 320×180 RGB 和米制平面深度（厘米量化），旁观镜头及界面标记不进入取帧。本机服务矫正标牌后运行分类网络，同时从 RGB 分割站牌和施工构件。跟踪编号与短时运动预测来自连续机载帧，预测距离参与制动判断。稀疏光流、双向匹配和 RGB-D 对应估计位移，重访可用 ORB 关键帧和米制几何重新定位。课堂使用已知起始仓位、理想姿态和云台角度读数。三轴模拟加速度计带偏差与噪声，视觉位移修正惯性积分，跟踪不足时俯视寻找纹理并制动。体素保留观测时间和占用证据，并为局部距离场与观察选向提供输入。位姿真值用于误差评测与物理接触，模拟 GPS 开启时添加观测噪声。
 
@@ -96,6 +96,7 @@ node tools/art/capture_corpus.cjs http://127.0.0.1:8863 runs/city-images
 .venv/Scripts/python.exe -m aeromind.segments runs/city-images runs/segments-01
 node tools/train_policy.mjs runs/policy-01
 node tools/verify_classroom.cjs http://127.0.0.1:8863 output/playwright/classroom 2
+node tools/verify_camera.cjs http://127.0.0.1:8863 output/playwright/camera full
 .venv/Scripts/python.exe -m tools.verify_station_frames output/playwright/classroom
 node tools/verify_browser.cjs http://127.0.0.1:8863 fleet-share output/playwright/fleet
 node tools/verify_browser.cjs http://127.0.0.1:8863 controls output/playwright/controls
