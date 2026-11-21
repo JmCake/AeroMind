@@ -324,7 +324,7 @@ export class City {
     this.controls.enabled=this.mode==="overview";
     if(this.mode==="follow"){
       const off=v([-.95,.78,1.2]).applyAxisAngle(v([0,1,0]),b.yaw);
-      this.camera.position.lerp(body.clone().addScaledVector(off,3.4),.14);
+      this.camera.position.lerp(body.clone().addScaledVector(off,this.followDistance),.14);
       this.camera.lookAt(body.clone().add(v([0,.1,0])));
     }else if(this.mode==="fpv"){
       this.aim(b); this.camera.position.copy(this.sensor.position); this.camera.quaternion.copy(this.sensor.quaternion);
@@ -341,8 +341,8 @@ export class City {
       tag.style.left=(p.x*.5+.5)*100+"%"; tag.style.top=(-p.y*.5+.5)*100+"%";
     }
   }
-  switchView(name) {
-    this.mode=name;
+  switchView(name,followDistance=3.4) {
+    this.mode=name;this.followDistance=followDistance;
     if(name==="overview")this.resetView();
     if(name==="map"){
       this.mapNeedsFocus=true;this.mapFrame=undefined;

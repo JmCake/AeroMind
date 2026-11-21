@@ -1,0 +1,62 @@
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+:root {
+  color-scheme: light;
+  font-family: Inter, "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  color: #123734;
+  background: #f6f6ef;
+}
+body { margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column }
+header {
+  height: 56px; flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding-inline: clamp(18px, 4vw, 64px); background: #143936; color: #fffef4;
+}
+.brand { display: flex; align-items: center; gap: 10px; white-space: nowrap }
+.brand i { width: 30px; height: 24px; background: #a8eed1; clip-path: polygon(0 62%,100% 0,69% 100%,51% 68%,76% 31%,39% 65%,22% 90%) }
+.brand strong { font-size: 23px; letter-spacing: -.055em; line-height: 1 }
+.brand span { border-left: 1px solid #72958c; margin-left: 5px; padding-left: 15px; font-size: 16px }
+header a { color: #d5e9dd; text-decoration: none; font-size: 15px; padding: 9px 0 9px 9px }
+header a:hover { text-decoration: underline; text-underline-offset: 4px }
+button:focus-visible, a:focus-visible { outline: 3px solid #f3ad45; outline-offset: 4px }
+main { flex: 1; min-width: 0; display: flex; flex-direction: column }
+.stage { flex: 1; min-height: 180px; position: relative; overflow: hidden; background: #0f282a }
+#world, #route-overlay, #observation { position: absolute; inset: 0 }
+#world { background: #b2cdd1 }
+#world > canvas, #route-overlay { display: block; width: 100%; height: 100% }
+#world > canvas { touch-action: none }
+#route-overlay { pointer-events: none }
+.world-tag { position: absolute; transform: translate(-50%,-120%); color: #fff; background: #173d39e8;
+  border: 1px solid #cee7d8; border-radius: 4px; padding: 4px 8px; font-size: 14px; line-height: 1.2; pointer-events: none; white-space: nowrap }
+.scene-caption { position: absolute; bottom: 16px; left: clamp(18px, 4vw, 64px); display: flex;
+  gap: 10px; align-items: center; background: #143734ee; color: #f4fcf3; padding: 8px 13px; border-radius: 4px; font-size: 16px; pointer-events: none }
+.route-swatch { width: 26px; height: 4px; border-radius: 4px; background: #67ffdf }
+#old-edge-key { display: inline-flex; align-items: center; gap: 8px; margin-left: 8px }
+#old-edge-key i { display: inline-block; width: 26px; border-top: 3px dashed #ffc07a }
+.outside-lesson { display: none }
+#observation { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px;
+  align-items: center; background: #102b2b; padding: 12px clamp(12px,3vw,48px) }
+#observation figure { min-width: 0; min-height: 0; margin: 0; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center }
+#observation canvas { display: block; width: 100%; height: auto; min-height: 0; max-height: calc(100% - 34px); object-fit: contain }
+figcaption { color: #eef8ed; font-size: 18px; font-weight: 650; line-height: 1.4; margin-top: 7px }
+.teacher { display: flex; align-items: center; justify-content: space-between; flex: none;
+  gap: 18px 32px; padding: clamp(16px, 3.2vh, 32px) clamp(18px, 4vw, 64px) clamp(20px, 3.6vh, 36px); background: #f7f7f0 }
+.topic { margin: 0 0 5px; color: #37715f; font-weight: 700; font-size: 16px }
+h1 { margin: 0; font-size: clamp(28px, 3.05vw, 48px); letter-spacing: -.035em; line-height: 1.25 }
+#explanation { margin: 8px 0 0; font-size: clamp(17px, 1.45vw, 23px); color: #3b5751; line-height: 1.55 }
+button { flex: none; min-width: 145px; min-height: 52px; padding: 10px 22px; border: 0; border-radius: 5px;
+  background: #146651; color: white; font-family: inherit; font-size: 19px; font-weight: 650; cursor: pointer }
+button:enabled:hover { background: #0b503f }
+button:disabled { background: #c5d3c8; color: #38554a; cursor: wait }
+@media (max-width: 690px) {
+  header { height: 50px }
+  .brand span { font-size: 14px; padding-left: 10px; margin-left: 0 }
+  .teacher { flex-direction: column; align-items: stretch; gap: 14px }
+  button { min-height: 46px }
+  #observation { grid-template-columns: 1fr; grid-template-rows: repeat(2,minmax(0,1fr)); gap: 10px }
+  figcaption { font-size: 15px; margin-top: 3px }
+}
+@media (max-height: 500px) and (min-width: 691px) {
+  header { height: 42px }
+  .teacher { padding-block: 10px }
+  .topic { margin-bottom: 0 }
+}
