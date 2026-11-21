@@ -20,7 +20,7 @@ from .observations import ImageService
 
 
 ROOT=Path(__file__).resolve().parents[1]
-CLASSROOM_EDITION = "classroom.2"
+CLASSROOM_EDITION = "classroom.3"
 PUBLIC = {"/app/": ROOT/"web", "/assets/": ROOT/"ContentSource",
           "/three/": ROOT/"node_modules/three/build", "/addons/": ROOT/"node_modules/three/examples/jsm"}
 
@@ -78,7 +78,8 @@ class Classroom(BaseHTTPRequestHandler):
                 body = json.loads(self.rfile.read(length))
                 data = self.server.vision.fork(body["source"],body["target"])
             else:
-                data = self.server.vision.process(self.rfile.read(length))
+                data = self.server.vision.process(self.rfile.read(length),
+                                                  panel_evidence=self.headers.get("X-AeroMind-Panel-Evidence") == "1")
         except (KeyError, ValueError, TypeError, TimeoutError, cv2.error) as exc:
             return self.send_json(400, {"error":str(exc)})
         self.send_json(200, data)

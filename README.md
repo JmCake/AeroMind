@@ -1,20 +1,20 @@
 # AeroMind｜智航纪元
 
-AeroMind 是一堂可以操作的三维计算机视觉课。一架无人机要送一件包裹到图书馆。途中出现施工，学生可以指着机载图像解释它为什么改道。
+AeroMind 是一堂可以操作的三维计算机视觉课。一架无人机送一件包裹到图书馆。学生用两处机载观测讲清一次配送：途中，挡板有多远？到了图书馆，模型从站牌上读出了什么？
 
 ## 启动
 
-下载 Windows 课堂版，完整解压，双击 **AeroMind-3D.exe**。默认打开课堂，使用电脑上已有的 Edge 或 Chrome。模型和城市场景随包提供，可以断网讲课。[Windows 课堂版下载](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.2/AeroMind-3D-Windows-x64.zip)
+下载 Windows 课堂版，完整解压，双击 **AeroMind-3D.exe**。默认打开课堂，使用电脑上已有的 Edge 或 Chrome。模型和城市场景随包提供，可以断网讲课。[Windows 课堂版下载](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.3/AeroMind-3D-Windows-x64.zip)
 
 ## 投影时怎么讲
 
 1. 点 **起飞送货**。青色航线出现后，请学生预测，如果前方施工，无人机需要看到什么才会改变判断？
 2. 点 **设置前方施工**。画面定格后，让学生在机载图像上指出挡板，再读出圆圈处的实测距离。图像给了什么线索？同一位置的深度观测又告诉了我们什么？
-3. 点 **继续配送**。对照新旧航线，看看这条观测怎样改变飞行。飞到图书馆时，再用站牌讲深度学习。训练好的模型从站牌图像判断站台状态，连续两帧确认指定站台可交接后，无人机才进站。
+3. 点 **继续配送**。看无人机绕过挡板。到图书馆时，用机载原图找到站牌，指给学生看卷积网络实际读到的两张灰度图。请学生读出两次分类的结果，并预测第二帧若显示“占用”，无人机该怎样行动。返仓后两处观测会留在投影上。
 
-原航线和机载证据都会等待老师操作。飞行途中也能随时暂停。要单独讲某个章节，可以从右上角进入“课后实验”，左上角可回到课堂。
+原航线和挡板测距都会等待老师操作。讲站牌时也可以按“暂停飞行”。黑白方码用于识别站号，旁边的状态图案经透视校正后成为 40 × 40 的模型输入。指定站点连续两帧都判为“可交接”、每帧得分均达到 80%，并取得有效深度观测后，无人机才进站。要单独讲某个章节，可从右上角进入“课后实验”。
 
-![同一次课堂试飞中，学生可以对照施工现场与机载相机测到的距离](evidence/classroom-decision.png)
+![图书馆进站实测，同屏展示无人机、机载相机拍到的站牌，以及连续两帧的分类输入和得分](evidence/classroom-station.png)
 
 <details>
 <summary>从源码启动与本机运行条件</summary>
@@ -60,7 +60,7 @@ npm ci
 
 项目的五阶段课程、技术路线和验收要求见 [PLAN.md](PLAN.md)。
 
-新版便携包的课堂验收记录包含每趟飞行的关键帧号、标记像素、实际测距和签收返仓结果。验收程序将投影画面与同一次请求的 RGB 逐像素比对，并从原始深度独立复算标出的距离。[新版课堂实飞记录](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.2/AeroMind-Classroom-Check.json)
+课堂验收记录保留每趟试飞的挡板测距、两帧站牌分类和配送结果。验收程序读取同次飞行的 RGB-D 数据包，复算投影标出的距离，逐像素核对网络输入，再用训练时的 PyTorch 权重复算便携版显示的分类得分。[课堂试飞与模型复核记录](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.3/AeroMind-Classroom-Check.json) · [可复算的机载原帧与对应投影](https://github.com/JmCake/AeroMind/releases/download/v0.1.0-classroom.3/AeroMind-Classroom-Frames.zip)
 
 机载相机在固定仿真时刻渲染 320×180 RGB 和米制平面深度（厘米量化），旁观镜头及界面标记不进入取帧。本机服务矫正标牌后运行分类网络，同时从 RGB 分割站牌和施工构件。跟踪编号与短时运动预测来自连续机载帧，预测距离参与制动判断。稀疏光流、双向匹配和 RGB-D 对应估计位移，重访可用 ORB 关键帧和米制几何重新定位。课堂使用已知起始仓位、理想姿态和云台角度读数。三轴模拟加速度计带偏差与噪声，视觉位移修正惯性积分，跟踪不足时俯视寻找纹理并制动。体素保留观测时间和占用证据，并为局部距离场与观察选向提供输入。位姿真值用于误差评测与物理接触，模拟 GPS 开启时添加观测噪声。
 
@@ -96,12 +96,15 @@ node tools/art/capture_corpus.cjs http://127.0.0.1:8863 runs/city-images
 .venv/Scripts/python.exe -m aeromind.segments runs/city-images runs/segments-01
 node tools/train_policy.mjs runs/policy-01
 node tools/verify_classroom.cjs http://127.0.0.1:8863 output/playwright/classroom 2
+.venv/Scripts/python.exe -m tools.verify_station_frames output/playwright/classroom
 node tools/verify_browser.cjs http://127.0.0.1:8863 fleet-share output/playwright/fleet
 node tools/verify_browser.cjs http://127.0.0.1:8863 controls output/playwright/controls
 node tools/verify_lecture.cjs http://127.0.0.1:8863 output/playwright/lecture 10 1
 ```
 
 浏览器验收复用已安装的 Edge。导出的 JSON 含实际帧、模型摘要、实验共同帧、各分支指标和带时间戳的通信。完整导出保存在本机 `output/playwright/`。
+
+逐像素复核应使用采集该次飞行的 OpenCV 版本。如果训练环境和便携版使用不同版本，可给 `tools.verify_station_frames` 加上 `--rectifier-python`，指定打包环境的 Python 路径。图像由该环境校正，再由训练环境复算模型得分。
 
 连续试演期间可用 `tools/measure_windows.ps1` 采样指定测试会话的 Edge 私有内存与推理进程的内存。参数为运行 `verify_lecture.cjs` 的 Node 进程号、便携进程号和新 CSV 文件路径。本次 98 个采样点中，Edge 子进程私有内存合计最高 964.2 MiB，推理进程工作集最高 123.3 MiB。每轮导出另含 JavaScript 堆用量。
 

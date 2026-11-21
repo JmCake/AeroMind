@@ -1,5 +1,6 @@
 """Paired, calibrated WebGL image measurements. Camera x right, y up, -z forward."""
 
+import base64
 import json
 import math
 import struct
@@ -13,7 +14,7 @@ import cv2
 import numpy as np
 
 from .handoff import HandoffCheck
-from .stations import STATIONS
+from .stations import PATCH_SIZE, STATIONS
 
 
 def parse_packet(packet):
@@ -182,14 +183,20 @@ class ImageService:
                 self.previous.popitem(last=False)
             return {"last_frame":state[0], "sim_time":state[1]}
 
-    def process(self, packet):
+    def process(self, packet, *, panel_evidence=False):
         started = perf_counter()
         meta, bgr, depth, basis = parse_packet(packet)
         h, w = depth.shape
         focal = .5*h / math.tan(math.radians(meta["fov"] / 2))
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
         level = meta.get("level",4)
-        readings = self.perception.inspect(bgr) if level >= 2 else []
+        inputs = {}
+        if level < 2:
+            readings = []
+        elif panel_evidence:
+            readings = self.perception.inspect(bgr, model_inputs=inputs)
+        else:
+            readings = self.perception.inspect(bgr)
         checkpoint = meta.get("checkpoint","selected")
         segments = self.segments.get(checkpoint)
         regions = segments.inspect(bgr,depth) if segments and level >= 2 else []
@@ -206,10 +213,24 @@ class ImageService:
                 if level >= 3:
                     delta, support, error = displacement(previous, gray, depth, basis, focal,
                                                          meta["sim_time"] - stamp)
-            decision = gate.observe(round(meta["sim_time"] * 1e9), readings)
+            stamp_ns = round(meta["sim_time"] * 1e9)
+            decision = gate.observe(stamp_ns, readings)
+            # The controller uses the existing gate. Only archive the exact CNN
+            # input and reading it accepted, keyed by its simulation timestamp.
+            panel_sample = None
+            proof = None
+            if gate.station in inputs and gate.recent and gate.recent[-1] == stamp_ns:
+                reading = next(r for r in readings if r.station == gate.station)
+                panel_sample = {"id": meta["id"], "stamp_ns": stamp_ns, "state": reading.state,
+                                "confidence": reading.confidence, "polygon_px": reading.polygon_px,
+                                "gray_u8_b64": base64.b64encode(inputs[gate.station].tobytes()).decode("ascii")}
+                prior = last[7] if last and last[3] is gate else None
+                if decision.state == "ready" and prior and prior["stamp_ns"] == decision.evidence_ns[0]:
+                    proof = {"station": gate.station, "patch_size": PATCH_SIZE, "min_confidence": gate.min_confidence,
+                             "frames": [prior, panel_sample]}
             number = track_regions(regions,last[4] if last else [],last[5] if last else 0,meta["sim_time"])
             loop,added = keymap.update(gray,depth,basis,focal,meta["id"],meta["sim_time"]) if level>=3 else (None,False)
-            self.previous[key] = (meta["id"], meta["sim_time"], (gray, depth, basis, focal), gate, regions, number,keymap)
+            self.previous[key] = (meta["id"], meta["sim_time"], (gray, depth, basis, focal), gate, regions, number, keymap, panel_sample)
             self.previous.move_to_end(key)
             if len(self.previous) > 32:
                 self.previous.popitem(last=False)
@@ -231,7 +252,7 @@ class ImageService:
             panels.append({**asdict(item), "panel_relative_m":measured})
         return {"id":meta["id"], "sim_time":meta["sim_time"], "stream":meta["stream"],
                 "readings":panels,"regions":regions,"segmentation_checkpoint":checkpoint,"loop_closure":loop,"keyframe_added":added,
-                "handoff": asdict(decision), "sector_m":sectors,
+                "handoff": asdict(decision), "sector_m":sectors, **({"panel_proof": proof} if proof else {}),
                 "rays_world_relative_m":(endpoints @ basis.T).round(2).tolist(),
                 "ray_pixels_px":pixels[valid].tolist(),
                 "translation_m":delta, "tracked_features":support, "flow_residual_m":error,

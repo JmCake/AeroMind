@@ -52,7 +52,9 @@ jobs:
             }
             if (!$ready) { throw 'Portable vision service did not become ready' }
             node tools/verify_classroom.cjs http://127.0.0.1:8863 output/playwright/classroom 1 software-checkpoint
-            if ($LASTEXITCODE -ne 0) { throw 'The teacher-paced lesson failed to stop on its measured frame' }
+            if ($LASTEXITCODE -ne 0) { throw 'The classroom failed to reproduce its range or station model evidence' }
+            python -m tools.verify_station_frames output/playwright/classroom --rectifier-python .local/package-python/Scripts/python.exe
+            if ($LASTEXITCODE -ne 0) { throw 'Station model inputs or predictions disagree with the camera packets' }
             node tools/verify_browser.cjs http://127.0.0.1:8863 controls output/playwright/controls software
             if ($LASTEXITCODE -ne 0) { throw 'The packaged classroom failed its interactive delivery check' }
           } finally { if (!$app.HasExited) { Stop-Process -Id $app.Id } }
