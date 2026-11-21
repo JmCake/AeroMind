@@ -1,237 +1,208 @@
-import {Vector3} from "three";
 import {City} from "./world.js";
-import {airWaypoint, edgeId} from "./navigation.js";
+import {edgeId} from "./navigation.js";
 import {Simulation} from "./simulation.js";
 import {drawStationEvidence} from "./station-view.js";
 
 const el = id => document.getElementById(id);
-const copy = {
-  ready: ["图书馆配送", "无人机如何从图像决定下一步？", "路上看它怎样发现挡板，到站看它怎样读懂站牌。", "起飞送货"],
-  takeoff: ["起飞", "它准备走哪条路？", "包裹已装载。升到巡航高度后，画面会停在它选好的航线上。"],
-  route: ["看航线", "如果前面施工，它会立刻知道吗？", "青线是刚算出的路线。请一位同学在通道里设置施工，再观察无人机的反应。", "设置前方施工"],
-  search: ["看现场", "它什么时候才会发现施工？", "施工已经开始。留意飞机飞到哪里才刹车。"],
-  evidence: ["机载图像与深度", "这张图里的挡板离相机多远？", "", "继续配送"],
-  retreat: ["看行动", "它接下来会往哪边飞？", "无人机正在退回上一个航点，到那里会重新计算路线。"],
-  detour: ["看行动", "它选了一条怎样的新路线？", "青线是绕开受阻通道后重新算出的路线。"],
-  station: ["站牌图像分类", "怎样从站牌判断能否交接？", "左侧的黑白方码标识图书馆。相机画面中框出的状态图案被校正成灰度小图，交给卷积网络分类。"],
-  delivered: ["图书馆已签收", "如果第二帧显示占用，还能进站吗？", "模型逐帧判断可交接、占用或看不清。如果中途读到占用，进站确认就要重新开始。"],
-  complete: ["包裹已签收 · 无人机已返仓", "哪幅图让它绕行，哪两帧让它进站？", "", "再讲一次"],
+const stages = {
+  ready:     [0, "送一件包裹到图书馆", "点一次「开始配送」，沿途看它避障、读站牌。"],
+  takeoff:   [0, "带上包裹，起飞", "无人机正在爬升。看一看机载相机离开屋顶时拍到了什么。"],
+  search:    [1, "前方施工，它能发现吗？", "航线上出现了挡板。留意机载图像里最先出现的线索。"],
+  evidence:  [1, "看见挡板，原路还能走吗？", "画面停留片刻，随后继续飞行。"],
+  retreat:   [1, "发现挡板，退回路口", "无人机把这段通道记为受阻，退回路口重新选路。"],
+  detour:    [1, "绕开挡板，飞往图书馆", "新航线绕过了刚才测到障碍的通道。"],
+  station:   [2, "读懂站牌，才能进站", "在机载图里找一找，哪个图案表示可以交接？"],
+  delivered: [2, "图书馆已签收", "包裹送到了。无人机正在沿返程航线飞回物流中心。"],
+  complete:  [2, "配送完成，已返仓", ""],
+  error:     [0, "这次配送已停止", ""],
 };
 
-const runningStages = new Set(["takeoff", "search", "retreat", "detour", "station", "delivered"]);
-const routeStages = new Set(["route", "detour"]);
-const overlay = el("route-overlay");
-const routeContext = overlay.getContext("2d");
-const projected = new Vector3();
-let city, sim, stage, evidence, originalRoute, interruptedExplanation;
-let showingRoute = false;
-let hasStationEvidence = false;
+const regionStyles = {
+  construction: {name: "施工构件", color: "#ffae51", fill: "rgba(255,158,55,.22)"},
+  station_display: {name: "站牌", color: "#74ffcf", fill: "rgba(81,240,183,.20)"},
+};
+const marks = el("mask-overlay").getContext("2d");
+const readingDurationMs = 6500;
+let city, sim, stage, lastObservation, obstacle, stationProof;
+let userPaused = false, readingLeft = 0, lastPaint = 0, interrupted = false;
+let stageExplanation = "";
 
-function show(stageName, detail) {
-  stage = stageName;
-  interruptedExplanation = null;
-  const [topic, question, explanation, action] = copy[stage];
-  el("lesson").dataset.stage = stage;
-  el("topic").textContent = topic;
-  el("question").textContent = !hasStationEvidence && stage === "delivered" ? "包裹送到哪里了？" :
-    !hasStationEvidence && stage === "complete" ? "哪一帧观测改变了航线？" : question;
-  el("explanation").textContent = detail ?? explanation;
-  el("next").textContent = action ?? "暂停飞行";
-  el("next").disabled = false;
-  const reading = stage === "evidence" || stage === "complete";
-  const withStation = hasStationEvidence && ["station", "delivered", "complete"].includes(stage);
-  el("lesson").classList.toggle("with-station", withStation);
-  el("station-proof").hidden = !withStation;
-  el("observation").hidden = !reading;
-  el("world").style.visibility = reading ? "hidden" : "";
-  showingRoute = routeStages.has(stage);
-  overlay.hidden = !showingRoute;
-  el("scene-caption").hidden = reading;
-  document.querySelector(".route-swatch").hidden = !showingRoute;
-  el("old-edge-key").hidden = stage !== "detour" || !evidence?.oldSegment;
-  const flightLabel = stage === "delivered" ? "图书馆 → 物流中心" : stage === "station" ? "图书馆 · 正在进站" : "物流中心 → 图书馆";
-  el("scene-text").textContent = showingRoute ? (stage === "route" ? "原计划航线" : "重新规划的航线") : flightLabel;
+function setButton() {
+  const action = stage === "ready" ? "开始配送" : stage === "complete" ? "再送一次" :
+    stage === "error" ? "重新载入" : userPaused ? "继续演示" : "暂停演示";
+  const button = el("next");
+  button.querySelector("span").textContent = action;
+  button.dataset.action = action === "暂停演示" ? "pause" : "play";
+  button.disabled = false;
 }
 
-function routeView() {
-  city.switchView("overview");
-  city.camera.position.set(-65, 98, 120);
-  city.controls.target.set(-18, 14, 29);
-  city.controls.update();
+function show(name, detail) {
+  stage = name;
+  const [step, title, explanation] = stages[name];
+  stageExplanation = detail ?? explanation;
+  el("lesson").dataset.stage = name;
+  el("question").textContent = title;
+  el("explanation").textContent = stageExplanation;
+  document.querySelectorAll(".progress li").forEach((item, index) => {
+    if (index === step && name !== "error") item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+    item.classList.toggle("passed", index < step && name !== "error");
+  });
+  const stationImage = Boolean(stationProof && ["station", "delivered", "complete"].includes(name));
+  el("station-frame").hidden = el("station-source").hidden = !stationImage;
+  el("feed").hidden = el("mask-overlay").hidden = el("frame-label").hidden = stationImage;
+  el("segmentation-labels").hidden = stationImage;
+  el("vision-mode").textContent = stationImage ? "进站定格" : name === "evidence" ? "避障定格" :
+    name === "ready" ? "起飞前" : name === "error" ? "已停止" : "实时识别";
+  el("scene-text").textContent = name === "delivered" ? "图书馆 → 物流中心" : name === "complete" ? "已返回物流中心" : "物流中心 → 图书馆";
+  el("recap").hidden = name !== "complete";
+  setButton();
 }
 
-// Trace the planner's displayed 3D polyline in projector-sized pixels. The
-// overlay is on the spectator screen and never enters either sensor target.
-function drawRoute() {
-  if (!showingRoute) return;
-  const width = overlay.clientWidth, height = overlay.clientHeight;
-  if (overlay.width !== width) overlay.width = width;
-  if (overlay.height !== height) overlay.height = height;
-  routeContext.clearRect(0, 0, width, height);
-  if (stage === "detour" && evidence.oldSegment) {
-    routeContext.beginPath();
-    evidence.oldSegment.forEach((point, i) => {
-      projected.fromArray(point).project(city.camera);
-      const x = (1 + projected.x) * width / 2, y = (1 - projected.y) * height / 2;
-      if (i === 0) routeContext.moveTo(x, y);
-      else routeContext.lineTo(x, y);
-    });
-    routeContext.setLineDash([9, 7]);
-    routeContext.lineWidth = 5;
-    routeContext.strokeStyle = "#593a20";
-    routeContext.stroke();
-    routeContext.lineWidth = 3;
-    routeContext.strokeStyle = "#ffc07a";
-    routeContext.stroke();
-    routeContext.setLineDash([]);
+// The model's polygons are already expressed in the source camera's pixel
+// coordinates. The overlay has the same backing resolution as that camera.
+function showCamera(unit) {
+  const frame = unit.last;
+  if (!frame || frame === lastObservation) return;
+  lastObservation = frame;
+  city.showFrame(unit.pixels);
+  marks.clearRect(0, 0, marks.canvas.width, marks.canvas.height);
+  const detected = new Set();
+  for (const region of frame.regions) {
+    const style = regionStyles[region.label];
+    if (!style || region.polygon_px.length < 3) continue;
+    detected.add(region.label);
+    marks.beginPath();
+    region.polygon_px.forEach(([x, y], i) => i ? marks.lineTo(x, y) : marks.moveTo(x, y));
+    marks.closePath();
+    marks.fillStyle = style.fill;
+    marks.fill();
+    marks.lineWidth = 1.6;
+    marks.strokeStyle = style.color;
+    marks.stroke();
   }
-  const points = city.route.geometry.getAttribute("position");
-  if (!points?.count) return;
-  routeContext.beginPath();
-  let penDown = false;
-  for (let index = 0; index < points.count; index++) {
-    projected.fromBufferAttribute(points, index).project(city.camera);
-    if (projected.z < -1 || projected.z > 1) { penDown = false; continue; }
-    const x = (projected.x + 1) * width / 2, y = (1 - projected.y) * height / 2;
-    if (penDown) routeContext.lineTo(x, y);
-    else routeContext.moveTo(x, y);
-    penDown = true;
-  }
-  routeContext.lineJoin = "round";
-  routeContext.lineCap = "round";
-  routeContext.lineWidth = 6;
-  routeContext.strokeStyle = "#15594f";
-  routeContext.stroke();
-  routeContext.lineWidth = 3;
-  routeContext.strokeStyle = "#67ffdf";
-  routeContext.stroke();
+  marks.canvas.dataset.frame = String(frame.id);
+  el("construction-label").hidden = !detected.has("construction");
+  el("sign-label").hidden = !detected.has("station_display");
+  el("frame-label").textContent = "机载原图 · F" + frame.id;
+  const names = Array.from(detected, label => regionStyles[label].name);
+  el("vision-result").textContent = names.length ? "模型标出了" + names.join("和") : "还没认出挡板或站牌";
+  el("vision-note").textContent = names.length ? [
+    detected.has("construction") ? "橙色轮廓是预测的施工构件" : "",
+    detected.has("station_display") ? "绿色轮廓是预测的站牌" : "",
+  ].filter(Boolean).join("，") + "。" : "相机拍到的原图会随飞行更新。";
 }
 
-function hold() {
-  sim.pauseAt = sim.tick;
-  sim.paused = true;
-}
-
-function resume() {
+function setFlightPaused(paused) {
+  sim.paused = paused;
+  sim.pauseAt = paused ? sim.tick : null;
   sim.clockDebt = 0;
   sim.lastWall = performance.now();
-  sim.pauseAt = null;
-  sim.paused = false;
-}
-
-function keepSiteStill(unit, measuredRay) {
-  // The spectator sees the situation at the decision tick. Only the separate
-  // onboard RGB-D image supplies the measurement used by the controller.
-  const forward = new Vector3(measuredRay[0], 0, measuredRay[2]).normalize();
-  const side = new Vector3(-forward.z, 0, forward.x);
-  city.switchView("overview");
-  city.controls.target.fromArray(unit.pos).addScaledVector(forward, 1.7);
-  city.camera.position.copy(city.controls.target).addScaledVector(side, 8.5).addScaledVector(forward, -6.5);
-  city.camera.position.y += 3;
-  city.controls.update();
-  const routeVisible = city.route.visible;
-  city.route.visible = false;
-  city.animateCraft(sim.units, sim.time);
-  city.draw(unit, sim.time);
-  city.route.visible = routeVisible;
-  const source = city.renderer.domElement, still = el("site-still");
-  const scale = Math.max(still.width / source.width, still.height / source.height);
-  const width = still.width / scale, height = still.height / scale;
-  still.getContext("2d").drawImage(source, (source.width - width) / 2, (source.height - height) / 2,
-    width, height, 0, 0, still.width, still.height);
 }
 
 function showObservation(event) {
-  if (event.stationAdmission && ["detour", "station"].includes(stage)) {
-    const unit = sim.units[event.unit];
-    hasStationEvidence = drawStationEvidence(el("station-proof"), unit.last, unit.pixels, event.stationAdmission);
-    city.switchView("follow", 2.5);
-    show("station", hasStationEvidence ? undefined : "已获准进站，这次未收到完整的两帧模型记录。");
-    return;
-  }
-  if (stage !== "search" || !event.passage) return;
   const unit = sim.units[event.unit];
-  hold();
+  if (event.stationAdmission && stage === "detour") {
+    stationProof = drawStationEvidence(el("lesson"), unit.last, unit.pixels, event.stationAdmission) ? unit.last.panel_proof : null;
+    if (stationProof) {
+      el("vision-result").textContent = "连续两帧 · 可交接";
+      el("vision-note").textContent = "绿框内的图案被校正成 " + stationProof.patch_size + " × " + stationProof.patch_size + " 灰度图，交给卷积网络。";
+    }
+    show("station", stationProof ? undefined : "飞机已获准进站，本次未收到完整的两帧识别记录。");
+  }
+  if (!event.passage || stage !== "search") return;
+  setFlightPaused(true);
+  showCamera(unit);
   const pixels = unit.last.ray_pixels_px, feed = el("feed");
-  const fromCenter = i => Math.hypot(pixels[i][0] - (feed.width - 1) / 2, pixels[i][1] - (feed.height - 1) / 2);
-  const index = event.passage.rayIndices.reduce((best, i) => fromCenter(i) < fromCenter(best) ? i : best);
-  const [x, y] = pixels[index], ray = unit.last.rays_world_relative_m[index];
-  const edge = event.passage.edge;
-  const nextIndex = originalRoute.findIndex((next, i) => i > 0 && edgeId(originalRoute[i - 1], next) === edge);
-  const oldSegment = nextIndex > 0 ? originalRoute.slice(nextIndex - 1, nextIndex + 1).map(node => airWaypoint(node, unit.index)) : null;
-  evidence = {frame: event.frame, edge, oldSegment, range: Math.hypot(...ray).toFixed(1)};
-  keepSiteStill(unit, ray);
-  city.showFrame(unit.pixels);
+  const centerDistance = i => Math.hypot(pixels[i][0] - (feed.width - 1) / 2, pixels[i][1] - (feed.height - 1) / 2);
+  const index = event.passage.rayIndices.reduce((a, b) => centerDistance(a) <= centerDistance(b) ? a : b);
+  const [x, y] = pixels[index], range = Math.hypot(...unit.last.rays_world_relative_m[index]).toFixed(1);
+  obstacle = {edge: event.passage.edge, range, frame: event.frame};
   const ctx = city.imageContext;
   ctx.beginPath();
   ctx.arc(x, y, 5, 0, Math.PI * 2);
-  ctx.lineWidth = 3.5;
-  ctx.strokeStyle = "#123734";
+  ctx.strokeStyle = "#153732";
+  ctx.lineWidth = 3.8;
   ctx.stroke();
-  ctx.lineWidth = 1.8;
-  ctx.strokeStyle = "#8affdb";
+  ctx.strokeStyle = "#fffbe9";
+  ctx.lineWidth = 2;
   ctx.stroke();
-  el("frame-label").textContent = "机载画面 · F" + event.frame;
-  show("evidence", "彩色图像里能看见挡板，对应位置的深度测量给出 " + evidence.range + " 米。还能沿原路向前飞吗？");
+  const replay = el("obstacle-replay").getContext("2d");
+  replay.drawImage(feed, 0, 0);
+  replay.drawImage(marks.canvas, 0, 0);
+  el("obstacle-caption").textContent = "F" + event.frame + " · 白圈处测得 " + range + " 米，原通道受阻。";
+  el("vision-result").textContent = "挡板距相机 " + range + " 米";
+  el("vision-note").textContent = "白圈标出深度相机的实际测距点。";
+  readingLeft = readingDurationMs;
+  show("evidence");
 }
 
 function fail(message) {
-  if (sim) hold();
-  stage = "error";
-  el("lesson").dataset.stage = stage;
-  el("topic").textContent = "配送已停止";
-  el("question").textContent = "这次飞行未能继续";
-  el("explanation").textContent = message;
-  el("next").textContent = "重新开始";
-  el("next").disabled = false;
+  if (sim) setFlightPaused(true);
+  show("error", message);
 }
 
-function update() {
-  const b = sim.units[0];
-  if (b.phase === "failed") return fail(b.visionNote);
-  if (sim.serviceError && sim.running) {
-    if (interruptedExplanation === null) {
-      interruptedExplanation = el("explanation").textContent;
+function update(now) {
+  const elapsed = lastPaint ? Math.min(250, Math.max(0, now - lastPaint)) : 0;
+  lastPaint = now;
+  const unit = sim.units[0];
+  if (unit.phase === "failed") return fail(sim.events.at(-1)?.reason || unit.visionNote);
+  if (sim.running && sim.serviceError) {
+    if (!interrupted) {
+      interrupted = true;
       el("explanation").textContent = "机载画面暂时中断。无人机正在制动，收到新画面后继续。";
     }
     return;
   }
-  if (interruptedExplanation !== null) {
-    el("explanation").textContent = interruptedExplanation;
-    interruptedExplanation = null;
+  if (interrupted) {
+    interrupted = false;
+    el("explanation").textContent = stageExplanation;
   }
-  if (stage === "takeoff" && b.phase === "cruise" && b.next) {
-    hold();
-    originalRoute = [b.at, b.next, ...b.route];
-    routeView();
-    show("route");
-  } else if (stage === "retreat" && b.phase === "cruise" && b.next) {
-    const route = [b.at, b.next, ...b.route];
-    const usesOldEdge = route.slice(1).some((next, i) => edgeId(route[i], next) === evidence.edge);
-    if (!usesOldEdge) {
-      routeView();
-      show("detour", route.includes("plaza") ? "它改从广场一侧飞往图书馆。沿青线看，原来被挡的通道已经绕开了。" : undefined);
+  if (stage === "evidence") {
+    if (!userPaused && !document.hidden) readingLeft -= elapsed;
+    if (readingLeft <= 0) {
+      show("retreat");
+      setFlightPaused(false);
     }
-  } else if (stage === "station" && b.phase === "holding") {
-    hasStationEvidence = false;
-    routeView();
-    show("detour", "本次进站已撤回，无人机正在等待新的站牌观测。");
-  } else if ((stage === "station" || stage === "detour") && b.receipts.length) {
-    city.switchView("cinema");
-    show("delivered", hasStationEvidence ? undefined : "图书馆已完成交接。此次进站的模型输入未完整记录。");
-  } else if (stage === "delivered" && sim.final && b.phase === "done") {
-    el("frame-label").textContent = "改道时的机载画面 · F" + evidence.frame + " · " + evidence.range + " 米";
-    show("complete", hasStationEvidence
-      ? "用 F" + evidence.frame + " 的测距点解释绕行，再用两次站牌分类结果解释为什么可以交接。"
-      : "可以回看 F" + evidence.frame + " 的改道依据。此次进站的模型输入未完整记录。");
+    return;
+  }
+  if (!stationProof) showCamera(unit);
+  if (stage === "takeoff" && unit.phase === "cruise" && unit.next) {
+    // Introduce an external change once the real planner has selected a route.
+    // The controller must discover the change from subsequent RGB-D frames.
+    if (!sim.act("barrier", true)) return fail("施工点离飞机太近，本次未能设置挡板。");
+    show("search");
+  } else if (stage === "retreat" && unit.phase === "cruise" && unit.next) {
+    const path = [unit.at, unit.next, ...unit.route];
+    if (path.slice(1).every((next, i) => edgeId(path[i], next) !== obstacle.edge)) show("detour");
+  } else if (stage === "station" && unit.phase === "holding") {
+    stationProof = null;
+    lastObservation = null;
+    show("detour", "站台情况改变，无人机正在等待新的站牌观测。");
+  } else if ((stage === "station" || stage === "detour") && unit.receipts.length) {
+    show("delivered");
+  } else if (stage === "delivered" && sim.final && unit.phase === "done") {
+    show("complete", "白圈处的挡板只有 " + obstacle.range + " 米远，无人机改道。" +
+      (stationProof ? "站牌连续两帧显示可交接，它才进站送件。" : "此次进站的模型输入未完整记录。"));
   }
 }
 
 function start() {
-  evidence = null;
-  hasStationEvidence = false;
+  obstacle = stationProof = lastObservation = null;
+  userPaused = interrupted = false;
+  readingLeft = 0;
+  el("review").open = false;
+  el("station-readings").replaceChildren();
+  el("station-rule").textContent = "此次进站的模型输入未完整记录。";
+  el("obstacle-caption").textContent = "";
+  city.showFrame(null);
+  marks.clearRect(0, 0, marks.canvas.width, marks.canvas.height);
+  delete marks.canvas.dataset.frame;
+  el("construction-label").hidden = el("sign-label").hidden = true;
+  el("frame-label").textContent = "等待第一帧";
+  el("vision-result").textContent = "相机正在取图";
+  el("vision-note").textContent = "收到图像后开始识别。";
   sim.reset({station: 17, chapter: 4, fleet: false, weather: "day", avoid: [], gps: true, panelEvidence: true});
-  city.switchView("follow", 1.8);
   sim.start();
   show("takeoff");
 }
@@ -239,42 +210,33 @@ function start() {
 el("next").addEventListener("click", () => {
   if (stage === "ready" || stage === "complete") return start();
   if (stage === "error") return location.reload();
-  if (stage === "route") {
-    if (!sim.act("barrier", true)) return fail("施工点与机体保护区重叠，这次无法设置施工。");
-    city.switchView("follow");
-    show("search");
-    resume();
-  } else if (stage === "evidence") {
-    city.switchView("follow");
-    show("retreat");
-    resume();
-  } else if (runningStages.has(stage)) {
-    if (sim.paused) resume();
-    else hold();
-    el("next").textContent = sim.paused ? "继续飞行" : "暂停飞行";
-  }
+  userPaused = !userPaused;
+  setFlightPaused(userPaused || stage === "evidence");
+  if (!interrupted) el("explanation").textContent = userPaused ? "画面已暂停，点「继续演示」接着看。" : stageExplanation;
+  if (stage !== "evidence" && !stationProof) el("vision-mode").textContent = userPaused ? "已暂停" : "实时识别";
+  setButton();
 });
 
 async function boot() {
   try {
     const response = await fetch("/api/health", {signal: AbortSignal.timeout(8000)});
-    if (!response.ok || (await response.json()).application !== "JmCake/AeroMind/3D") {
-      throw new Error("无法连接本机视觉服务。");
-    }
+    if (!response.ok || (await response.json()).application !== "JmCake/AeroMind/3D") throw new Error("无法连接本机视觉服务。");
     city = new City(el("world"), el("feed"));
     await city.load();
     sim = new Simulation(city, showObservation);
-    city.tags.get("31").classList.add("outside-lesson");
-    city.switchView("follow", 1.8);
+    city.switchView("follow", 2.2);
+    city.draw(sim.units[0], 0);
+    await sim.sense();
+    if (!sim.units[0].last) throw new Error(sim.serviceError || "没有收到起飞前的机载图像。");
+    showCamera(sim.units[0]);
     show("ready");
     city.renderer.setAnimationLoop(now => {
-      if (stage === "evidence" || stage === "error" || stage === "complete") return;
+      if (stage === "error" || stage === "complete") return;
       sim.frame(now);
-      update();
-      drawRoute();
+      update(now);
     });
   } catch (error) {
-    fail("请检查本机视觉服务与浏览器的 WebGL2 支持。" + error.message);
+    fail("请确认本机视觉服务已启动，并使用支持 WebGL2 的浏览器。" + error.message);
   }
 }
 

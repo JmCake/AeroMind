@@ -68,7 +68,7 @@ async function checkStation(page, recent, rawFolder) {
     for (let k = 0; k < tile.length; k++) {
       assert.equal(shown.readUInt32BE(k * 4), tile[k] * 0x1010100 + 255);
     }
-    const caption = await row.innerText();
+    const caption = await row.textContent();
     assert.ok(caption.includes("F" + frame.id) && caption.includes("可交接"));
     const displayedScore = Number(caption.match(/([\d.]+)%/)[1]) / 100;
     assert.ok(Math.abs(displayedScore - frame.confidence) <= .00101);
@@ -82,7 +82,7 @@ async function checkStation(page, recent, rawFolder) {
 async function checkFrame(page, recent) {
   const label = await page.locator("#frame-label").innerText();
   const id = Number(label.match(/F(\d+)/)[1]);
-  const shownRange = (await page.locator("#explanation").innerText()).match(/(\d+\.\d) 米/)[1];
+  const shownRange = (await page.locator("#vision-result").innerText()).match(/(\d+\.\d) 米/)[1];
   for (const response of recent.slice().reverse()) {
     if (!response.ok()) continue;
     const data = await response.json();
@@ -116,7 +116,39 @@ async function checkFrame(page, recent) {
       if (!rgb.subarray(i, i + 3).equals(displayed.subarray(i, i + 3))) changed++;
     }
     assert.ok(changed > 0 && changed <= 200, "The remaining pixels must be the original RGB frame");
-    return {frame: id, simulation_seconds: meta.sim_time, measured_pixel: marked[0], range_m: Number(shownRange), marked_image_pixels: changed};
+    const overlay = page.locator("#mask-overlay");
+    assert.equal(Number(await overlay.getAttribute("data-frame")), id);
+    const mask = await overlay.evaluate((canvas, regions) => {
+      const reference = document.createElement("canvas");
+      reference.width = canvas.width;
+      reference.height = canvas.height;
+      const ctx = reference.getContext("2d");
+      for (const {polygon_px} of regions) {
+        const path = new Path2D();
+        polygon_px.forEach(([x, y], i) => i ? path.lineTo(x, y) : path.moveTo(x, y));
+        path.closePath();
+        ctx.fillStyle = "white";
+        ctx.fill(path);
+        ctx.strokeStyle = "gray"; // Allow antialiasing around the outline.
+        ctx.lineWidth = 5;
+        ctx.stroke(path);
+      }
+      const expected = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const actual = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+      let ink = 0, mismatches = 0;
+      for (let p = 0; p < actual.length; p += 4) {
+        if (actual[p + 3]) ink++;
+        if ((!expected[p + 3] && actual[p + 3]) || (expected[p] === 255 && expected[p + 3] === 255 && !actual[p + 3])) mismatches++;
+      }
+      return {ink, mismatches};
+    }, data.regions);
+    assert.equal(mask.mismatches, 0, "The displayed mask must cover the predicted polygon interiors and leave the outside clear");
+    assert.equal(mask.ink > 0, data.regions.length > 0);
+    for (const [label, selector] of [["construction", "#construction-label"], ["station_display", "#sign-label"]]) {
+      assert.equal(await page.locator(selector).isVisible(), data.regions.some(r => r.label === label));
+    }
+    return {frame: id, simulation_seconds: meta.sim_time, measured_pixel: marked[0], range_m: Number(shownRange), marked_image_pixels: changed,
+      model_regions: data.regions.map(r => r.label), overlay_pixels: mask.ink};
   }
   throw new Error("Missing model response for the displayed frame " + id);
 }
@@ -151,9 +183,11 @@ async function main() {
     assert.equal(await page.locator("#lesson").getAttribute("data-stage"), stage, await page.locator("#explanation").innerText());
   };
   const click = name => page.getByRole("button", {name, exact: true}).click();
-  const buttonFits = () => page.locator("#next").evaluate(node => {
-    const box = node.getBoundingClientRect();
-    return box.top >= 0 && box.bottom <= innerHeight + 1 && document.documentElement.scrollWidth <= innerWidth;
+  const lessonFits = () => page.evaluate(() => {
+    return ["#next", ".image-plane"].every(selector => {
+      const box = document.querySelector(selector).getBoundingClientRect();
+      return box.width > 80 && box.top >= 0 && box.bottom <= innerHeight + 1;
+    }) && document.documentElement.scrollWidth <= innerWidth;
   });
   async function held() {
     await page.waitForTimeout(400);
@@ -176,21 +210,35 @@ async function main() {
       fs.writeFileSync(path.join(dest, "classroom.json"), JSON.stringify(report, null, 2));
       return report;
     };
-    assert.equal(await page.locator("button:visible, select:visible, input:visible").count(), 1);
-    assert.ok(await buttonFits());
+    const actions = page.locator("button:visible, a:visible, summary:visible, select:visible, input:visible");
+    assert.equal(await actions.count(), 1);
+    assert.equal(await actions.first().innerText(), "开始配送");
+    assert.ok(await lessonFits());
+    assert.ok(Number(await page.locator("#mask-overlay").getAttribute("data-frame")) >= 1, "A real image must be present before takeoff");
+    await page.locator("#next").evaluate(button => {
+      window.classroomClicks = 0;
+      button.addEventListener("click", () => window.classroomClicks++);
+    });
     await page.screenshot({path: path.join(dest, "opening.png")});
+    if (!software) {
+      await page.setViewportSize({width: 390, height: 740});
+      assert.ok(await lessonFits(), "Both the first action and the vision image must be above the fold");
+      await page.screenshot({path: path.join(dest, "opening-narrow.png")});
+      await page.setViewportSize({width: 1280, height: 720});
+    }
     for (let i = 0; i < Number(repeats); i++) {
       const start = Date.now(), baseline = requests;
-      await click(i === 0 ? "起飞送货" : "再讲一次");
-      await at("route");
-      await held();
-      assert.ok(await page.locator("#route-overlay").isVisible());
-      if (i === 0) await page.screenshot({path: path.join(dest, "original-route.png")});
-      await click("设置前方施工");
+      const before = await page.evaluate(() => window.classroomClicks);
+      if (i === 0) {
+        await page.keyboard.press("Tab");
+        assert.equal(await page.evaluate(() => document.activeElement.id), "next");
+        await page.keyboard.press("Enter");
+      } else await click("再送一次");
       await at("search");
-      await click("暂停飞行");
-      await held();
+      assert.equal(await actions.count(), 1);
       if (faultTest) {
+        await click("暂停演示");
+        await held();
         await page.locator("#explanation").evaluate(node => {
           delete window.interruptedLessonStage;
           const observer = new MutationObserver(() => {
@@ -202,50 +250,46 @@ async function main() {
         });
         await page.route("**/api/frame", route => route.fulfill({status: 503,
           headers: {"x-classroom-test": "dropped-frame"}, body: "Camera temporarily unavailable"}), {times: 1});
-        await click("继续飞行");
+        await click("继续演示");
         await page.waitForFunction(() => window.interruptedLessonStage === "search", null, {timeout: software ? 60000 : 12000});
-      } else await click("继续飞行");
+      }
       await at("evidence");
-      assert.ok(await page.locator("#observation").isVisible());
-      await held();
+      if (faultTest) await click("暂停演示");
+      assert.ok(await page.locator("#feed").isVisible());
+      assert.equal(await page.locator("#vision-mode").innerText(), "避障定格");
       const confirmation = await checkFrame(page, recent);
-      let stationEvidence = null;
       if (i === 0) await page.screenshot({path: path.join(dest, "decision-frame.png")});
-      if (!software) {
-        await page.setViewportSize({width: 390, height: 740});
-        assert.ok(await buttonFits(), "The teacher control must be visible at narrow widths");
-        await page.setViewportSize({width: 1280, height: 720});
+      if (faultTest) {
+        await page.waitForTimeout(7000);
+        assert.equal(await page.locator("#lesson").getAttribute("data-stage"), "evidence", "A teacher pause must hold past the automatic reading time");
+        await click("继续演示");
       }
       console.log("Measured decision", JSON.stringify(confirmation));
-      await click("继续配送");
       await at("detour");
-      assert.ok(await page.locator("#route-overlay").isVisible());
-      assert.ok(await page.locator("#old-edge-key").isVisible());
-      if (i === 0) await page.screenshot({path: path.join(dest, "new-route.png")});
       await at("station");
-      await click("暂停飞行");
-      await held();
-      stationEvidence = await checkStation(page, recent, i === 0 ? dest : null);
+      assert.ok(await page.locator("#station-frame").isVisible());
+      assert.ok(!(await page.locator("#feed").isVisible()));
+      const stationEvidence = await checkStation(page, recent.slice(), i === 0 ? dest : null);
       if (i === 0) await page.screenshot({path: path.join(dest, "station-classifier.png")});
-      if (!software) {
-        await page.setViewportSize({width: 390, height: 740});
-        assert.ok(await buttonFits(), "Both teaching evidence and the teacher control must fit a narrow window");
-        if (i === 0) await page.screenshot({path: path.join(dest, "station-narrow.png")});
-        await page.setViewportSize({width: 1280, height: 720});
-        await click("继续飞行");
-        await at("delivered");
-        assert.equal(await page.locator("#scene-text").innerText(), "图书馆 → 物流中心");
-        await at("complete");
-        assert.ok((await page.locator("#explanation").innerText()).includes("F" + confirmation.frame));
-        assert.ok(await page.locator("#observation").isVisible());
-        assert.ok(await page.locator("#station-proof").isVisible());
-        assert.ok(await buttonFits(), "The recap and replay control must fit the projector");
-        if (i === 0) await page.screenshot({path: path.join(dest, "vision-recap.png")});
+      await at("delivered");
+      assert.equal(await page.locator("#scene-text").innerText(), "图书馆 → 物流中心");
+      await at("complete");
+      assert.ok((await page.locator("#explanation").innerText()).includes(confirmation.range_m + " 米"));
+      assert.ok((await page.locator("#station-rule").textContent()).includes("80%"));
+      assert.ok(await lessonFits());
+      const clicks = (await page.evaluate(() => window.classroomClicks)) - before;
+      assert.equal(clicks, faultTest ? 5 : 1, "The ordinary trip must finish from just the start action");
+      assert.equal(await page.locator("#review").getAttribute("open"), null);
+      if (i === 0) {
+        await page.screenshot({path: path.join(dest, "vision-recap.png")});
+        await page.locator("#review summary").click();
+        assert.ok(await page.locator("#obstacle-replay").isVisible() && await page.locator("#station-readings").isVisible());
+        assert.ok((await page.locator("#obstacle-caption").innerText()).includes("F" + confirmation.frame));
+        await page.screenshot({path: path.join(dest, "review.png"), fullPage: true});
       }
       runs.push({confirmation, station_classification: stationEvidence, responses: requests - baseline, seconds: (Date.now() - start) / 1000,
-        delivery_and_return: !software});
+        primary_actions_to_return: clicks, delivery_and_return: true});
       saveReport(false);
-      if (software) break;
     }
     await page.getByRole("link", {name: "课后实验"}).click();
     await page.waitForFunction(() => document.querySelector("#launch")?.disabled === false);
