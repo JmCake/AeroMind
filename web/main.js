@@ -36,14 +36,31 @@ function launch(){
   for(const [key,value] of Object.entries(preset))if(value){sim.act(key,true);$(key).checked=true;}
   sim.start();$("launch").disabled=true;$("pause").disabled=false;
 }
+const cognitiveCanvas=$("cognitive"), cognitiveContext=cognitiveCanvas.getContext("2d");
+const occupancyImage=cognitiveContext.createImageData(cognitiveCanvas.width,cognitiveCanvas.height);
+const occupancyPixels=new Uint32Array(occupancyImage.data.buffer);
+// Construct colours from RGBA bytes so the packed writes use native byte order.
+const occupancyColors=new Uint32Array(Uint8Array.from([
+  11,35,38,255, 238,182,120,255, 100,173,153,255, 101,123,114,255
+]).buffer);
+
 function mapView(b){
-  const c=$("cognitive"),g=c.getContext("2d");
-  g.fillStyle="#0b2326";g.fillRect(0,0,c.width,c.height);
+  const c=cognitiveCanvas,g=cognitiveContext;
   const point=p=>[c.width/2+p[0]*1.15,c.height/2+p[2]*.94];
+  // Thousands of tiny canvas draw calls per update can saturate a software
+  // renderer. Rasterize the observed voxels in order, then upload the map once.
+  occupancyPixels.fill(occupancyColors[0]);
   for(const cell of b.map.voxels.values()){
-    const [x,y]=point(cell.point);
-    g.fillStyle=cell.odds>1?"#eeb678":cell.odds<-.8?"#64ad99":"#657b72";g.fillRect(x,y,3,3);
+    const x=Math.round(c.width/2+cell.point[0]*1.15),y=Math.round(c.height/2+cell.point[2]*.94);
+    const left=Math.max(0,x),right=Math.min(c.width,x+3);
+    if(left>=right)continue;
+    const color=occupancyColors[cell.odds>1?1:cell.odds<-.8?2:3];
+    for(let row=Math.max(0,y);row<Math.min(c.height,y+3);row++){
+      const offset=row*c.width;
+      occupancyPixels.fill(color,offset+left,offset+right);
+    }
   }
+  g.putImageData(occupancyImage,0,0);
   g.strokeStyle="#f7e9bf";g.beginPath();b.trajectory.forEach((p,i)=>{
     const [x,y]=point(p);if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});g.stroke();
   if(comparisons.length===2)comparisons.forEach((branch,i)=>{

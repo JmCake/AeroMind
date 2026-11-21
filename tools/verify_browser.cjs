@@ -56,20 +56,41 @@ async function verifyControls(page,dest,software){
   if(software)await page.locator('[data-view="map"]').click();
   await page.locator("#speed").click();await page.locator("#speed").click();
   const deadline=Date.now()+(software?840000:180000);
-  let lastPhase="",lastNote=0;
-  while(await page.locator("#launch").isDisabled()&&Date.now()<deadline){
-    const phase=await page.locator("#phase").innerText();
-    if(phase!==lastPhase||Date.now()-lastNote>45000){
-      console.log(await page.locator("#clock").innerText(),phase,await page.locator("#events").innerText());
-      lastPhase=phase;lastNote=Date.now();
-    }
-    await page.waitForTimeout(1600);
+  let lastStatus=null;
+  do{
+    const remaining=deadline-Date.now();
+    assert.ok(remaining>0,"The flight did not return within the run budget");
+    // Read the public clock without forcing layout. Each wait must see mission
+    // progress, a phase change, or completion, even on a software renderer.
+    const progress=await page.waitForFunction(previous=>{
+      const clock=document.querySelector("#clock").textContent;
+      const [m,s]=clock.split(":").map(Number),seconds=m*60+s;
+      const phase=document.querySelector("#phase").textContent,done=!document.querySelector("#launch").disabled;
+      if(done||!previous||phase!==previous.phase||seconds>=previous.seconds+4)
+        return {phase,clock,seconds,done,note:document.querySelector("#events").textContent};
+    },lastStatus,{polling:650,timeout:Math.min(remaining,software?90000:30000)});
+    lastStatus=await progress.jsonValue();
+    await progress.dispose();
+    console.log(lastStatus.clock,lastStatus.phase,lastStatus.note);
   }
+  while(!lastStatus.done);
   const data=await readExport(page,path.join(dest,"run.json")),unit=data.units[0];
   console.log(JSON.stringify({outcome:unit.outcome,elapsed_sim_s:unit.elapsed_sim_s,events:data.events.slice(-5)}));
   assert.equal(data.orders[0].priority,2);
   assert.ok(data.options.avoid.length&&unit.outcome==="done"&&unit.delivered&&unit.contacts===0&&unit.home_contact_error_m!=null&&unit.home_contact_error_m<.45);
   assert.ok(data.events.some(e=>e.reason==="已手动接管")&&data.events.some(e=>e.reason==="恢复任务控制"));
+  if(software){
+    const colors=await page.locator("#cognitive").evaluate(canvas=>{
+      const rgba=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height).data;
+      let free=0,occupied=0;
+      for(let i=0;i<rgba.length;i+=4){
+        if(rgba[i]===100 && rgba[i+1]===173 && rgba[i+2]===153)free++;
+        if(rgba[i]===238 && rgba[i+1]===182 && rgba[i+2]===120)occupied++;
+      }
+      return {free,occupied};
+    });
+    assert.ok(colors.free>0 && colors.occupied>0,"The returned flight must retain free and occupied voxels on its map");
+  }
   await page.locator("#reset").click();
   await page.waitForFunction(()=>document.querySelector("#phase").textContent==="等待订单");
   const result={paused_at:pausedAt,paused_frame:pausedFrame,renderer:data.gpu,
