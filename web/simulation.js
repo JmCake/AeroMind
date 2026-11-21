@@ -543,7 +543,7 @@ export class Simulation {
     this.final=this.units.every(b=>["done","failed"].includes(b.phase));
     if(this.final)this.running=false;
   }
-  frame(now) {
+  frame(now, drawWorld=true) {
     const interval=now-this.lastWall, dt=Math.min(.09,interval/1000);this.lastWall=now;
     if(this.paused)for(const b of this.units)b.pendingControlFrame=null;
     if(this.running&&!this.paused&&interval>0){this.frameTimes.push(interval);this.city.budget(interval);if(this.frameTimes.length>10000)this.frameTimes.shift();}
@@ -560,6 +560,6 @@ export class Simulation {
     }
     this.city.animateCraft(this.units,this.time);
     if(!this.paused&&!this.final)this.sense();
-    this.city.draw(this.units[this.activeUnit],this.time);
+    if(drawWorld)this.city.draw(this.units[this.activeUnit],this.time);
   }
 }
