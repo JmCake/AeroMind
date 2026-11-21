@@ -40,8 +40,8 @@ class Perception:
         self.reader = PanelReader()
 
     @torch.inference_mode()
-    def inspect(self, bgr):
-        patches = list(self.reader.patches(bgr))
+    def inspect(self, bgr, *, model_inputs=None):
+        patches = list(self.reader.patches(bgr, model_inputs))
         if not patches:
             return []
         probabilities = self.model(tensors([p[1] for p in patches])).softmax(1)

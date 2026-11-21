@@ -119,9 +119,8 @@ export class Simulation {
     this.city.setRoute([b.est,...[b.next,...b.route].filter(Boolean).map(k=>airWaypoint(k,b.index))]);
     this.city.animateCraft(this.units,this.time);
   }
-  log(reason,b=this.units[this.activeUnit],kind="state",passage) {
-    const entry={time:this.time,unit:b.index,kind,reason,frame:b.last?.id??null};
-    if(passage)entry.passage=passage;
+  log(reason,b=this.units[this.activeUnit],kind="state",details={}) {
+    const entry={time:this.time,unit:b.index,kind,reason,frame:b.last?.id??null,...details};
     this.events.push(entry);this.notify(entry);
   }
   start() {
@@ -280,7 +279,8 @@ export class Simulation {
         const capture=this.city.capture(b,id,this.time,b.stream,b.returnTrip?46:b.station,this.options.chapter,this.options.checkpoint||"selected",
           this.options.rangeLimit||90,this.options.depthNoise||0,random);
         sample.pixels=capture.pixels;
-        const resp=await fetch("/api/frame",{method:"POST",body:capture.packet,signal:AbortSignal.timeout(5000)});
+        const headers=this.options.panelEvidence&&!b.returnTrip?{"X-AeroMind-Panel-Evidence":"1"}:undefined;
+        const resp=await fetch("/api/frame",{method:"POST",headers,body:capture.packet,signal:AbortSignal.timeout(5000)});
         if(!resp.ok)throw new Error("感知服务返回 "+resp.status);
         const result=await resp.json();
         if(this.generation===generation&&result.stream===b.stream&&result.id===id)this.accept(b,result,performance.now()-start,sample);
@@ -412,7 +412,7 @@ export class Simulation {
         if(seen.occupied>=2){
           const key=edgeId(b.at,b.next);b.map.observeEdge(key,this.time,b.index,b.last.id);
           this.log("F"+b.last.id+" 的 "+seen.occupied+" 条测距射线确认通道占用，退回后改道",b,"vision",
-            {edge:key, rayIndices:seen.occupiedRayIndices});
+            {passage:{edge:key, rayIndices:seen.occupiedRayIndices}});
           if(this.units.length>1)this.share(b,key);
           b.phase="retreat";b.look=0;b.blockedSince=null;
         }else if(seen.free>=3){
@@ -431,7 +431,7 @@ export class Simulation {
     case "verify":
       orient=false;goal=target.hold;b.wait+=step;b.yaw=smoothAngle(b.yaw,0,.14);b.pitch*=.85;
       b.berth=measuredBerth(b,b.station,this.time);
-      if(b.berth){this.log("机载图像及深度确认站台位置，开始进站",b,"vision");b.phase="dock";}
+      if(b.berth){b.phase="dock";this.log("机载图像及深度确认站台位置，开始进站",b,"vision",{stationAdmission:b.station});}
       break;
     case "dock":
       goal=b.berth;max=1.8;orient=false;

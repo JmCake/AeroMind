@@ -6,7 +6,7 @@
   color: #123734;
   background: #f6f6ef;
 }
-body { margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column }
+body { margin: 0; height: 100vh; height: 100dvh; min-height: 420px; display: flex; flex-direction: column }
 header {
   height: 56px; flex: none; display: flex; align-items: center; justify-content: space-between;
   padding-inline: clamp(18px, 4vw, 64px); background: #143936; color: #fffef4;
@@ -18,7 +18,7 @@ header {
 header a { color: #d5e9dd; text-decoration: none; font-size: 15px; padding: 9px 0 9px 9px }
 header a:hover { text-decoration: underline; text-underline-offset: 4px }
 button:focus-visible, a:focus-visible { outline: 3px solid #f3ad45; outline-offset: 4px }
-main { flex: 1; min-width: 0; display: flex; flex-direction: column }
+main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column }
 .stage { flex: 1; min-height: 180px; position: relative; overflow: hidden; background: #0f282a }
 #world, #route-overlay, #observation { position: absolute; inset: 0 }
 #world { background: #b2cdd1 }
@@ -38,6 +38,25 @@ main { flex: 1; min-width: 0; display: flex; flex-direction: column }
 #observation figure { min-width: 0; min-height: 0; margin: 0; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center }
 #observation canvas { display: block; width: 100%; height: auto; min-height: 0; max-height: calc(100% - 34px); object-fit: contain }
 figcaption { color: #eef8ed; font-size: 18px; font-weight: 650; line-height: 1.4; margin-top: 7px }
+.with-station .stage { display: grid; grid-template-columns: minmax(0,1.22fr) minmax(0,1fr); grid-template-rows: minmax(0,1fr); background: #102b2b }
+.with-station #world, .with-station #observation { position: relative; inset: auto; grid-area: 1/1; min-width: 0; min-height: 0 }
+.with-station #observation { display: flex; justify-content: center; padding: 12px 14px }
+.with-station #observation figure:first-child { display: none }
+.with-station #observation figure { width: 100% }
+#station-proof { grid-area: 1/2; min-width: 0; min-height: 0; padding: 12px clamp(14px,2vw,30px);
+  display: flex; flex-direction: column; justify-content: center; gap: 10px; color: #f2fbef; background: #153734 }
+.station-camera { margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 0 }
+.station-camera canvas { display: block; height: auto; width: 100%; max-height: min(28vh,225px); object-fit: contain; min-height: 0 }
+.station-camera figcaption { font-size: clamp(14px,1.3vw,19px); text-align: center }
+.station-readout { border-top: 1px solid #47645b; padding-top: 10px }
+.station-readout h2 { margin: 0 0 8px; font-size: clamp(16px,1.5vw,22px); line-height: 1.35 }
+#station-readings { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; padding: 0 }
+#station-readings li { display: flex; align-items: center; gap: 9px; min-width: 0 }
+#station-readings canvas { width: clamp(40px,4.8vw,70px); height: auto; image-rendering: pixelated; border: 1px solid #84a69b }
+#station-readings span, #station-readings strong { display: block }
+#station-readings span { color: #c9dcd3; font-size: 14px; font-variant-numeric: tabular-nums }
+#station-readings strong { color: #a7f6cf; font-size: clamp(15px,1.4vw,21px) }
+#station-rule { margin: 8px 0 0; font-size: clamp(14px,1.2vw,18px); line-height: 1.45 }
 .teacher { display: flex; align-items: center; justify-content: space-between; flex: none;
   gap: 18px 32px; padding: clamp(16px, 3.2vh, 32px) clamp(18px, 4vw, 64px) clamp(20px, 3.6vh, 36px); background: #f7f7f0 }
 .topic { margin: 0 0 5px; color: #37715f; font-weight: 700; font-size: 16px }
@@ -54,6 +73,17 @@ button:disabled { background: #c5d3c8; color: #38554a; cursor: wait }
   button { min-height: 46px }
   #observation { grid-template-columns: 1fr; grid-template-rows: repeat(2,minmax(0,1fr)); gap: 10px }
   figcaption { font-size: 15px; margin-top: 3px }
+  .with-station .stage { grid-template-columns: 1fr; grid-template-rows: minmax(100px,1fr) auto }
+  #station-proof { grid-area: 2/1; display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.25fr); gap: 10px; padding: 9px 12px; align-items: center }
+  .station-camera canvas { max-height: 120px }
+  .station-camera figcaption { font-size: 12px }
+  .station-readout { padding: 0; border: 0 }
+  .station-readout h2 { font-size: 14px; margin-bottom: 5px }
+  #station-readings li { display: block }
+  #station-readings span { font-size: 12px }
+  #station-readings strong, #station-rule { font-size: 12px }
+  #station-rule { margin-top: 4px }
+  .with-station .scene-caption { bottom: auto; top: 8px; left: 12px; padding: 4px 8px; font-size: 13px }
 }
 @media (max-height: 500px) and (min-width: 691px) {
   header { height: 42px }

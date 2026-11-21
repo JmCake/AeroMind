@@ -2,27 +2,30 @@ import {Vector3} from "three";
 import {City} from "./world.js";
 import {airWaypoint, edgeId} from "./navigation.js";
 import {Simulation} from "./simulation.js";
+import {drawStationEvidence} from "./station-view.js";
 
 const el = id => document.getElementById(id);
 const copy = {
-  ready: ["图书馆配送", "无人机为什么会改道？", "从物流中心送一件包裹到图书馆。先看它准备怎么走。", "起飞送货"],
+  ready: ["图书馆配送", "无人机如何从图像决定下一步？", "路上看它怎样发现挡板，到站看它怎样读懂站牌。", "起飞送货"],
   takeoff: ["起飞", "它准备走哪条路？", "包裹已装载。升到巡航高度后，画面会停在它选好的航线上。"],
   route: ["看航线", "如果前面施工，它会立刻知道吗？", "青线是刚算出的路线。请一位同学在通道里设置施工，再观察无人机的反应。", "设置前方施工"],
   search: ["看现场", "它什么时候才会发现施工？", "施工已经开始。留意飞机飞到哪里才刹车。"],
-  evidence: ["读机载画面", "它还能沿原路向前飞吗？", "", "继续配送"],
+  evidence: ["机载图像与深度", "这张图里的挡板离相机多远？", "", "继续配送"],
   retreat: ["看行动", "它接下来会往哪边飞？", "无人机正在退回上一个航点，到那里会重新计算路线。"],
   detour: ["看行动", "它选了一条怎样的新路线？", "青线是绕开受阻通道后重新算出的路线。"],
-  delivered: ["图书馆已签收", "包裹送到了。", "无人机已读到图书馆的站牌并完成交接，现在正飞回物流中心。"],
-  complete: ["包裹已签收 · 无人机已返仓", "这帧观测改变了什么？", "", "再讲一次"],
+  station: ["站牌图像分类", "怎样从站牌判断能否交接？", "左侧的黑白方码标识图书馆。相机画面中框出的状态图案被校正成灰度小图，交给卷积网络分类。"],
+  delivered: ["图书馆已签收", "如果第二帧显示占用，还能进站吗？", "模型逐帧判断可交接、占用或看不清。如果中途读到占用，进站确认就要重新开始。"],
+  complete: ["包裹已签收 · 无人机已返仓", "哪幅图让它绕行，哪两帧让它进站？", "", "再讲一次"],
 };
 
-const runningStages = new Set(["takeoff", "search", "retreat", "detour", "delivered"]);
+const runningStages = new Set(["takeoff", "search", "retreat", "detour", "station", "delivered"]);
 const routeStages = new Set(["route", "detour"]);
 const overlay = el("route-overlay");
 const routeContext = overlay.getContext("2d");
 const projected = new Vector3();
 let city, sim, stage, evidence, originalRoute, interruptedExplanation;
 let showingRoute = false;
+let hasStationEvidence = false;
 
 function show(stageName, detail) {
   stage = stageName;
@@ -30,11 +33,15 @@ function show(stageName, detail) {
   const [topic, question, explanation, action] = copy[stage];
   el("lesson").dataset.stage = stage;
   el("topic").textContent = topic;
-  el("question").textContent = question;
+  el("question").textContent = !hasStationEvidence && stage === "delivered" ? "包裹送到哪里了？" :
+    !hasStationEvidence && stage === "complete" ? "哪一帧观测改变了航线？" : question;
   el("explanation").textContent = detail ?? explanation;
   el("next").textContent = action ?? "暂停飞行";
   el("next").disabled = false;
   const reading = stage === "evidence" || stage === "complete";
+  const withStation = hasStationEvidence && ["station", "delivered", "complete"].includes(stage);
+  el("lesson").classList.toggle("with-station", withStation);
+  el("station-proof").hidden = !withStation;
   el("observation").hidden = !reading;
   el("world").style.visibility = reading ? "hidden" : "";
   showingRoute = routeStages.has(stage);
@@ -42,7 +49,7 @@ function show(stageName, detail) {
   el("scene-caption").hidden = reading;
   document.querySelector(".route-swatch").hidden = !showingRoute;
   el("old-edge-key").hidden = stage !== "detour" || !evidence?.oldSegment;
-  const flightLabel = stage === "delivered" ? "图书馆 → 物流中心" : "物流中心 → 图书馆";
+  const flightLabel = stage === "delivered" ? "图书馆 → 物流中心" : stage === "station" ? "图书馆 · 正在进站" : "物流中心 → 图书馆";
   el("scene-text").textContent = showingRoute ? (stage === "route" ? "原计划航线" : "重新规划的航线") : flightLabel;
 }
 
@@ -139,6 +146,13 @@ function keepSiteStill(unit, measuredRay) {
 }
 
 function showObservation(event) {
+  if (event.stationAdmission && ["detour", "station"].includes(stage)) {
+    const unit = sim.units[event.unit];
+    hasStationEvidence = drawStationEvidence(el("station-proof"), unit.last, unit.pixels, event.stationAdmission);
+    city.switchView("follow", 2.5);
+    show("station", hasStationEvidence ? undefined : "已获准进站，这次未收到完整的两帧模型记录。");
+    return;
+  }
   if (stage !== "search" || !event.passage) return;
   const unit = sim.units[event.unit];
   hold();
@@ -149,7 +163,7 @@ function showObservation(event) {
   const edge = event.passage.edge;
   const nextIndex = originalRoute.findIndex((next, i) => i > 0 && edgeId(originalRoute[i - 1], next) === edge);
   const oldSegment = nextIndex > 0 ? originalRoute.slice(nextIndex - 1, nextIndex + 1).map(node => airWaypoint(node, unit.index)) : null;
-  evidence = {frame: event.frame, edge, oldSegment};
+  evidence = {frame: event.frame, edge, oldSegment, range: Math.hypot(...ray).toFixed(1)};
   keepSiteStill(unit, ray);
   city.showFrame(unit.pixels);
   const ctx = city.imageContext;
@@ -162,7 +176,7 @@ function showObservation(event) {
   ctx.strokeStyle = "#8affdb";
   ctx.stroke();
   el("frame-label").textContent = "机载画面 · F" + event.frame;
-  show("evidence", "圆圈处的挡板距机载相机 " + Math.hypot(...ray).toFixed(1) + " 米。你会让无人机继续向前，还是换条路？");
+  show("evidence", "彩色图像里能看见挡板，对应位置的深度测量给出 " + evidence.range + " 米。还能沿原路向前飞吗？");
 }
 
 function fail(message) {
@@ -202,17 +216,25 @@ function update() {
       routeView();
       show("detour", route.includes("plaza") ? "它改从广场一侧飞往图书馆。沿青线看，原来被挡的通道已经绕开了。" : undefined);
     }
-  } else if (stage === "detour" && b.receipts.length) {
+  } else if (stage === "station" && b.phase === "holding") {
+    hasStationEvidence = false;
+    routeView();
+    show("detour", "本次进站已撤回，无人机正在等待新的站牌观测。");
+  } else if ((stage === "station" || stage === "detour") && b.receipts.length) {
     city.switchView("cinema");
-    show("delivered");
+    show("delivered", hasStationEvidence ? undefined : "图书馆已完成交接。此次进站的模型输入未完整记录。");
   } else if (stage === "delivered" && sim.final && b.phase === "done") {
-    show("complete", "请指着 F" + evidence.frame + " 的测距点，用一句话解释它为什么退回、绕路，再把包裹送到图书馆。");
+    el("frame-label").textContent = "改道时的机载画面 · F" + evidence.frame + " · " + evidence.range + " 米";
+    show("complete", hasStationEvidence
+      ? "用 F" + evidence.frame + " 的测距点解释绕行，再用两次站牌分类结果解释为什么可以交接。"
+      : "可以回看 F" + evidence.frame + " 的改道依据。此次进站的模型输入未完整记录。");
   }
 }
 
 function start() {
   evidence = null;
-  sim.reset({station: 17, chapter: 4, fleet: false, weather: "day", avoid: [], gps: true});
+  hasStationEvidence = false;
+  sim.reset({station: 17, chapter: 4, fleet: false, weather: "day", avoid: [], gps: true, panelEvidence: true});
   closeView(sim.units[0]);
   sim.start();
   show("takeoff");

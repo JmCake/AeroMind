@@ -33,9 +33,9 @@ class PortablePanels:
         self.network=OpenCVNetwork(path)
         self.reader=PanelReader()
 
-    def inspect(self, bgr):
+    def inspect(self, bgr, *, model_inputs=None):
         readings=[]
-        for station,tile,quad in self.reader.patches(bgr):
+        for station,tile,quad in self.reader.patches(bgr, model_inputs):
             probs=self.network.probabilities(tile[None,None].astype(np.float32)/255)[0]
             index=int(probs.argmax())
             readings.append(Reading(station,LABELS[index],float(probs[index]),tuple(tuple(map(float,p)) for p in quad)))

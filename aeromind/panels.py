@@ -14,7 +14,7 @@ class PanelReader:
         parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
         self.detector = cv2.aruco.ArucoDetector(DICTIONARY, parameters)
 
-    def patches(self, image):
+    def patches(self, image, model_inputs=None):
         if image.dtype != np.uint8 or image.ndim != 3 or image.shape[2] != 3:
             raise ValueError("Expected an 8-bit BGR camera frame")
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -35,6 +35,8 @@ class PanelReader:
                 continue
             rectify = cv2.getPerspectiveTransform(quad, rect)
             tile = cv2.warpPerspective(gray, rectify, (PATCH_SIZE, PATCH_SIZE))
+            if model_inputs is not None:
+                model_inputs[station] = tile
             yield station, tile, quad
 
 

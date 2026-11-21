@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#153a38">
-  <title>无人机为什么会改道？ · AeroMind</title>
+  <title>无人机如何从图像决定下一步？ · AeroMind</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/app/classroom.css">
   <script type="importmap">{"imports":{"three":"/three/three.module.js","three/addons/":"/addons/"}}</script>
@@ -22,13 +22,24 @@
         <figure><canvas id="site-still" width="640" height="360" role="img" aria-label="作出判断时，无人机与施工挡板的相对位置"></canvas><figcaption>施工现场</figcaption></figure>
         <figure><canvas id="feed" width="320" height="180" role="img" aria-label="触发判断的机载画面，圆圈标出前方的一个实际测距点"></canvas><figcaption id="frame-label"></figcaption></figure>
       </div>
+      <section id="station-proof" aria-label="图书馆进站时的模型证据" hidden>
+        <figure class="station-camera">
+          <canvas id="station-frame" width="320" height="180" role="img" aria-label="机载相机原图，框内是送入分类网络的站牌区域"></canvas>
+          <figcaption id="station-source"></figcaption>
+        </figure>
+        <div class="station-readout">
+          <h2 id="input-title">卷积网络读到的图像</h2>
+          <ol id="station-readings"></ol>
+          <p id="station-rule"></p>
+        </div>
+      </section>
       <div class="scene-caption" id="scene-caption"><span class="route-swatch" hidden></span><span id="scene-text">物流中心 → 图书馆</span><span id="old-edge-key" hidden><i></i>受阻原路</span></div>
     </section>
     <section class="teacher" aria-label="课堂操作">
       <div class="copy" aria-live="polite" aria-atomic="true">
         <p class="topic" id="topic">图书馆配送</p>
-        <h1 id="question">无人机为什么会改道？</h1>
-        <p id="explanation">从物流中心送一件包裹到图书馆。先看它准备怎么走。</p>
+        <h1 id="question">无人机如何从图像决定下一步？</h1>
+        <p id="explanation">路上看它怎样发现挡板，到站看它怎样读懂站牌。</p>
       </div>
       <button type="button" id="next" disabled>正在载入…</button>
     </section>
