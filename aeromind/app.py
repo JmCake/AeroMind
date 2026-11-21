@@ -20,7 +20,7 @@ from .observations import ImageService
 
 
 ROOT=Path(__file__).resolve().parents[1]
-CLASSROOM_EDITION = "classroom.3"
+CLASSROOM_EDITION = "classroom.4"
 PUBLIC = {"/app/": ROOT/"web", "/assets/": ROOT/"ContentSource",
           "/three/": ROOT/"node_modules/three/build", "/addons/": ROOT/"node_modules/three/examples/jsm"}
 

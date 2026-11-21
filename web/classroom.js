@@ -60,11 +60,6 @@ function routeView() {
   city.controls.update();
 }
 
-function closeView(unit) {
-  city.switchView("follow", 1.8);
-  city.camera.position.fromArray(unit.pos).add(new Vector3(-1.71, 1.40, 2.16));
-}
-
 // Trace the planner's displayed 3D polyline in projector-sized pixels. The
 // overlay is on the spectator screen and never enters either sensor target.
 function drawRoute() {
@@ -136,6 +131,7 @@ function keepSiteStill(unit, measuredRay) {
   city.controls.update();
   const routeVisible = city.route.visible;
   city.route.visible = false;
+  city.animateCraft(sim.units, sim.time);
   city.draw(unit, sim.time);
   city.route.visible = routeVisible;
   const source = city.renderer.domElement, still = el("site-still");
@@ -235,7 +231,7 @@ function start() {
   evidence = null;
   hasStationEvidence = false;
   sim.reset({station: 17, chapter: 4, fleet: false, weather: "day", avoid: [], gps: true, panelEvidence: true});
-  closeView(sim.units[0]);
+  city.switchView("follow", 1.8);
   sim.start();
   show("takeoff");
 }
@@ -269,13 +265,11 @@ async function boot() {
     await city.load();
     sim = new Simulation(city, showObservation);
     city.tags.get("31").classList.add("outside-lesson");
-    closeView(sim.units[0]);
+    city.switchView("follow", 1.8);
     show("ready");
     city.renderer.setAnimationLoop(now => {
       if (stage === "evidence" || stage === "error" || stage === "complete") return;
-      // A pending sensor request holds the physics tick. Repainting the same
-      // city on a software renderer competes with that request for CPU time.
-      sim.frame(now, !sim.pending || sim.paused);
+      sim.frame(now);
       update();
       drawRoute();
     });
